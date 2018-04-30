@@ -1,0 +1,10 @@
+# Local data
+local
+
+# Maven Artifacts
+target
+
+# Intellij IDEA project files.
+.idea/
+*.iml
+
