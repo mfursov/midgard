@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "jsx": "react",
+    "target": "es6",
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "files": [
+    "src/site.ts"
+    //    "src/types/tsd.d.ts"
+  ]
+}
