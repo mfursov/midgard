@@ -67,13 +67,34 @@
                 <version>3.2.0</version>
                 <configuration>
                     <webResources>
+
+                        <!-- Application JS file -->
                         <webResource>
-                            <directory>${basedir}/src/main/webapp/WEB-INF</directory>
+                            <directory>${basedir}/js/dist</directory>
+                            <includes>
+                                <include>site.js</include>
+                            </includes>
+                            <targetPath>WEB-INF/classes/static/js</targetPath>
+                        </webResource>
+
+                        <!-- Static JS/HTML/CSS resources-->
+                        <webResource>
+                            <directory>${basedir}/js/static</directory>
                             <includes>
                                 <include>**/*</include>
                             </includes>
-                            <targetPath>WEB-INF</targetPath>
+                            <targetPath>WEB-INF/classes/static</targetPath>
                         </webResource>
+
+                        <!-- Merged CSS style -->
+                        <webResource>
+                            <directory>${basedir}/js/dist</directory>
+                            <includes>
+                                <include>style.css</include>
+                            </includes>
+                            <targetPath>WEB-INF/classes/static/css</targetPath>
+                        </webResource>
+
                     </webResources>
                 </configuration>
             </plugin>
@@ -93,6 +114,17 @@
         <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-servlet</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-websockets</artifactId>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
 
         <!-- Testing -->

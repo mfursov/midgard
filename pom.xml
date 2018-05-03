@@ -50,6 +50,19 @@
                 <version>${ktor.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.ktor</groupId>
+                <artifactId>ktor-websockets</artifactId>
+                <version>${ktor.version}</version>
+            </dependency>
+
+            <!-- Logging -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+
             <!-- Testing -->
             <dependency>
                 <groupId>junit</groupId>

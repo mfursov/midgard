@@ -1,3 +1,5 @@
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+
 module.exports = {
   entry: './src/site.ts',
   output: {
@@ -7,14 +9,13 @@ module.exports = {
     extensions: ['.js', '.ts', '.tsx']
   },
   module: {
-    // rules: [{ test: /\.ts(x)?$/, use: { loader: "ts-loader" } }]
-    rules: [{ test: /\.ts(x)?$/, loaders: ['babel-loader', 'ts-loader?silent=true'], exclude: /node_modules/ }]
-    // loaders: [{ test: /\.ts(x)?$/, loaders: ['babel-loader', 'ts-loader?silent=true'], exclude: /node_modules/ }]
+    rules: [
+      { test: /\.ts(x)?$/, loaders: ['babel-loader', 'ts-loader?silent=true'], exclude: /node_modules/ },
+      { test: /\.css$/, loader: ExtractTextPlugin.extract('css-loader') }
+    ]
   },
-  plugins: [],
-  stats: { children: false },
-  // externals: {
-  //   'react': 'React',
-  //   'react-dom': 'ReactDOM'
-  // }
+  plugins: [
+    new ExtractTextPlugin({ filename: 'style.css', allChunks: true })
+  ],
+  stats: { children: false }
 };
