@@ -1,11 +1,6 @@
 package midgard.area.generator
 
-import midgard.area.model.Area
-import midgard.area.model.AreaId
 import midgard.area.model.Direction
-import midgard.area.model.Exit
-import midgard.area.model.Place
-import midgard.area.model.PlaceId
 
 class RoadAreaGenerator : AreaGenerator() {
     enum class TurnsCount {
@@ -28,10 +23,10 @@ class RoadAreaGenerator : AreaGenerator() {
 
     var turnsCount: TurnsCount = TurnsCount.Low
 
-    override fun generate(): Area {
+    override fun generate(): GenArea {
         val places = generatePlaces(areaSize)
         linkPlaces(places, turnsCount)
-        return Area(AreaId("a-1"), places)
+        return GenArea(places)
     }
 
     private fun generatePlaces(areaSize: AreaSize) = (1..(
@@ -40,16 +35,16 @@ class RoadAreaGenerator : AreaGenerator() {
                 AreaSize.Medium -> 5
                 AreaSize.Large -> 8
             }))
-            .map { Place(PlaceId("p-$it")) }
+            .map { GenPlace() }
 
-    private fun linkPlaces(places: List<Place>, turnsCount: TurnsCount) {
+    private fun linkPlaces(places: List<GenPlace>, turnsCount: TurnsCount) {
         var prevDir: Direction? = null
         places.windowed(2).forEach {
             val p1 = it[0]
             val p2 = it[1]
             val dir: Direction = generateNewDirection(p1.exits.keys, prevDir, turnsCount)
-            p1.exits[dir] = Exit(p1, p2)
-            p2.exits[dir.reverse()] = Exit(p2, p1)
+            p1.exits[dir] = p2
+            p2.exits[dir.reverse()] = p1
             prevDir = dir
         }
     }
