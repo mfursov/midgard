@@ -13,13 +13,23 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
-class ChatServer {
+interface ChatServer {
+    suspend fun memberJoin(member: String, socket: WebSocketSession)
+    suspend fun memberRenamed(member: String, to: String)
+    suspend fun who(sender: String)
+    suspend fun help(sender: String)
+    suspend fun sendTo(recipient: String, sender: String, message: String)
+    suspend fun message(sender: String, message: String)
+    suspend fun memberLeft(member: String, socket: WebSocketSession);
+}
+
+class ChatServerImpl : ChatServer {
     val usersCounter = AtomicInteger()
     val memberNames = ConcurrentHashMap<String, String>()
     val members = ConcurrentHashMap<String, MutableList<WebSocketSession>>()
     val lastMessages = LinkedList<String>()
 
-    suspend fun memberJoin(member: String, socket: WebSocketSession) {
+    override suspend fun memberJoin(member: String, socket: WebSocketSession) {
         val name = memberNames.computeIfAbsent(member) { "user${usersCounter.incrementAndGet()}" }
         val list = members.computeIfAbsent(member) { CopyOnWriteArrayList<WebSocketSession>() }
         list.add(socket)
@@ -34,12 +44,12 @@ class ChatServer {
         }
     }
 
-    suspend fun memberRenamed(member: String, to: String) {
+    override suspend fun memberRenamed(member: String, to: String) {
         val oldName = memberNames.put(member, to) ?: member
         broadcast("server", "Member renamed from $oldName to $to")
     }
 
-    suspend fun memberLeft(member: String, socket: WebSocketSession) {
+    override suspend fun memberLeft(member: String, socket: WebSocketSession) {
         val connections = members[member]
         connections?.remove(socket)
 
@@ -49,19 +59,19 @@ class ChatServer {
         }
     }
 
-    suspend fun who(sender: String) {
+    override suspend fun who(sender: String) {
         members[sender]?.send(Frame.Text(memberNames.values.joinToString(prefix = "[server::who] ")))
     }
 
-    suspend fun help(sender: String) {
+    override suspend fun help(sender: String) {
         members[sender]?.send(Frame.Text("[server::help] Possible commands are: /user, /help and /who"))
     }
 
-    suspend fun sendTo(recipient: String, sender: String, message: String) {
+    override suspend fun sendTo(recipient: String, sender: String, message: String) {
         members[recipient]?.send(Frame.Text("[$sender] $message"))
     }
 
-    suspend fun message(sender: String, message: String) {
+    override suspend fun message(sender: String, message: String) {
         val name = memberNames[sender] ?: sender
         val formatted = "[$name] $message"
 

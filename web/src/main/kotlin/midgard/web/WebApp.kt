@@ -14,8 +14,8 @@ import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readText
 import io.ktor.response.respond
-import io.ktor.routing.Routing
 import io.ktor.routing.get
+import io.ktor.routing.routing
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.sessions.get
@@ -25,19 +25,23 @@ import io.ktor.util.nextNonce
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.channels.consumeEach
+import org.koin.ktor.ext.inject
+import org.koin.standalone.StandAloneContext.startKoin
 import java.time.Duration
-
-private val server = ChatServer()
 
 @Suppress("unused")
 fun Application.main() {
+    startKoin(listOf(appContext))
+
     install(DefaultHeaders)
     install(CallLogging)
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(10)
     }
 
-    install(Routing) {
+    val server: ChatServer by inject()
+
+    routing {
 
         install(Sessions) {
             cookie<ChatSession>("SESSION")
@@ -48,7 +52,6 @@ fun Application.main() {
                 call.sessions.set(ChatSession(nextNonce()))
             }
         }
-
 
         get("/hello") {
             call.respond("Hello!")
@@ -66,7 +69,7 @@ fun Application.main() {
             try {
                 incoming.consumeEach { frame ->
                     if (frame is Frame.Text) {
-                        receivedMessage(session.id, frame.readText())
+                        receivedMessage(server, session.id, frame.readText())
                     }
                 }
             } finally {
@@ -84,7 +87,7 @@ fun Application.main() {
 
 data class ChatSession(val id: String)
 
-private suspend fun receivedMessage(id: String, command: String) {
+private suspend fun receivedMessage(server: ChatServer, id: String, command: String) {
     when {
         command.startsWith("/who") -> server.who(id)
         command.startsWith("/user") -> {

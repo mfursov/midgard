@@ -121,6 +121,11 @@
             <artifactId>ktor-websockets</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.koin</groupId>
+            <artifactId>koin-ktor</artifactId>
+        </dependency>
+
         <!-- Logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
