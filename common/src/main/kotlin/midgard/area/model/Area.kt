@@ -1,7 +1,6 @@
 package midgard.area.model
 
 import kotlinx.serialization.Serializable
-import java.util.EnumMap
 
 enum class Direction {
 
@@ -28,7 +27,7 @@ data class PlaceId(val id: String)
 data class ObjId(val id: String)
 
 @Serializable
-data class CharId(val id: String)
+data class CharacterId(val id: String)
 
 @Serializable
 data class Area(
@@ -39,11 +38,11 @@ data class Area(
 
 @Serializable
 data class Place(
-        val id: AreaId,
+        val id: PlaceId,
         val name: String,
-        val objects: MutableSet<ObjId>,
-        val characters: MutableSet<CharId>,
-        val exits: EnumMap<Direction, ExitInfo>
+        val objects: MutableSet<ObjId> = mutableSetOf(),
+        val characters: MutableSet<CharacterId> = mutableSetOf(),
+        val exits: MutableMap<Direction, ExitInfo> = mutableMapOf()
 )
 
 @Serializable
@@ -57,7 +56,8 @@ data class Obj(
 )
 
 @Serializable
-data class Char(
-        val id: CharId
+data class Character(
+        val id: CharacterId,
+        val placeId: PlaceId
 )
 

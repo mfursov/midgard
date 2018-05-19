@@ -25,13 +25,18 @@ import io.ktor.util.nextNonce
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.channels.consumeEach
+import midgard.Midgard
+import midgard.appContext
+import midgard.area.model.Character
+import midgard.area.model.CharacterId
+import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
 import org.koin.standalone.StandAloneContext.startKoin
 import java.time.Duration
 
 @Suppress("unused")
 fun Application.main() {
-    startKoin(listOf(appContext))
+    startKoin(listOf(appContext, webAppContext))
 
     install(DefaultHeaders)
     install(CallLogging)
@@ -39,17 +44,23 @@ fun Application.main() {
         pingPeriod = Duration.ofSeconds(10)
     }
 
+//    val server: ChatServer = get()
     val server: ChatServer by inject()
 
     routing {
 
         install(Sessions) {
-            cookie<ChatSession>("SESSION")
+            cookie<CharacterSession>("SESSION")
         }
 
         intercept(ApplicationCallPipeline.Infrastructure) {
-            if (call.sessions.get<ChatSession>() == null) {
-                call.sessions.set(ChatSession(nextNonce()))
+            if (call.sessions.get<CharacterSession>() == null) {
+                val midgard = get<Midgard>()
+                val place = midgard.places.values.first()
+                val ch = Character(CharacterId("char-1"), place.id)
+                place.characters.add(ch.id)
+                midgard.characters[ch.id] = ch
+                call.sessions.set(CharacterSession(nextNonce(), ch.id))
             }
         }
 
@@ -58,7 +69,7 @@ fun Application.main() {
         }
 
         webSocket("/ws") {
-            val session = call.sessions.get<ChatSession>()
+            val session = call.sessions.get<CharacterSession>()
             if (session == null) {
                 close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "No session"))
                 return@webSocket
@@ -74,6 +85,11 @@ fun Application.main() {
                 }
             } finally {
                 server.memberLeft(session.id, this)
+                val midgard = get<Midgard>()
+                val ch = midgard.characters[session.charId]!!
+                val place = midgard.places[ch.placeId]!!
+                place.characters.remove(ch.id)
+                midgard.characters.remove(ch.id)
             }
         }
 
@@ -85,7 +101,7 @@ fun Application.main() {
     }
 }
 
-data class ChatSession(val id: String)
+data class CharacterSession(val id: String, val charId: CharacterId)
 
 private suspend fun receivedMessage(server: ChatServer, id: String, command: String) {
     when {

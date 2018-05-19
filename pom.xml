@@ -4,7 +4,7 @@
 
     <groupId>midgard</groupId>
     <artifactId>midgard</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <name>midgard</name>
     <packaging>pom</packaging>
 
@@ -17,7 +17,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.2.41</kotlin.version>
         <ktor.version>0.9.2</ktor.version>
+        <koin.version>0.9.2</koin.version>
         <serialization.version>0.5.0</serialization.version>
+
+        <!--TODO: use it in submodules or remove-->
+        <midgard.version>1.0.0</midgard.version>
     </properties>
 
     <repositories>
@@ -72,10 +76,17 @@
                 <version>${ktor.version}</version>
             </dependency>
 
+            <!-- Dependency injection -->
+            <dependency>
+                <groupId>org.koin</groupId>
+                <artifactId>koin-core</artifactId>
+                <version>${koin.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.koin</groupId>
                 <artifactId>koin-ktor</artifactId>
-                <version>0.9.2</version>
+                <version>${koin.version}</version>
             </dependency>
 
             <!-- Logging -->

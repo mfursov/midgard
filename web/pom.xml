@@ -7,7 +7,7 @@
     <parent>
         <groupId>midgard</groupId>
         <artifactId>midgard</artifactId>
-        <version>1.0</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -104,6 +104,13 @@
 
     <dependencies>
 
+        <!-- Midgard common -->
+        <dependency>
+            <groupId>midgard</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Kotlin & Runtime -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -121,6 +128,7 @@
             <artifactId>ktor-websockets</artifactId>
         </dependency>
 
+        <!-- Dependency injection -->
         <dependency>
             <groupId>org.koin</groupId>
             <artifactId>koin-ktor</artifactId>
