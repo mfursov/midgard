@@ -8,8 +8,14 @@ import midgard.area.model.Place
 import midgard.area.model.PlaceId
 
 class Midgard {
+    /** All active places in the world. */
     val places = generatePlaces()
+
+    /** Online characters map. */
     val characters: MutableMap<CharacterId, Character> = mutableMapOf()
+
+    /** Offline characters map. */
+    val offlineCharacters: MutableMap<CharacterId, Character> = mutableMapOf()
 }
 
 fun generatePlaces(): Map<PlaceId, Place> {

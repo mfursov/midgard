@@ -5,23 +5,41 @@ import midgard.ActionHandler
 import midgard.ActionId
 import midgard.ActionType
 import midgard.Event
+import midgard.Midgard
 import midgard.area.model.CharacterId
+import midgard.event.LinkCharacterEvent
+import midgard.event.UnlinkCharacterEvent
+import midgard.nextEid
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
 val LinkCharacterActionType = ActionType("link-character")
-val UnlinkCharacterActionType = ActionType("unlink-character")
 
-class LinkCharacterAction(id: ActionId, charId: CharacterId) : Action(LinkCharacterActionType, id)
-class UnlinkCharacterAction(id: ActionId, charId: CharacterId) : Action(UnlinkCharacterActionType, id)
+class LinkCharacterAction(id: ActionId, val charId: CharacterId) : Action(LinkCharacterActionType, id)
 
-class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction> {
+class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction>, KoinComponent {
+    val midgard by inject<Midgard>()
+
     override fun handleAction(action: LinkCharacterAction): List<Event> {
-        return emptyList()
+        val ch = midgard.offlineCharacters[action.charId] ?: return emptyList()
+        midgard.characters[ch.id] = ch
+        midgard.offlineCharacters.remove(ch.id)
+        return listOf(LinkCharacterEvent(nextEid(), ch.id))
     }
 }
 
-class UnlinkCharacterActionHandler : ActionHandler<UnlinkCharacterAction> {
+val UnlinkCharacterActionType = ActionType("unlink-character")
+
+class UnlinkCharacterAction(id: ActionId, val charId: CharacterId) : Action(UnlinkCharacterActionType, id)
+
+class UnlinkCharacterActionHandler : ActionHandler<UnlinkCharacterAction>, KoinComponent {
+    val midgard by inject<Midgard>()
+
     override fun handleAction(action: UnlinkCharacterAction): List<Event> {
-        return emptyList()
+        val ch = midgard.characters[action.charId] ?: return emptyList()
+        midgard.offlineCharacters[ch.id] = ch
+        midgard.characters.remove(ch.id)
+        return listOf(UnlinkCharacterEvent(nextEid(), ch.id))
     }
 }
 

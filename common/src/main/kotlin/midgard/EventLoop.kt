@@ -47,3 +47,9 @@ class EventLoopImpl : EventLoop, KoinComponent {
     }
 }
 
+//TODO: rework to Kotlin version of atomic number.
+private var eventIdCounter = 0;
+
+fun nextEid(): EventId {
+    return EventId("" + (++eventIdCounter))
+}
