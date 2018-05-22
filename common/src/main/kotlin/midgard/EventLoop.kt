@@ -23,7 +23,7 @@ interface EventLoop {
 
 //TODO: make a function?
 interface ActionHandler<in A : Action> {
-    fun handleAction(action: A): List<Event>
+    fun handleAction(action: A, midgard: Midgard): List<Event>
 }
 
 class EventLoopImpl : EventLoop, KoinComponent {
@@ -34,7 +34,7 @@ class EventLoopImpl : EventLoop, KoinComponent {
 
     override fun postAction(action: Action) {
         val actionHandler = actionHandlers[action.type] ?: throw RuntimeException("Unsupported action type: " + action.type)
-        val events = actionHandler.handleAction(action)
+        val events = actionHandler.handleAction(action, midgard)
         events.forEach { event -> eventListeners[event.type]?.forEach { it.onEvent(event) } }
     }
 

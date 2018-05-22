@@ -6,8 +6,11 @@ import midgard.area.model.Direction
 import midgard.area.model.ExitInfo
 import midgard.area.model.Place
 import midgard.area.model.PlaceId
+import midgard.util.RandomGenerator
 
 class Midgard {
+    val rnd = RandomGenerator(1L);
+
     /** All active places in the world. */
     val places = generatePlaces()
 

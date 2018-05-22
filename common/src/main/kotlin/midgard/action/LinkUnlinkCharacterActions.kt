@@ -10,17 +10,14 @@ import midgard.area.model.CharacterId
 import midgard.event.LinkCharacterEvent
 import midgard.event.UnlinkCharacterEvent
 import midgard.nextEid
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 
 val LinkCharacterActionType = ActionType("link-character")
 
 class LinkCharacterAction(id: ActionId, val charId: CharacterId) : Action(LinkCharacterActionType, id)
 
-class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction>, KoinComponent {
-    val midgard by inject<Midgard>()
+class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction> {
 
-    override fun handleAction(action: LinkCharacterAction): List<Event> {
+    override fun handleAction(action: LinkCharacterAction, midgard: Midgard): List<Event> {
         val ch = midgard.offlineCharacters[action.charId] ?: return emptyList()
         midgard.characters[ch.id] = ch
         midgard.offlineCharacters.remove(ch.id)
@@ -32,10 +29,9 @@ val UnlinkCharacterActionType = ActionType("unlink-character")
 
 class UnlinkCharacterAction(id: ActionId, val charId: CharacterId) : Action(UnlinkCharacterActionType, id)
 
-class UnlinkCharacterActionHandler : ActionHandler<UnlinkCharacterAction>, KoinComponent {
-    val midgard by inject<Midgard>()
+class UnlinkCharacterActionHandler : ActionHandler<UnlinkCharacterAction> {
 
-    override fun handleAction(action: UnlinkCharacterAction): List<Event> {
+    override fun handleAction(action: UnlinkCharacterAction, midgard: Midgard): List<Event> {
         val ch = midgard.characters[action.charId] ?: return emptyList()
         midgard.offlineCharacters[ch.id] = ch
         midgard.characters.remove(ch.id)
