@@ -25,7 +25,7 @@ import io.ktor.util.nextNonce
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.channels.consumeEach
-import midgard.Midgard
+import midgard.World
 import midgard.appContext
 import midgard.area.model.Character
 import midgard.area.model.CharacterId
@@ -55,7 +55,7 @@ fun Application.main() {
 
         intercept(ApplicationCallPipeline.Infrastructure) {
             if (call.sessions.get<CharacterSession>() == null) {
-                val midgard = get<Midgard>()
+                val midgard = get<World>()
                 val place = midgard.places.values.first()
                 val ch = Character(CharacterId("char-1"), place.id)
                 place.characters.add(ch.id)
@@ -85,7 +85,7 @@ fun Application.main() {
                 }
             } finally {
                 server.memberLeft(session.id, this)
-                val midgard = get<Midgard>()
+                val midgard = get<World>()
                 val ch = midgard.characters[session.charId]!!
                 val place = midgard.places[ch.placeId]!!
                 place.characters.remove(ch.id)

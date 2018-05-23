@@ -2,7 +2,8 @@ package midgard.area.model
 
 import kotlinx.serialization.Serializable
 
-enum class Direction {
+enum class
+Direction {
 
     North, East, South, West, Up, Down;
 
@@ -58,6 +59,6 @@ data class Obj(
 @Serializable
 data class Character(
         val id: CharacterId,
-        val placeId: PlaceId
+        var placeId: PlaceId
 )
 

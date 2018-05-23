@@ -8,7 +8,7 @@ import midgard.area.model.Place
 import midgard.area.model.PlaceId
 import midgard.util.RandomGenerator
 
-class Midgard {
+class World {
     val rnd = RandomGenerator(1L);
 
     /** All active places in the world. */
@@ -19,6 +19,9 @@ class Midgard {
 
     /** Offline characters map. */
     val offlineCharacters: MutableMap<CharacterId, Character> = mutableMapOf()
+
+    /** List of all pending events. */
+    val events: MutableList<Event> = mutableListOf()
 }
 
 fun generatePlaces(): Map<PlaceId, Place> {

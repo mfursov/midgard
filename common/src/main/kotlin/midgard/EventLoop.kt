@@ -21,21 +21,22 @@ interface EventLoop {
     fun removeEventListener(eventType: EventType, eventListener: EventListener<Event>)
 }
 
-//TODO: make a function?
 interface ActionHandler<in A : Action> {
-    fun handleAction(action: A, midgard: Midgard): List<Event>
+    val type: ActionType
+    fun handleAction(action: A, world: World)
 }
 
 class EventLoopImpl : EventLoop, KoinComponent {
-    val midgard by inject<Midgard>()
+    val world by inject<World>()
 
     val actionHandlers: Map<ActionType, ActionHandler<Action>> by inject("actionHandlers")
     val eventListeners: MutableMap<EventType, MutableList<EventListener<Event>>> = mutableMapOf()
 
     override fun postAction(action: Action) {
         val actionHandler = actionHandlers[action.type] ?: throw RuntimeException("Unsupported action type: " + action.type)
-        val events = actionHandler.handleAction(action, midgard)
-        events.forEach { event -> eventListeners[event.type]?.forEach { it.onEvent(event) } }
+        actionHandler.handleAction(action, world)
+        world.events.forEach { event -> eventListeners[event.type]?.forEach { it.onEvent(event) } }
+        world.events.clear()
     }
 
     override fun addEventListener(eventType: EventType, eventListener: EventListener<Event>) {
@@ -48,7 +49,7 @@ class EventLoopImpl : EventLoop, KoinComponent {
 }
 
 //TODO: rework to Kotlin version of atomic number.
-private var eventIdCounter = 0;
+private var eventIdCounter = 0
 
 fun nextEid(): EventId {
     return EventId("" + (++eventIdCounter))

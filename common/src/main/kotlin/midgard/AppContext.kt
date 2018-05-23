@@ -4,7 +4,7 @@ import org.koin.dsl.module.applicationContext
 
 
 val appContext = applicationContext {
-    bean { Midgard() }
+    bean { World() }
     bean { EventLoopImpl() as EventLoop }
     bean("actionHandlers") { buildActionHandlers() }
 }
