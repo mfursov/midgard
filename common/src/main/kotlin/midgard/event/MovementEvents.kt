@@ -1,11 +1,19 @@
 package midgard.event
 
 import midgard.Event
-import midgard.EventId
 import midgard.EventType
 import midgard.area.model.CharacterId
 import midgard.area.model.Direction
 
-val WalkEventType = EventType("walk");
 
-class WalkEvent(id: EventId, val charId: CharacterId, val originalDirection: Direction) : Event(WalkEventType, id);
+class CharacterEntersEvent(val charId: CharacterId, val originalDirection: Direction) : Event(TYPE) {
+    companion object {
+        val TYPE = EventType("character-enters")
+    }
+}
+
+class CharacterLeavesEvents(val charId: CharacterId, val direction: Direction) : Event(TYPE) {
+    companion object {
+        val TYPE = EventType("character-leaves")
+    }
+}

@@ -57,7 +57,7 @@ fun Application.main() {
             if (call.sessions.get<CharacterSession>() == null) {
                 val midgard = get<World>()
                 val place = midgard.places.values.first()
-                val ch = Character(CharacterId("char-1"), place.id)
+                val ch = Character(CharacterId("char-1"), "name", place.id)
                 place.characters.add(ch.id)
                 midgard.characters[ch.id] = ch
                 call.sessions.set(CharacterSession(nextNonce(), ch.id))

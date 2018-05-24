@@ -2,17 +2,15 @@ package midgard.action
 
 import midgard.Action
 import midgard.ActionHandler
-import midgard.ActionId
 import midgard.ActionType
 import midgard.World
 import midgard.area.model.CharacterId
-import midgard.event.LinkCharacterEvent
-import midgard.event.UnlinkCharacterEvent
-import midgard.nextEid
+import midgard.event.CharacterLinkedEvent
+import midgard.event.CharacterUnlinkedEvent
 
 private val LinkCharacterActionType = ActionType("link-character")
 
-class LinkCharacterAction(id: ActionId, val charId: CharacterId) : Action(LinkCharacterActionType, id)
+class LinkCharacterAction(val charId: CharacterId) : Action(LinkCharacterActionType)
 
 class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction> {
     override val type: ActionType
@@ -22,13 +20,13 @@ class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction> {
         val ch = world.offlineCharacters[action.charId] ?: return
         world.characters[ch.id] = ch
         world.offlineCharacters.remove(ch.id)
-        world.events.add(LinkCharacterEvent(nextEid(), ch.id))
+        world.events.add(CharacterLinkedEvent(ch.id))
     }
 }
 
 private val UnlinkCharacterActionType = ActionType("unlink-character")
 
-class UnlinkCharacterAction(id: ActionId, val charId: CharacterId) : Action(UnlinkCharacterActionType, id)
+class UnlinkCharacterAction(val charId: CharacterId) : Action(UnlinkCharacterActionType)
 
 class UnlinkCharacterActionHandler : ActionHandler<UnlinkCharacterAction> {
     override val type: ActionType
@@ -38,9 +36,6 @@ class UnlinkCharacterActionHandler : ActionHandler<UnlinkCharacterAction> {
         val ch = world.characters[action.charId] ?: return
         world.offlineCharacters[ch.id] = ch
         world.characters.remove(ch.id)
-        world.events.add(UnlinkCharacterEvent(nextEid(), ch.id))
+        world.events.add(CharacterUnlinkedEvent(ch.id))
     }
 }
-
-
-

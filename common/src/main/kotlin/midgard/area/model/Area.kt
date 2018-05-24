@@ -59,6 +59,7 @@ data class Obj(
 @Serializable
 data class Character(
         val id: CharacterId,
+        val name: String,
         var placeId: PlaceId
 )
 

@@ -5,11 +5,14 @@ import org.koin.standalone.inject
 
 data class ActionType(val type: String)
 data class ActionId(val id: String)
-open class Action(val type: ActionType, val id: ActionId)
+
+open class Action(val type: ActionType) {
+    lateinit var id: ActionId
+}
 
 data class EventType(val type: String)
 data class EventId(val id: String)
-open class Event(val type: EventType, val id: EventId)
+open class Event(val type: EventType, val id: EventId = nextEventId())
 
 interface EventListener<in E : Event> {
     fun onEvent(e: E)
@@ -33,6 +36,7 @@ class EventLoopImpl : EventLoop, KoinComponent {
     val eventListeners: MutableMap<EventType, MutableList<EventListener<Event>>> = mutableMapOf()
 
     override fun postAction(action: Action) {
+        action.id = nextActionId()
         val actionHandler = actionHandlers[action.type] ?: throw RuntimeException("Unsupported action type: " + action.type)
         actionHandler.handleAction(action, world)
         world.events.forEach { event -> eventListeners[event.type]?.forEach { it.onEvent(event) } }
@@ -49,8 +53,15 @@ class EventLoopImpl : EventLoop, KoinComponent {
 }
 
 //TODO: rework to Kotlin version of atomic number.
+private var actionIdCounter = 0
+
+fun nextActionId(): ActionId {
+    return ActionId("a-" + (++actionIdCounter))
+}
+
+//TODO: rework to Kotlin version of atomic number.
 private var eventIdCounter = 0
 
-fun nextEid(): EventId {
-    return EventId("" + (++eventIdCounter))
+fun nextEventId(): EventId {
+    return EventId("e-" + (++eventIdCounter))
 }

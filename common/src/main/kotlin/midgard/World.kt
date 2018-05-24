@@ -20,6 +20,9 @@ class World {
     /** Offline characters map. */
     val offlineCharacters: MutableMap<CharacterId, Character> = mutableMapOf()
 
+    /** Removed characters. They live here for some period of time. */
+    val removedCharacters: MutableMap<CharacterId, Character> = mutableMapOf()
+
     /** List of all pending events. */
     val events: MutableList<Event> = mutableListOf()
 }
