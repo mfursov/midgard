@@ -1,6 +1,7 @@
 package midgard.console
 
 import midgard.EventLoop
+import midgard.action.CreateCharacterAction
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
@@ -17,6 +18,8 @@ class ConsoleServer : KoinComponent {
     val eventLoop by inject<EventLoop>()
 
     fun start() {
+        val characterName = "Odin"
+        eventLoop.postAction(CreateCharacterAction(characterName))
         //todo: eventLoop.postAction(LinkCharacterAction())
         var line: String?
         do {

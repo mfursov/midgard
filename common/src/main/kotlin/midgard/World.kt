@@ -25,6 +25,8 @@ class World {
 
     /** List of all pending events. */
     val events: MutableList<Event> = mutableListOf()
+
+    var characterIdCounter = 0;
 }
 
 fun generatePlaces(): Map<PlaceId, Place> {
