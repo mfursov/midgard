@@ -4,11 +4,11 @@ import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
+import kotlin.reflect.KClass
 
-data class ActionType(val type: String)
 data class ActionId(val id: String)
 
-open class Action(val type: ActionType) {
+open class Action {
     lateinit var id: ActionId
 }
 
@@ -19,23 +19,23 @@ open class Event(val id: EventId = nextEventId())
 class DummyEvent : Event()
 
 interface EventLoop {
-    fun postAction(action: Action): Deferred<Action>
+    fun post(action: Action): Deferred<Action>
     fun <R> acceptOnce(f: (e: Event) -> R?): Deferred<R>
 }
 
 interface ActionHandler<in A : Action> {
-    val type: ActionType
     fun handleAction(action: A, world: World)
 }
 
 class EventLoopImpl : EventLoop, KoinComponent {
     val world by inject<World>()
-    val actionHandlers: Map<ActionType, ActionHandler<Action>> by inject("actionHandlers")
+    val actionHandlers: Map<KClass<Action>, ActionHandler<Action>> by inject("actionHandlers")
 
-    override fun postAction(action: Action): Deferred<Action> {
+    override fun post(action: Action): Deferred<Action> {
         action.id = nextActionId()
         return async(block = {
-            val actionHandler = actionHandlers[action.type] ?: throw RuntimeException("Unsupported action type: " + action.type)
+            val actionType = action::class
+            val actionHandler = actionHandlers[actionType] ?: throw RuntimeException("Unsupported action type: $actionType")
             actionHandler.handleAction(action, world)
             action
         })
@@ -44,7 +44,7 @@ class EventLoopImpl : EventLoop, KoinComponent {
     override fun <R> acceptOnce(f: (e: Event) -> R?): Deferred<R> {
         val e = DummyEvent()
         return async(block = {
-            f(e)!!
+            f(e)!! //todo
         })
     }
 }

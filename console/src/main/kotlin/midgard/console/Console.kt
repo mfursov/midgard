@@ -22,8 +22,8 @@ class ConsoleServer : KoinComponent {
     suspend fun start() {
         val characterName = "Odin"
         val charId = eventLoop.acceptOnce { (it as? NewCharacterCreatedEvent)?.charId }
-        eventLoop.postAction(CreateCharacterAction(characterName)).await()
-        eventLoop.postAction(LinkCharacterAction(charId.await())).await()
+        eventLoop.post(CreateCharacterAction(characterName)).await()
+        eventLoop.post(LinkCharacterAction(charId.await())).await()
         var line: String?
         do {
             line = readLine()
