@@ -1,5 +1,7 @@
 package midgard
 
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
@@ -10,18 +12,15 @@ open class Action(val type: ActionType) {
     lateinit var id: ActionId
 }
 
-data class EventType(val type: String)
 data class EventId(val id: String)
-open class Event(val type: EventType, val id: EventId = nextEventId())
+open class Event(val id: EventId = nextEventId())
 
-interface EventListener<in E : Event> {
-    fun onEvent(e: E)
-}
+//todo:
+class DummyEvent : Event()
 
 interface EventLoop {
-    fun postAction(action: Action)
-    fun addEventListener(eventType: EventType, eventListener: EventListener<Event>)
-    fun removeEventListener(eventType: EventType, eventListener: EventListener<Event>)
+    fun postAction(action: Action): Deferred<Action>
+    fun <R> acceptOnce(f: (e: Event) -> R?): Deferred<R>
 }
 
 interface ActionHandler<in A : Action> {
@@ -31,24 +30,22 @@ interface ActionHandler<in A : Action> {
 
 class EventLoopImpl : EventLoop, KoinComponent {
     val world by inject<World>()
-
     val actionHandlers: Map<ActionType, ActionHandler<Action>> by inject("actionHandlers")
-    val eventListeners: MutableMap<EventType, MutableList<EventListener<Event>>> = mutableMapOf()
 
-    override fun postAction(action: Action) {
+    override fun postAction(action: Action): Deferred<Action> {
         action.id = nextActionId()
-        val actionHandler = actionHandlers[action.type] ?: throw RuntimeException("Unsupported action type: " + action.type)
-        actionHandler.handleAction(action, world)
-        world.events.forEach { event -> eventListeners[event.type]?.forEach { it.onEvent(event) } }
-        world.events.clear()
+        return async(block = {
+            val actionHandler = actionHandlers[action.type] ?: throw RuntimeException("Unsupported action type: " + action.type)
+            actionHandler.handleAction(action, world)
+            action
+        })
     }
 
-    override fun addEventListener(eventType: EventType, eventListener: EventListener<Event>) {
-        eventListeners.getOrPut(eventType, { mutableListOf() }).add(eventListener)
-    }
-
-    override fun removeEventListener(eventType: EventType, eventListener: EventListener<Event>) {
-        eventListeners[eventType]?.remove(eventListener)
+    override fun <R> acceptOnce(f: (e: Event) -> R?): Deferred<R> {
+        val e = DummyEvent()
+        return async(block = {
+            f(e)!!
+        })
     }
 }
 

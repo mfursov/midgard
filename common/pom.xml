@@ -48,6 +48,7 @@
                     <compilerPlugins>
                         <plugin>kotlinx-serialization</plugin>
                     </compilerPlugins>
+                    <experimentalCoroutines>enable</experimentalCoroutines>
                 </configuration>
 
                 <dependencies>
