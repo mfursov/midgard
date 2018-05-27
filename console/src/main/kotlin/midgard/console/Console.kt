@@ -50,7 +50,7 @@ class ConsoleServer : KoinComponent, ConsoleInterface {
                 break
             }
             if (line == null) {
-                Thread.sleep(1000);
+                Thread.sleep(1000)
             } else {
                 synchronized(this) {
                     inputLines.add(line)
@@ -96,10 +96,7 @@ class ConsoleInterfaceProgram(val console: ConsoleInterface) : Program, KoinComp
                 val charId = findCharacter(world, true)
                 if (charId == null) ConnectionState.WaitingLink else ConnectionState.Playing
             }
-            ConnectionState.Playing -> {
-                play()
-                ConnectionState.Playing
-            }
+            ConnectionState.Playing -> play()
         }
     }
 
@@ -112,14 +109,14 @@ class ConsoleInterfaceProgram(val console: ConsoleInterface) : Program, KoinComp
                 .firstOrNull()
     }
 
-    fun play() {
-        val line = console.nextLine() ?: return
+    fun play(): ConnectionState {
+        val line = console.nextLine() ?: return ConnectionState.Playing
         when (line) {
             "n", "north" -> eventLoop.post(WalkAction(charId, Direction.North))
             "s", "south" -> eventLoop.post(WalkAction(charId, Direction.South))
             else -> println("Huh?")
         }
-
+        return ConnectionState.Playing
     }
 }
 
