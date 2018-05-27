@@ -2,19 +2,17 @@ package midgard.action
 
 import midgard.Action
 import midgard.ActionHandler
-import midgard.ActionType
 import midgard.World
 import midgard.area.model.CharacterId
 import midgard.event.CharacterLinkedEvent
 import midgard.event.CharacterUnlinkedEvent
+import kotlin.reflect.KClass
 
-private val LinkCharacterActionType = ActionType("link-character")
-
-class LinkCharacterAction(val charId: CharacterId) : Action(LinkCharacterActionType)
+class LinkCharacterAction(val charId: CharacterId) : Action()
 
 class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction> {
-    override val type: ActionType
-        get() = LinkCharacterActionType
+    override val actionType: KClass<LinkCharacterAction>
+        get() = LinkCharacterAction::class
 
     override fun handleAction(action: LinkCharacterAction, world: World) {
         val ch = world.offlineCharacters[action.charId] ?: return
@@ -24,13 +22,11 @@ class LinkCharacterActionHandler : ActionHandler<LinkCharacterAction> {
     }
 }
 
-private val UnlinkCharacterActionType = ActionType("unlink-character")
-
-class UnlinkCharacterAction(val charId: CharacterId) : Action(UnlinkCharacterActionType)
+class UnlinkCharacterAction(val charId: CharacterId) : Action()
 
 class UnlinkCharacterActionHandler : ActionHandler<UnlinkCharacterAction> {
-    override val type: ActionType
-        get() = UnlinkCharacterActionType
+    override val actionType: KClass<UnlinkCharacterAction>
+        get() = UnlinkCharacterAction::class
 
     override fun handleAction(action: UnlinkCharacterAction, world: World) {
         val ch = world.characters[action.charId] ?: return

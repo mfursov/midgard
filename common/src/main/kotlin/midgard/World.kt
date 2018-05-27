@@ -8,6 +8,7 @@ import midgard.area.model.Place
 import midgard.area.model.PlaceId
 import midgard.util.RandomGenerator
 
+//todo: make immutable
 class World {
     val rnd = RandomGenerator(1L);
 
@@ -30,11 +31,13 @@ class World {
 }
 
 fun generatePlaces(): Map<PlaceId, Place> {
-    val places = listOf<Place>()
+    val places = mutableListOf<Place>()
     val p1 = Place(PlaceId("place-1"), "Place 1")
     val p2 = Place(PlaceId("place-2"), "Place 2")
     p1.exits[Direction.North] = ExitInfo(p1.id)
     p2.exits[Direction.South] = ExitInfo(p2.id)
+    places.add(p1)
+    places.add(p2)
     return places.associateBy({ it.id })
 }
 

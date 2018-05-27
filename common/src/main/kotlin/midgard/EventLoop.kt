@@ -1,9 +1,8 @@
 package midgard
 
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
+import java.lang.Thread.sleep
 import kotlin.reflect.KClass
 
 data class ActionId(val id: String)
@@ -19,33 +18,81 @@ open class Event(val id: EventId = nextEventId())
 class DummyEvent : Event()
 
 interface EventLoop {
-    fun post(action: Action): Deferred<Action>
-    fun <R> acceptOnce(f: (e: Event) -> R?): Deferred<R>
+    fun start()
+    fun stop()
+
+    fun post(action: Action)
+    fun add(program: Program)
 }
 
-interface ActionHandler<in A : Action> {
+interface ActionHandler<A : Action> {
+    val actionType: KClass<A>
     fun handleAction(action: A, world: World)
 }
 
+interface Program {
+    fun tick(world: World)
+}
+
 class EventLoopImpl : EventLoop, KoinComponent {
+
+    var mainThread: Thread? = null
     val world by inject<World>()
     val actionHandlers: Map<KClass<Action>, ActionHandler<Action>> by inject("actionHandlers")
+    val programs = mutableListOf<Program>()
+    val pendingActions = mutableListOf<Action>()
 
-    override fun post(action: Action): Deferred<Action> {
+    override fun post(action: Action) {
         action.id = nextActionId()
-        return async(block = {
-            val actionType = action::class
-            val actionHandler = actionHandlers[actionType] ?: throw RuntimeException("Unsupported action type: $actionType")
-            actionHandler.handleAction(action, world)
-            action
-        })
+        pendingActions.add(action)
     }
 
-    override fun <R> acceptOnce(f: (e: Event) -> R?): Deferred<R> {
-        val e = DummyEvent()
-        return async(block = {
-            f(e)!! //todo
-        })
+    override fun add(program: Program) {
+        programs.add(program)
+    }
+
+    override fun start() {
+        synchronized(this) {
+            if (mainThread != null) {
+                throw IllegalStateException("Already started")
+            }
+            val thread = Thread({
+                while (mainThread != null) {
+                    tick(world)
+                    sleep(10)
+                }
+            })
+            mainThread = thread;
+            thread.start()
+        }
+    }
+
+    override fun stop() {
+        synchronized(this) {
+            if (mainThread == null) {
+                throw IllegalStateException("Already stopped")
+            }
+            mainThread = null
+        }
+    }
+
+    fun tick(world: World) {
+        //todo: log
+        processPendingActions()
+        runPrograms()
+    }
+
+    //todo: to be called from a dedicated thread
+    fun processPendingActions() {
+        pendingActions.forEach {
+            val actionType = it::class
+            val actionHandler = actionHandlers[actionType] ?: throw RuntimeException("Action has no handler: $actionType")
+            actionHandler.handleAction(it, world)
+        }
+    }
+
+    fun runPrograms() {
+        programs.forEach { it.tick(world) }
     }
 }
 

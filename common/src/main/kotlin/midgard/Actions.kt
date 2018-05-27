@@ -5,9 +5,10 @@ import midgard.action.LinkCharacterActionHandler
 import midgard.action.RemoveCharacterActionHandler
 import midgard.action.UnlinkCharacterActionHandler
 import midgard.action.WalkActionHandler
+import kotlin.reflect.KClass
 
-internal fun buildActionHandlers(): Map<ActionType, ActionHandler<Action>> {
-    val map = mutableMapOf<ActionType, ActionHandler<Action>>()
+internal fun buildActionHandlers(): Map<KClass<Action>, ActionHandler<Action>> {
+    val map = mutableMapOf<KClass<Action>, ActionHandler<Action>>()
     add(map, CreateCharacterActionHandler())
     add(map, RemoveCharacterActionHandler())
     add(map, LinkCharacterActionHandler())
@@ -16,10 +17,10 @@ internal fun buildActionHandlers(): Map<ActionType, ActionHandler<Action>> {
     return map
 }
 
-internal fun add(map: MutableMap<ActionType, ActionHandler<Action>>, actionHandler: ActionHandler<*>) {
-    if (map.containsKey(actionHandler.type)) {
-        throw RuntimeException("Duplicate action type: ${actionHandler.type}")
+@Suppress("UNCHECKED_CAST")
+internal fun add(map: MutableMap<KClass<Action>, ActionHandler<Action>>, actionHandler: ActionHandler<*>) {
+    if (map.containsKey(actionHandler::class as KClass<Action>)) {
+        throw RuntimeException("Duplicate action type: ${actionHandler::class}")
     }
-    @Suppress("UNCHECKED_CAST")
-    map[actionHandler.type] = actionHandler as ActionHandler<Action>
+    map[actionHandler.actionType as KClass<Action>] = actionHandler as ActionHandler<Action>
 }
