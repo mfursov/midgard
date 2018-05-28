@@ -9,6 +9,8 @@ import midgard.action.WalkAction
 import midgard.appContext
 import midgard.area.model.CharacterId
 import midgard.area.model.Direction
+import midgard.event.CharacterEntersEvent
+import midgard.event.CharacterLeavesEvent
 import midgard.event.NewCharacterCreatedEvent
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.StandAloneContext
@@ -38,8 +40,8 @@ interface ConsoleInterface {
 }
 
 class ConsoleServer : KoinComponent, ConsoleInterface {
-    val eventLoop by inject<EventLoop>()
-    val inputLines = mutableListOf<String>()
+    private val eventLoop by inject<EventLoop>()
+    private val inputLines = mutableListOf<String>()
 
     fun start() {
         eventLoop.add(ConsoleInterfaceProgram(this)) //todo: inject?
@@ -70,10 +72,10 @@ class ConsoleServer : KoinComponent, ConsoleInterface {
 
 const val NAME = "Odin"
 
-class ConsoleInterfaceProgram(val console: ConsoleInterface) : Program, KoinComponent {
-    val eventLoop by inject<EventLoop>()
-    var state = ConnectionState.Started
-    lateinit var charId: CharacterId
+class ConsoleInterfaceProgram(private val console: ConsoleInterface) : Program, KoinComponent {
+    private val eventLoop by inject<EventLoop>()
+    private var state = ConnectionState.Started
+    private lateinit var charId: CharacterId
 
     override fun tick(world: World) {
         state = when (state) {
@@ -82,7 +84,8 @@ class ConsoleInterfaceProgram(val console: ConsoleInterface) : Program, KoinComp
                 ConnectionState.WaitingCreate
             }
             ConnectionState.WaitingCreate -> {
-                val charId = findCharacter(world, false)
+                val charId = world.events.mapNotNull { it as? NewCharacterCreatedEvent }
+                        .filter { it.name == NAME }.map { it.charId }.firstOrNull()
                 if (charId != null) {
                     this.charId = charId
                 }
@@ -93,30 +96,58 @@ class ConsoleInterfaceProgram(val console: ConsoleInterface) : Program, KoinComp
                 ConnectionState.WaitingLink
             }
             ConnectionState.WaitingLink -> {
-                val charId = findCharacter(world, true)
-                if (charId == null) ConnectionState.WaitingLink else ConnectionState.Playing
+                if (!world.characters.containsKey(charId)) {
+                    ConnectionState.WaitingLink
+                } else {
+                    doLook(world)
+                    ConnectionState.Playing
+                }
             }
-            ConnectionState.Playing -> play()
+            ConnectionState.Playing -> {
+                processEvents(world)
+                processInput(world)
+            }
         }
     }
 
-    fun findCharacter(world: World, online: Boolean): CharacterId? {
-        return world.events
-                .mapNotNull { e -> e as? NewCharacterCreatedEvent }
-                .mapNotNull { e -> if (online) world.characters[e.charId] else world.offlineCharacters[e.charId] }
-                .filter { it.name == NAME }
-                .map { c -> c.id }
-                .firstOrNull()
+    private fun send2Char(text: String) {
+        println(text)
     }
 
-    fun play(): ConnectionState {
+    private fun processInput(world: World): ConnectionState {
         val line = console.nextLine() ?: return ConnectionState.Playing
         when (line) {
+            "l", "look" -> doLook(world) //todo: action?
             "n", "north" -> eventLoop.post(WalkAction(charId, Direction.North))
             "s", "south" -> eventLoop.post(WalkAction(charId, Direction.South))
-            else -> println("Huh?")
+            else -> send2Char("Huh?")
         }
         return ConnectionState.Playing
     }
+
+    private fun processEvents(world: World) {
+        world.events.forEach {
+            when {
+                it is CharacterLeavesEvent && it.charId == charId -> {
+                    val place = world.places[it.placeId] ?: return
+                    send2Char("Leaving ${place.name}")
+                }
+                it is CharacterEntersEvent && it.charId == charId -> {
+                    val place = world.places[it.placeId] ?: return
+                    send2Char("Entering ${place.name}")
+                }
+            }
+        }
+    }
+
+    private fun doLook(world: World) {
+        val char = world.characters[charId] ?: return
+        val place = world.places[char.placeId] ?: return
+        send2Char(place.name)
+        place.characters.filter { it != charId }
+                .mapNotNull { world.characters[it] }
+                .forEach { send2Char("${it.name} is here") }
+    }
+
 }
 

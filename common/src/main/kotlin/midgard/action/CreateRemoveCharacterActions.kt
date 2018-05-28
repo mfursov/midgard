@@ -20,7 +20,7 @@ class CreateCharacterActionHandler : ActionHandler<CreateCharacterAction> {
         val placeId = world.places.keys.asSequence().first()
         val character = Character(charId, action.characterName, placeId)
         world.offlineCharacters[character.id] = character
-        world.events.add(NewCharacterCreatedEvent(character.id))
+        world.events.add(NewCharacterCreatedEvent(character.id, character.name))
     }
 }
 

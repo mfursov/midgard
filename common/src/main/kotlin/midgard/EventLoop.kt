@@ -1,5 +1,7 @@
 package midgard
 
+import midgard.area.model.CharacterId
+import midgard.event.CharacterEntersEvent
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import java.lang.Thread.sleep
@@ -14,9 +16,6 @@ open class Action {
 data class EventId(val id: String)
 open class Event(val id: EventId = nextEventId())
 
-//todo:
-class DummyEvent : Event()
-
 interface EventLoop {
     fun start()
     fun stop()
@@ -30,6 +29,7 @@ interface ActionHandler<A : Action> {
     fun handleAction(action: A, world: World)
 }
 
+//todo: add id?
 interface Program {
     fun tick(world: World)
 }
@@ -39,7 +39,8 @@ class EventLoopImpl : EventLoop, KoinComponent {
     var mainThread: Thread? = null
     val world by inject<World>()
     val actionHandlers: Map<KClass<Action>, ActionHandler<Action>> by inject("actionHandlers")
-    val programs = mutableListOf<Program>()
+    val programs: MutableList<Program> = loadPrograms()
+
     val pendingActions = mutableListOf<Action>()
 
     override fun post(action: Action) {
@@ -62,7 +63,7 @@ class EventLoopImpl : EventLoop, KoinComponent {
                     sleep(10)
                 }
             })
-            mainThread = thread;
+            mainThread = thread
             thread.start()
         }
     }
@@ -76,23 +77,30 @@ class EventLoopImpl : EventLoop, KoinComponent {
         }
     }
 
-    fun tick(world: World) {
+    private fun tick(world: World) {
         //todo: log
         processPendingActions()
         runPrograms()
+        world.events.clear()
     }
 
     //todo: to be called from a dedicated thread
-    fun processPendingActions() {
+    private fun processPendingActions() {
         pendingActions.forEach {
             val actionType = it::class
-            val actionHandler = actionHandlers[actionType] ?: throw RuntimeException("Action has no handler: $actionType")
+            val actionHandler = actionHandlers[actionType]
+                    ?: throw RuntimeException("Action has no handler: $actionType")
             actionHandler.handleAction(it, world)
         }
+        pendingActions.clear()
     }
 
-    fun runPrograms() {
+    private fun runPrograms() {
         programs.forEach { it.tick(world) }
+    }
+
+    private fun loadPrograms(): MutableList<Program> {
+        return mutableListOf(GuardGreetingsProgram())
     }
 }
 
@@ -108,4 +116,24 @@ private var eventIdCounter = 0
 
 fun nextEventId(): EventId {
     return EventId("e-" + (++eventIdCounter))
+}
+
+class GuardGreetingsProgram : Program {
+    override fun tick(world: World) {
+        world.events.mapNotNull { it as? CharacterEntersEvent }.forEach {
+            val target = world.characters[it.charId] ?: return
+            val place = world.places[it.placeId] ?: return
+            place.characters.filter { it != target.id && hasGreetingsProgram(it, world) }.forEach {
+                //todo: do say
+                val char = world.characters[it] ?: return
+                println("${char.name} : Hi ${target.name}")
+            }
+        }
+    }
+
+    private fun hasGreetingsProgram(charId: CharacterId, world: World): Boolean {
+        val char = world.characters[charId] ?: return false
+        return char.programData.containsKey("greeter")
+    }
+
 }

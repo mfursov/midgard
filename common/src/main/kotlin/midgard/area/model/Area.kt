@@ -60,6 +60,8 @@ data class Obj(
 data class Character(
         val id: CharacterId,
         val name: String,
-        var placeId: PlaceId
+        var placeId: PlaceId,
+        //todo:
+        val programData: MutableMap<String, String> = mutableMapOf()
 )
 
