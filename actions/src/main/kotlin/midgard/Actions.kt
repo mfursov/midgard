@@ -7,7 +7,7 @@ import midgard.action.UnlinkCharacterActionHandler
 import midgard.action.WalkActionHandler
 import kotlin.reflect.KClass
 
-internal fun buildActionHandlers(): Map<KClass<Action>, ActionHandler<Action>> {
+fun buildActionHandlers(): Map<KClass<Action>, ActionHandler<Action>> {
     val map = mutableMapOf<KClass<Action>, ActionHandler<Action>>()
     add(map, CreateCharacterActionHandler())
     add(map, RemoveCharacterActionHandler())

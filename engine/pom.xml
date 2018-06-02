@@ -11,12 +11,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>common</artifactId>
-    <name>common</name>
+    <artifactId>engine</artifactId>
+    <name>engine</name>
     <packaging>jar</packaging>
 
     <build>
-        <finalName>midgard-common.jar</finalName>
+        <finalName>midgard-engine.jar</finalName>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
 

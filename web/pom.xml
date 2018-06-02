@@ -107,7 +107,7 @@
         <!-- Midgard common -->
         <dependency>
             <groupId>midgard</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>engine</artifactId>
             <version>1.0.0</version>
         </dependency>
 

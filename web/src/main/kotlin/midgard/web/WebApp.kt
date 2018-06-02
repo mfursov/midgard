@@ -26,17 +26,15 @@ import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.channels.consumeEach
 import midgard.World
-import midgard.appContext
 import midgard.area.model.Character
 import midgard.area.model.CharacterId
 import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
-import org.koin.standalone.StandAloneContext.startKoin
 import java.time.Duration
 
 @Suppress("unused")
 fun Application.main() {
-    startKoin(listOf(appContext, webAppContext))
+//    startKoin(listOf(appContext, webAppContext))
 
     install(DefaultHeaders)
     install(CallLogging)

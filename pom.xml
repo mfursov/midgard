@@ -9,8 +9,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>common</module>
+        <module>actions</module>
         <module>console</module>
+        <module>engine</module>
+        <module>events</module>
+        <module>programs</module>
         <module>web</module>
     </modules>
 

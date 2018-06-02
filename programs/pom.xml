@@ -11,14 +11,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>console</artifactId>
-    <name>console</name>
+    <artifactId>programs</artifactId>
+    <name>programs</name>
     <packaging>jar</packaging>
 
     <build>
-        <finalName>ROOT</finalName>
+        <finalName>midgard-engine.jar</finalName>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
-        <!--<testSourceDirectory>src/test/kotlin</testSourceDirectory>-->
+        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
 
         <plugins>
             <!-- Kotlin compiler -->
@@ -42,10 +42,22 @@
                         </goals>
                     </execution>
                 </executions>
+
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
                     <experimentalCoroutines>enable</experimentalCoroutines>
                 </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlinx</groupId>
+                        <artifactId>kotlinx-maven-serialization-plugin</artifactId>
+                        <version>${serialization.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <!-- Java Compiler -->
@@ -60,33 +72,28 @@
                     <compilerArgument>-XDignore.symbol.file</compilerArgument>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
     <dependencies>
-
+        <!-- Midgard engine -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>engine</artifactId>
             <version>1.0.0</version>
         </dependency>
 
+        <!-- Midgard engine -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>events</artifactId>
             <version>1.0.0</version>
         </dependency>
 
+        <!-- Midgard engine -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>actions</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>midgard</groupId>
-            <artifactId>programs</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -96,16 +103,16 @@
             <artifactId>kotlin-stdlib-jdk8</artifactId>
         </dependency>
 
+        <!-- Serialization library -->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-runtime</artifactId>
+        </dependency>
+
         <!-- Dependency injection -->
         <dependency>
             <groupId>org.koin</groupId>
             <artifactId>koin-ktor</artifactId>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
         </dependency>
 
         <!-- Testing -->

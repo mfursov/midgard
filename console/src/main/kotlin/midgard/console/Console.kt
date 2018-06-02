@@ -1,20 +1,58 @@
 package midgard.console
 
+import midgard.ActionId
+import midgard.EventId
 import midgard.EventLoop
 import midgard.Program
+import midgard.ProgramId
 import midgard.World
 import midgard.action.CreateCharacterAction
 import midgard.action.LinkCharacterAction
 import midgard.action.WalkAction
-import midgard.appContext
+import midgard.area.model.Character
 import midgard.area.model.CharacterId
 import midgard.area.model.Direction
+import midgard.area.model.ExitInfo
+import midgard.area.model.Place
+import midgard.area.model.PlaceId
+import midgard.buildActionHandlers
 import midgard.event.CharacterEntersEvent
 import midgard.event.CharacterLeavesEvent
 import midgard.event.NewCharacterCreatedEvent
+import midgard.impl.EventLoopImpl
+import midgard.program.greeting.GuardGreetingProgram
+import org.koin.dsl.module.applicationContext
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
+
+//TODO: rework to Kotlin version of atomic number.
+private var actionIdCounter = 0
+
+//TODO: rework to Kotlin version of atomic number.
+private var eventIdCounter = 0
+
+val appContext = applicationContext {
+    bean { loadWorld() }
+    bean<EventLoop> { EventLoopImpl() }
+    bean { buildActionHandlers() }
+    bean { listOf(ConsoleInterfaceProgram(), GuardGreetingProgram()) }
+    bean<ConsoleInterface> { ConsoleServer }
+    factory { ActionId("a-" + (++actionIdCounter)) }
+    factory { EventId("e-" + (++eventIdCounter)) }
+}
+
+private fun loadWorld(): World {
+    val world = World()
+    world.places.putAll(generatePlaces())
+    val charId = CharacterId("${++world.characterIdCounter}")
+    val place = world.places.values.first()
+    val char = Character(charId, "Guard", place.id)
+    world.characters[charId] = char
+    place.characters.add(charId)
+    char.programData["greeter"] = "yes"
+    return world
+}
 
 
 fun main(vararg args: String) {
@@ -22,7 +60,7 @@ fun main(vararg args: String) {
 
     println("Midgard Console started.")
 
-    ConsoleServer().start()
+    ConsoleServer.start()
 
     println("Bye!")
 }
@@ -39,13 +77,12 @@ interface ConsoleInterface {
     fun nextLine(): String?
 }
 
-class ConsoleServer : KoinComponent, ConsoleInterface {
+object ConsoleServer : KoinComponent, ConsoleInterface {
     private val eventLoop by inject<EventLoop>()
     private val inputLines = mutableListOf<String>()
 
     fun start() {
-        eventLoop.add(ConsoleInterfaceProgram(this)) //todo: inject?
-        eventLoop.start()
+        (eventLoop as EventLoopImpl).start() //todo:
         while (true) {
             val line = readLine()
             if (line == "quit") {
@@ -59,7 +96,7 @@ class ConsoleServer : KoinComponent, ConsoleInterface {
                 }
             }
         }
-        eventLoop.stop()
+        (eventLoop as EventLoopImpl).stop()
     }
 
     override fun nextLine(): String? {
@@ -72,8 +109,10 @@ class ConsoleServer : KoinComponent, ConsoleInterface {
 
 const val NAME = "Odin"
 
-class ConsoleInterfaceProgram(private val console: ConsoleInterface) : Program, KoinComponent {
+class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinComponent {
+    private val console by inject<ConsoleInterface>()
     private val eventLoop by inject<EventLoop>()
+
     private var state = ConnectionState.Started
     private lateinit var charId: CharacterId
 
@@ -149,5 +188,16 @@ class ConsoleInterfaceProgram(private val console: ConsoleInterface) : Program, 
                 .forEach { send2Char("${it.name} is here") }
     }
 
+}
+
+fun generatePlaces(): Map<PlaceId, Place> {
+    val places = mutableListOf<Place>()
+    val p1 = Place(PlaceId("place-1"), "Place 1")
+    val p2 = Place(PlaceId("place-2"), "Place 2")
+    p1.exits[Direction.North] = ExitInfo(p2.id)
+    p2.exits[Direction.South] = ExitInfo(p1.id)
+    places.add(p1)
+    places.add(p2)
+    return places.associateBy({ it.id })
 }
 

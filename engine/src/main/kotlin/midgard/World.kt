@@ -2,18 +2,16 @@ package midgard
 
 import midgard.area.model.Character
 import midgard.area.model.CharacterId
-import midgard.area.model.Direction
-import midgard.area.model.ExitInfo
 import midgard.area.model.Place
 import midgard.area.model.PlaceId
 import midgard.util.RandomGenerator
 
 //todo: make immutable (use interface?)
 class World {
-    val rnd = RandomGenerator(1L);
+    val rnd = RandomGenerator(1L)
 
     /** All active places in the world. */
-    val places = generatePlaces()
+    val places = mutableMapOf<PlaceId, Place>()
 
     /** Online characters map. */
     val characters: MutableMap<CharacterId, Character> = mutableMapOf()
@@ -27,17 +25,5 @@ class World {
     /** List of all pending events. */
     val events: MutableList<Event> = mutableListOf()
 
-    var characterIdCounter = 0;
+    var characterIdCounter = 0
 }
-
-fun generatePlaces(): Map<PlaceId, Place> {
-    val places = mutableListOf<Place>()
-    val p1 = Place(PlaceId("place-1"), "Place 1")
-    val p2 = Place(PlaceId("place-2"), "Place 2")
-    p1.exits[Direction.North] = ExitInfo(p2.id)
-    p2.exits[Direction.South] = ExitInfo(p1.id)
-    places.add(p1)
-    places.add(p2)
-    return places.associateBy({ it.id })
-}
-
