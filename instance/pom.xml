@@ -11,8 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>events</artifactId>
-    <name>events</name>
+    <artifactId>instance</artifactId>
+    <name>instance</name>
     <packaging>jar</packaging>
 
     <build>
@@ -76,10 +76,28 @@
     </build>
 
     <dependencies>
-        <!-- Midgard engine -->
+
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>midgard</groupId>
+            <artifactId>events</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>midgard</groupId>
+            <artifactId>actions</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>midgard</groupId>
+            <artifactId>programs</artifactId>
             <version>1.0.0</version>
         </dependency>
 

@@ -77,10 +77,10 @@
 
     <dependencies>
 
-        <!-- Midgard engine -->
+        <!-- Midgard core -->
         <dependency>
             <groupId>midgard</groupId>
-            <artifactId>engine</artifactId>
+            <artifactId>core</artifactId>
             <version>1.0.0</version>
         </dependency>
 

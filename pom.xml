@@ -11,8 +11,9 @@
     <modules>
         <module>actions</module>
         <module>console</module>
-        <module>engine</module>
+        <module>core</module>
         <module>events</module>
+        <module>instance</module>
         <module>programs</module>
         <module>web</module>
     </modules>
@@ -98,6 +99,13 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>1.2.3</version>
+            </dependency>
+
+            <!-- Multiline properties -->
+            <dependency>
+                <groupId>com.github.mprops</groupId>
+                <artifactId>mprops</artifactId>
+                <version>1.0.0</version>
             </dependency>
 
             <!-- Testing -->

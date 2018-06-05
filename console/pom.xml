@@ -68,25 +68,7 @@
 
         <dependency>
             <groupId>midgard</groupId>
-            <artifactId>engine</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>midgard</groupId>
-            <artifactId>events</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>midgard</groupId>
-            <artifactId>actions</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>midgard</groupId>
-            <artifactId>programs</artifactId>
+            <artifactId>instance</artifactId>
             <version>1.0.0</version>
         </dependency>
 

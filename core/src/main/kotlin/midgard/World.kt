@@ -5,10 +5,12 @@ import midgard.area.model.CharacterId
 import midgard.area.model.Place
 import midgard.area.model.PlaceId
 import midgard.util.RandomGenerator
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-//todo: make immutable (use interface?)
-class World {
-    val rnd = RandomGenerator(1L)
+class World : KoinComponent {
+
+    val rnd: RandomGenerator by inject()
 
     /** All active places in the world. */
     val places = mutableMapOf<PlaceId, Place>()

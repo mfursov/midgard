@@ -21,6 +21,7 @@ import midgard.event.CharacterLeavesEvent
 import midgard.event.NewCharacterCreatedEvent
 import midgard.impl.EventLoopImpl
 import midgard.program.greeting.GuardGreetingProgram
+import midgard.util.RandomGenerator
 import org.koin.dsl.module.applicationContext
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.StandAloneContext
@@ -28,11 +29,11 @@ import org.koin.standalone.inject
 
 //TODO: rework to Kotlin version of atomic number.
 private var actionIdCounter = 0
-
-//TODO: rework to Kotlin version of atomic number.
 private var eventIdCounter = 0
+private var characterIdCounter = 0
 
 val appContext = applicationContext {
+    bean { RandomGenerator(1) }
     bean { loadWorld() }
     bean<EventLoop> { EventLoopImpl() }
     bean { buildActionHandlers() }
@@ -40,12 +41,13 @@ val appContext = applicationContext {
     bean<ConsoleInterface> { ConsoleServer }
     factory { ActionId("a-" + (++actionIdCounter)) }
     factory { EventId("e-" + (++eventIdCounter)) }
+    factory { CharacterId("c-" + (++characterIdCounter)) }
 }
 
 private fun loadWorld(): World {
     val world = World()
     world.places.putAll(generatePlaces())
-    val charId = CharacterId("${++world.characterIdCounter}")
+    val charId = CharacterId("${++characterIdCounter}")
     val place = world.places.values.first()
     val char = Character(charId, "Guard", place.id)
     world.characters[charId] = char
