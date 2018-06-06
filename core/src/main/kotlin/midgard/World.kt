@@ -1,31 +1,34 @@
 package midgard
 
-import midgard.area.model.Character
-import midgard.area.model.CharacterId
-import midgard.area.model.Place
-import midgard.area.model.PlaceId
-import midgard.util.RandomGenerator
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 
-class World : KoinComponent {
+class World(
 
-    val rnd: RandomGenerator by inject()
+        /** All active places in the world. */
+        val places: MutableMap<PlaceId, Place>,
 
-    /** All active places in the world. */
-    val places = mutableMapOf<PlaceId, Place>()
+        /** Online characters map. */
+        val characters: MutableMap<CharacterId, Character>,
 
-    /** Online characters map. */
-    val characters: MutableMap<CharacterId, Character> = mutableMapOf()
+        /** Offline characters map. */
+        val offlineCharacters: MutableMap<CharacterId, Character>,
 
-    /** Offline characters map. */
-    val offlineCharacters: MutableMap<CharacterId, Character> = mutableMapOf()
+        /** Removed characters. They live here for some period of time. */
+        val removedCharacters: MutableMap<CharacterId, Character>,
 
-    /** Removed characters. They live here for some period of time. */
-    val removedCharacters: MutableMap<CharacterId, Character> = mutableMapOf()
+        /** All objects by ID */
+        val objects: MutableMap<ObjectId, Object>,
 
-    /** List of all pending events. */
-    val events: MutableList<Event> = mutableListOf()
+        /** List of all pending events. */
+        val events: MutableList<Event>,
 
-    var characterIdCounter = 0
-}
+        val random: Random,
+
+        val eventIdGenerator: IdGenerator<EventId>,
+
+        val actionIdGenerator: IdGenerator<ActionId>,
+
+        val characterIdGenerator: IdGenerator<CharacterId>,
+
+        val objectIdGenerator: IdGenerator<ObjectId>
+)
+

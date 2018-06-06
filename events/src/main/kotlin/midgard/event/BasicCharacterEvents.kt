@@ -1,7 +1,7 @@
 package midgard.event
 
 import midgard.Event
-import midgard.area.model.CharacterId
+import midgard.CharacterId
 
 class NewCharacterCreatedEvent(val charId: CharacterId, val name: String) : Event()
 

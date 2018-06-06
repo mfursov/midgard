@@ -1,6 +1,6 @@
 package midgard.area.generator
 
-import midgard.area.model.Direction
+import midgard.Direction
 import java.util.Random
 
 class GenPlace(val exits: MutableMap<Direction, GenPlace> = mutableMapOf())

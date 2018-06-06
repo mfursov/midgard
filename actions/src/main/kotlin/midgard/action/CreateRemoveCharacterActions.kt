@@ -2,9 +2,9 @@ package midgard.action
 
 import midgard.Action
 import midgard.ActionHandler
+import midgard.Character
+import midgard.CharacterId
 import midgard.World
-import midgard.area.model.Character
-import midgard.area.model.CharacterId
 import midgard.event.CharacterRemovedEvent
 import midgard.event.NewCharacterCreatedEvent
 import kotlin.reflect.KClass
@@ -16,7 +16,7 @@ class CreateCharacterActionHandler : ActionHandler<CreateCharacterAction> {
         get() = CreateCharacterAction::class
 
     override fun handleAction(action: CreateCharacterAction, world: World) {
-        val charId = CharacterId("${++world.characterIdCounter}")
+        val charId = world.characterIdGenerator.nextId()
         val placeId = world.places.keys.asSequence().first()
         val character = Character(charId, action.characterName, placeId)
         world.offlineCharacters[character.id] = character

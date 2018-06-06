@@ -4,6 +4,13 @@ import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import kotlin.reflect.KClass
 
+interface Random {
+}
+
+interface IdGenerator<T> {
+    fun nextId(): T
+}
+
 data class EventId(val id: String)
 
 open class Event : KoinComponent {

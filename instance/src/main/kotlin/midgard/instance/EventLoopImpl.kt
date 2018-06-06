@@ -1,9 +1,7 @@
-package midgard.impl
+package midgard.instance
 
 import midgard.Action
 import midgard.ActionHandler
-import midgard.ActionId
-import midgard.EventId
 import midgard.EventLoop
 import midgard.Program
 import midgard.World

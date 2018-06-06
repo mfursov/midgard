@@ -1,6 +1,6 @@
 package midgard.area.generator
 
-import midgard.area.model.Direction
+import midgard.Direction
 
 /**
  * Simples possible area generator. Used for testing only.

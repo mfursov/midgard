@@ -1,10 +1,8 @@
-package midgard.area.model
+package midgard
 
 import kotlinx.serialization.Serializable
 
-enum class
-Direction {
-
+enum class Direction {
     North, East, South, West, Up, Down;
 
     fun reverse() = when (this) {
@@ -25,7 +23,7 @@ data class AreaId(val id: String)
 data class PlaceId(val id: String)
 
 @Serializable
-data class ObjId(val id: String)
+data class ObjectId(val id: String)
 
 @Serializable
 data class CharacterId(val id: String)
@@ -41,7 +39,7 @@ data class Area(
 data class Place(
         val id: PlaceId,
         val name: String,
-        val objects: MutableSet<ObjId> = mutableSetOf(),
+        val objects: MutableSet<ObjectId> = mutableSetOf(),
         val characters: MutableSet<CharacterId> = mutableSetOf(),
         val exits: MutableMap<Direction, ExitInfo> = mutableMapOf()
 )
@@ -52,8 +50,16 @@ data class ExitInfo(
 )
 
 @Serializable
-data class Obj(
-        val id: ObjId
+data class Object(
+        val id: ObjectId,
+        var containerId: ObjectId?,
+        var placeId: PlaceId?,
+        var container: Container
+)
+
+@Serializable
+data class Container(
+        val objects: MutableSet<ObjectId> = mutableSetOf()
 )
 
 @Serializable
@@ -61,7 +67,7 @@ data class Character(
         val id: CharacterId,
         val name: String,
         var placeId: PlaceId,
+
         //todo:
         val programData: MutableMap<String, String> = mutableMapOf()
 )
-

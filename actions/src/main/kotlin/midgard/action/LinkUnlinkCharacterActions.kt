@@ -3,7 +3,7 @@ package midgard.action
 import midgard.Action
 import midgard.ActionHandler
 import midgard.World
-import midgard.area.model.CharacterId
+import midgard.CharacterId
 import midgard.event.CharacterLinkedEvent
 import midgard.event.CharacterUnlinkedEvent
 import kotlin.reflect.KClass

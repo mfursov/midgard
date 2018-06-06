@@ -3,8 +3,8 @@ package midgard.action
 import midgard.Action
 import midgard.ActionHandler
 import midgard.World
-import midgard.area.model.CharacterId
-import midgard.area.model.Direction
+import midgard.CharacterId
+import midgard.Direction
 import midgard.event.CharacterEntersEvent
 import midgard.event.CharacterLeavesEvent
 import kotlin.reflect.KClass

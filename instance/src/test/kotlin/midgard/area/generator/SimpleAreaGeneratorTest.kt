@@ -1,6 +1,6 @@
 package midgard.area.generator
 
-import midgard.area.model.Direction
+import midgard.Direction
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame

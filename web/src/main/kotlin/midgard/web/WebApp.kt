@@ -26,8 +26,8 @@ import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.channels.consumeEach
 import midgard.World
-import midgard.area.model.Character
-import midgard.area.model.CharacterId
+import midgard.Character
+import midgard.CharacterId
 import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
 import java.time.Duration

@@ -1,6 +1,6 @@
 import kotlinx.serialization.json.JSON
-import midgard.area.model.Area
-import midgard.area.model.AreaId
+import midgard.Area
+import midgard.AreaId
 import org.junit.Test
 import kotlin.test.assertEquals
 

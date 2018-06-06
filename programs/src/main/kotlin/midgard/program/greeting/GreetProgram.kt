@@ -3,7 +3,7 @@ package midgard.program.greeting
 import midgard.Program
 import midgard.ProgramId
 import midgard.World
-import midgard.area.model.CharacterId
+import midgard.CharacterId
 import midgard.event.CharacterEntersEvent
 
 class GuardGreetingProgram : Program(ProgramId("guard-greeting-program")) {
