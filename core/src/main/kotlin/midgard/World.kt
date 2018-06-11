@@ -16,7 +16,7 @@ class World(
         val removedCharacters: MutableMap<CharacterId, Character>,
 
         /** All objects by ID */
-        val objects: MutableMap<ObjectId, Object>,
+        val objects: MutableMap<ObjId, Obj>,
 
         /** List of all pending events. */
         val events: MutableList<Event>,
@@ -29,6 +29,6 @@ class World(
 
         val characterIdGenerator: IdGenerator<CharacterId>,
 
-        val objectIdGenerator: IdGenerator<ObjectId>
+        val objectIdGenerator: IdGenerator<ObjId>
 )
 

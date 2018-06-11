@@ -1,14 +1,10 @@
 package midgard.console
 
-import midgard.EventLoop
-import midgard.Program
-import midgard.ProgramId
-import midgard.World
+import midgard.*
 import midgard.action.CreateCharacterAction
 import midgard.action.LinkCharacterAction
 import midgard.action.WalkAction
-import midgard.CharacterId
-import midgard.Direction
+import midgard.db.Translator
 import midgard.event.CharacterEntersEvent
 import midgard.event.CharacterLeavesEvent
 import midgard.event.NewCharacterCreatedEvent
@@ -20,6 +16,7 @@ const val NAME = "Odin"
 class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinComponent {
     private val console by inject<ConsoleInterface>()
     private val eventLoop by inject<EventLoop>()
+    private val tr by inject<Translator>()
 
     private var state = ConnectionState.Started
     private lateinit var charId: CharacterId
@@ -77,11 +74,13 @@ class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinCom
             when {
                 it is CharacterLeavesEvent && it.charId == charId -> {
                     val place = world.places[it.placeId] ?: return
-                    send2Char("Leaving ${place.name}")
+                    //todo: leaving
+                    send2Char(tr.tr(place.name))
                 }
                 it is CharacterEntersEvent && it.charId == charId -> {
                     val place = world.places[it.placeId] ?: return
-                    send2Char("Entering ${place.name}")
+                    //todo: entering
+                    send2Char(tr.tr(place.name))
                 }
             }
         }

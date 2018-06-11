@@ -11,8 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>events</artifactId>
-    <name>events</name>
+    <artifactId>db</artifactId>
+    <name>db</name>
     <packaging>jar</packaging>
 
     <build>
@@ -60,7 +60,7 @@
     </build>
 
     <dependencies>
-        <!-- Midgard engine -->
+        <!-- Midgard -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>core</artifactId>
@@ -73,10 +73,27 @@
             <artifactId>kotlin-stdlib-jdk8</artifactId>
         </dependency>
 
+        <!-- Serialization -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.salomonbrys.kotson</groupId>
+            <artifactId>kotson</artifactId>
+        </dependency>
+
         <!-- Dependency injection -->
         <dependency>
             <groupId>org.koin</groupId>
             <artifactId>koin-ktor</artifactId>
+        </dependency>
+
+        <!-- Multiline properties -->
+        <dependency>
+            <groupId>com.github.mprops</groupId>
+            <artifactId>mprops</artifactId>
         </dependency>
 
         <!-- Testing -->

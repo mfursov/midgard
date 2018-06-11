@@ -1,0 +1,11 @@
+{
+  "id": "place-2",
+  "name": "place-2-name",
+  "objects": [],
+  "characters": [],
+  "exits": {
+    "s": {
+      "toPlaceId": "place-1"
+    }
+  }
+}

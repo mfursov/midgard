@@ -1,7 +1,5 @@
 package midgard
 
-import kotlinx.serialization.Serializable
-
 enum class Direction {
     North, East, South, West, Up, Down;
 
@@ -16,53 +14,47 @@ enum class Direction {
 }
 
 
-@Serializable
 data class AreaId(val id: String)
 
-@Serializable
-data class PlaceId(val id: String)
+interface Id {
+    val id: String
+}
 
-@Serializable
-data class ObjectId(val id: String)
+data class PlaceId(override val id: String) : Id
 
-@Serializable
+data class ObjId(val id: String)
+
 data class CharacterId(val id: String)
 
-@Serializable
 data class Area(
         val id: AreaId,
         val name: String,
         val places: MutableSet<PlaceId>
 )
 
-@Serializable
 data class Place(
         val id: PlaceId,
         val name: String,
-        val objects: MutableSet<ObjectId> = mutableSetOf(),
+        val objects: MutableSet<ObjId> = mutableSetOf(),
         val characters: MutableSet<CharacterId> = mutableSetOf(),
         val exits: MutableMap<Direction, ExitInfo> = mutableMapOf()
 )
 
-@Serializable
 data class ExitInfo(
         val toPlaceId: PlaceId
 )
 
-@Serializable
-data class Object(
-        val id: ObjectId,
-        var containerId: ObjectId?,
+data class Obj(
+        val id: ObjId,
+        var containerId: ObjId?,
         var placeId: PlaceId?,
         var container: Container
 )
 
-@Serializable
 data class Container(
-        val objects: MutableSet<ObjectId> = mutableSetOf()
+        val objects: MutableSet<ObjId> = mutableSetOf()
 )
 
-@Serializable
 data class Character(
         val id: CharacterId,
         val name: String,
