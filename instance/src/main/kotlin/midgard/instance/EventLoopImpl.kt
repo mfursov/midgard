@@ -1,10 +1,7 @@
 package midgard.instance
 
-import midgard.Action
-import midgard.ActionHandler
-import midgard.EventLoop
-import midgard.Program
-import midgard.World
+import midgard.*
+import midgard.event.TickEvent
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import kotlin.reflect.KClass
@@ -23,6 +20,7 @@ class EventLoopImpl : EventLoop, KoinComponent {
     }
 
     fun start() {
+        println("Started")
         synchronized(this) {
             if (mainThread != null) {
                 throw IllegalStateException("Already started")
@@ -39,6 +37,7 @@ class EventLoopImpl : EventLoop, KoinComponent {
     }
 
     fun stop() {
+        println("Stopping...")
         synchronized(this) {
             if (mainThread == null) {
                 throw IllegalStateException("Already stopped")
@@ -48,10 +47,11 @@ class EventLoopImpl : EventLoop, KoinComponent {
     }
 
     private fun tick(world: World) {
-        //todo: log
         processPendingActions()
+        world.events.add(TickEvent(world.tick))
         runPrograms()
         world.events.clear()
+        world.tick++
     }
 
     //todo: to be called from a dedicated thread
@@ -66,6 +66,9 @@ class EventLoopImpl : EventLoop, KoinComponent {
     }
 
     private fun runPrograms() {
-        programs.forEach { it.tick(world) }
+        while (!world.events.isEmpty()) {
+            val event = world.events.removeAt(0)
+            programs.forEach { it.onEvent(event, world) }
+        }
     }
 }

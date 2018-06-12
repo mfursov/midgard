@@ -34,6 +34,6 @@ interface EventLoop {
 
 data class ProgramId(val id: String)
 
-abstract class Program(val id: ProgramId) {
-    abstract fun tick(world: World)
+abstract class Program(val id: ProgramId, val order: Int) {
+    abstract fun onEvent(event: Event, world: World)
 }

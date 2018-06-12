@@ -29,6 +29,8 @@ class World(
 
         val characterIdGenerator: IdGenerator<CharacterId>,
 
-        val objectIdGenerator: IdGenerator<ObjId>
+        val objectIdGenerator: IdGenerator<ObjId>,
+
+        var tick: Long
 )
 

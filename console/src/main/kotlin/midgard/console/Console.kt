@@ -13,7 +13,7 @@ import org.koin.standalone.inject
 fun consoleServerPrograms() = listOf(ConsoleInterfaceProgram())
 
 val consoleServerModule = applicationContext {
-    bean { instancePrograms().union(consoleServerPrograms()).toList() }
+    bean { instancePrograms().union(consoleServerPrograms()).sortedBy { it.order }.toList() }
     bean<ConsoleInterface> { ConsoleServer }
 }
 

@@ -13,7 +13,7 @@ import org.koin.standalone.inject
 
 const val NAME = "Odin"
 
-class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinComponent {
+class ConsoleInterfaceProgram : Program(ProgramId("console-interface"), 1000), KoinComponent {
     private val console by inject<ConsoleInterface>()
     private val eventLoop by inject<EventLoop>()
     private val tr by inject<Translator>()
@@ -21,21 +21,22 @@ class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinCom
     private var state = ConnectionState.Started
     private lateinit var charId: CharacterId
 
-    override fun tick(world: World) {
+    override fun onEvent(event: Event, world: World) {
         state = when (state) {
             ConnectionState.Started -> {
+                println("Creating character")
                 eventLoop.post(CreateCharacterAction(NAME))
                 ConnectionState.WaitingCreate
             }
             ConnectionState.WaitingCreate -> {
-                val charId = world.events.mapNotNull { it as? NewCharacterCreatedEvent }
-                        .filter { it.name == NAME }.map { it.charId }.firstOrNull()
+                val charId = if (event is NewCharacterCreatedEvent && event.name == NAME) event.charId else null
                 if (charId != null) {
                     this.charId = charId
                 }
                 if (charId == null) ConnectionState.WaitingCreate else ConnectionState.Created
             }
             ConnectionState.Created -> {
+                println("Linking character")
                 eventLoop.post(LinkCharacterAction(charId))
                 ConnectionState.WaitingLink
             }
@@ -43,12 +44,13 @@ class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinCom
                 if (!world.characters.containsKey(charId)) {
                     ConnectionState.WaitingLink
                 } else {
+                    println("You are online")
                     doLook(world)
                     ConnectionState.Playing
                 }
             }
             ConnectionState.Playing -> {
-                processEvents(world)
+                processEvent(event, world)
                 processInput(world)
             }
         }
@@ -69,19 +71,17 @@ class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinCom
         return ConnectionState.Playing
     }
 
-    private fun processEvents(world: World) {
-        world.events.forEach {
-            when {
-                it is CharacterLeavesEvent && it.charId == charId -> {
-                    val place = world.places[it.placeId] ?: return
-                    //todo: leaving
-                    send2Char(tr.tr(place.name))
-                }
-                it is CharacterEntersEvent && it.charId == charId -> {
-                    val place = world.places[it.placeId] ?: return
-                    //todo: entering
-                    send2Char(tr.tr(place.name))
-                }
+    private fun processEvent(event: Event, world: World) {
+        when {
+            event is CharacterLeavesEvent && event.charId == charId -> {
+                val place = world.places[event.placeId] ?: return
+                //todo: leaving
+                send2Char(tr.tr(place.name))
+            }
+            event is CharacterEntersEvent && event.charId == charId -> {
+                val place = world.places[event.placeId] ?: return
+                //todo: entering
+                send2Char(tr.tr(place.name))
             }
         }
     }
@@ -89,7 +89,7 @@ class ConsoleInterfaceProgram : Program(ProgramId("console-interface")), KoinCom
     private fun doLook(world: World) {
         val char = world.characters[charId] ?: return
         val place = world.places[char.placeId] ?: return
-        send2Char(place.name)
+        send2Char(tr.tr(place.name))
         place.characters.filter { it != charId }
                 .mapNotNull { world.characters[it] }
                 .forEach { send2Char("${it.name} is here") }

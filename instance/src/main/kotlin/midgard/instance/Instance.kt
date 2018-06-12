@@ -46,7 +46,8 @@ val instanceModule = applicationContext {
                 eventIdGenerator = get<EventIdGenerator>(),
                 actionIdGenerator = get<ActionIdGenerator>(),
                 characterIdGenerator = get<CharacterIdGenerator>(),
-                objectIdGenerator = get<ObjectIdGenerator>())
+                objectIdGenerator = get<ObjectIdGenerator>(),
+                tick = 0L)
         )
     }
     bean<Translator> { MPropsTranslator() }
