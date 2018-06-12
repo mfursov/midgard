@@ -28,10 +28,6 @@ interface ActionHandler<A : Action> {
     fun handleAction(action: A, world: World)
 }
 
-interface EventLoop {
-    fun post(action: Action)
-}
-
 data class ProgramId(val id: String)
 
 abstract class Program(val id: ProgramId, val order: Int) {

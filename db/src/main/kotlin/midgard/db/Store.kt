@@ -3,7 +3,7 @@ package midgard.db
 import midgard.Character
 import midgard.Id
 import midgard.Obj
-import midgard.Place
+import midgard.Room
 
 enum class IdsListId {
     OnlineCharacters,
@@ -13,8 +13,8 @@ enum class IdsListId {
 
 interface Store {
 
-    fun readPlaces(): List<Place>
-    fun savePlaces(places: List<Place>)
+    fun readRooms(): List<Room>
+    fun saveRooms(rooms: List<Room>)
 
     fun readCharacters(): List<Character>
     fun saveCharacter(character: Character)

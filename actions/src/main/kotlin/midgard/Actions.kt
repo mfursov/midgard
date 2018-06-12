@@ -3,6 +3,7 @@ package midgard
 import midgard.action.CreateCharacterActionHandler
 import midgard.action.LinkCharacterActionHandler
 import midgard.action.RemoveCharacterActionHandler
+import midgard.action.SayActionHandler
 import midgard.action.UnlinkCharacterActionHandler
 import midgard.action.WalkActionHandler
 import kotlin.reflect.KClass
@@ -12,6 +13,7 @@ fun buildActionHandlers(): Map<KClass<Action>, ActionHandler<Action>> {
     add(map, CreateCharacterActionHandler())
     add(map, RemoveCharacterActionHandler())
     add(map, LinkCharacterActionHandler())
+    add(map, SayActionHandler())
     add(map, UnlinkCharacterActionHandler())
     add(map, WalkActionHandler())
     return map

@@ -17,10 +17,10 @@ class CreateCharacterActionHandler : ActionHandler<CreateCharacterAction> {
 
     override fun handleAction(action: CreateCharacterAction, world: World) {
         val charId = world.characterIdGenerator.nextId()
-        val placeId = world.places.keys.asSequence().first()
-        val character = Character(charId, action.characterName, placeId)
-        world.offlineCharacters[character.id] = character
-        world.events.add(NewCharacterCreatedEvent(character.id, character.name))
+        val roomId = world.rooms.keys.asSequence().first()
+        val ch = Character(charId, action.characterName, roomId)
+        world.offlineCharacters[ch.id] = ch
+        world.events.add(NewCharacterCreatedEvent(ch.id, ch.name))
     }
 }
 

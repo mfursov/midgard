@@ -54,7 +54,7 @@ fun Application.main() {
         intercept(ApplicationCallPipeline.Infrastructure) {
             if (call.sessions.get<CharacterSession>() == null) {
                 val midgard = get<World>()
-                val place = midgard.places.values.first()
+                val place = midgard.rooms.values.first()
                 val ch = Character(CharacterId("char-1"), "name", place.id)
                 place.characters.add(ch.id)
                 midgard.characters[ch.id] = ch
@@ -85,7 +85,7 @@ fun Application.main() {
                 server.memberLeft(session.id, this)
                 val midgard = get<World>()
                 val ch = midgard.characters[session.charId]!!
-                val place = midgard.places[ch.placeId]!!
+                val place = midgard.rooms[ch.roomId]!!
                 place.characters.remove(ch.id)
                 midgard.characters.remove(ch.id)
             }

@@ -20,7 +20,7 @@ interface Id {
     val id: String
 }
 
-data class PlaceId(override val id: String) : Id
+data class RoomId(override val id: String) : Id
 
 data class ObjId(val id: String)
 
@@ -29,11 +29,11 @@ data class CharacterId(val id: String)
 data class Area(
         val id: AreaId,
         val name: String,
-        val places: MutableSet<PlaceId>
+        val places: MutableSet<RoomId>
 )
 
-data class Place(
-        val id: PlaceId,
+data class Room(
+        val id: RoomId,
         val name: String,
         val objects: MutableSet<ObjId> = mutableSetOf(),
         val characters: MutableSet<CharacterId> = mutableSetOf(),
@@ -41,13 +41,13 @@ data class Place(
 )
 
 data class ExitInfo(
-        val toPlaceId: PlaceId
+        val to: RoomId
 )
 
 data class Obj(
         val id: ObjId,
         var containerId: ObjId?,
-        var placeId: PlaceId?,
+        var roomId: RoomId?,
         var container: Container
 )
 
@@ -58,7 +58,7 @@ data class Container(
 data class Character(
         val id: CharacterId,
         val name: String,
-        var placeId: PlaceId,
+        var roomId: RoomId,
 
         //todo:
         val programData: MutableMap<String, String> = mutableMapOf()

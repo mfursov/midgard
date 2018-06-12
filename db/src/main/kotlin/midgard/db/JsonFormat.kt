@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import midgard.Direction
 import midgard.Id
-import midgard.Place
+import midgard.Room
 import java.io.Reader
 import java.io.Writer
 import kotlin.reflect.full.primaryConstructor
@@ -14,8 +14,8 @@ import kotlin.reflect.full.primaryConstructor
 class JsonFormat : Format {
     val gsonFormat = initGSON()
 
-    override fun writePlace(id: Place, w: Writer) = w.write(gsonFormat.toJson(id))
-    override fun readPlace(reader: Reader): Place = gsonFormat.fromJson(reader.readText())
+    override fun writePlace(id: Room, w: Writer) = w.write(gsonFormat.toJson(id))
+    override fun readRoom(reader: Reader): Room = gsonFormat.fromJson(reader.readText())
 }
 
 private fun initGSON(): Gson {

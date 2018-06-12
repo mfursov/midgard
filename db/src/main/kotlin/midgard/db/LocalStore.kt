@@ -3,7 +3,7 @@ package midgard.db
 import midgard.Character
 import midgard.Id
 import midgard.Obj
-import midgard.Place
+import midgard.Room
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
@@ -12,11 +12,11 @@ const val DATA_DIR = "./db/data"
 
 class LocalStore(val format: Format) : Store {
 
-    override fun readPlaces() = File("$DATA_DIR/places").listFiles().map { format.readPlace(FileReader(it)) }
+    override fun readRooms() = File("$DATA_DIR/rooms").listFiles().map { format.readRoom(FileReader(it)) }
 
-    override fun savePlaces(places: List<Place>) {
-        places.forEach {
-            format.writePlace(it, FileWriter(File("$DATA_DIR/places/${it.id}")))
+    override fun saveRooms(rooms: List<Room>) {
+        rooms.forEach {
+            format.writePlace(it, FileWriter(File("$DATA_DIR/rooms/${it.id}")))
         }
     }
 

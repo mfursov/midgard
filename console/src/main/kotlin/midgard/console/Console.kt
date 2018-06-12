@@ -1,7 +1,6 @@
 package midgard.console
 
-import midgard.EventLoop
-import midgard.instance.EventLoopImpl
+import midgard.instance.EventLoop
 import midgard.instance.instanceModule
 import midgard.instance.instancePrograms
 import org.koin.dsl.module.applicationContext
@@ -45,7 +44,7 @@ object ConsoleServer : KoinComponent, ConsoleInterface {
     private val inputLines = mutableListOf<String>()
 
     fun start() {
-        (eventLoop as EventLoopImpl).start() //todo:
+        eventLoop.start() //todo:
         while (true) {
             val line = readLine()
             if (line == "quit") {
@@ -59,7 +58,7 @@ object ConsoleServer : KoinComponent, ConsoleInterface {
                 }
             }
         }
-        (eventLoop as EventLoopImpl).stop()
+        eventLoop.stop()
     }
 
     override fun nextLine(): String? {

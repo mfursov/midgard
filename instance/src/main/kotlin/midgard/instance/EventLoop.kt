@@ -1,23 +1,20 @@
 package midgard.instance
 
-import midgard.*
+import midgard.Action
+import midgard.ActionHandler
+import midgard.Program
+import midgard.World
 import midgard.event.TickEvent
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import kotlin.reflect.KClass
 
-class EventLoopImpl : EventLoop, KoinComponent {
+class EventLoop : KoinComponent {
 
     private var mainThread: Thread? = null
     private val world by inject<World>()
     private val actionHandlers: Map<KClass<Action>, ActionHandler<Action>> by inject()
     private val programs: List<Program> by inject()
-
-    val pendingActions = mutableListOf<Action>()
-
-    override fun post(action: Action) {
-        pendingActions.add(action)
-    }
 
     fun start() {
         println("Started")
@@ -48,24 +45,25 @@ class EventLoopImpl : EventLoop, KoinComponent {
 
     private fun tick(world: World) {
         processPendingActions()
-        world.events.add(TickEvent(world.tick))
-        runPrograms()
-        world.events.clear()
+
         world.tick++
+        world.events.add(TickEvent(world.tick))
+
+        processPendingEvents()
     }
 
     //todo: to be called from a dedicated thread
     private fun processPendingActions() {
-        pendingActions.forEach {
+        val actions = ArrayList(world.actions)
+        world.actions.clear()
+        actions.forEach {
             val actionType = it::class
-            val actionHandler = actionHandlers[actionType]
-                    ?: throw RuntimeException("Action has no handler: $actionType")
+            val actionHandler = actionHandlers[actionType] ?: throw RuntimeException("Action has no handler: $actionType")
             actionHandler.handleAction(it, world)
         }
-        pendingActions.clear()
     }
 
-    private fun runPrograms() {
+    private fun processPendingEvents() {
         while (!world.events.isEmpty()) {
             val event = world.events.removeAt(0)
             programs.forEach { it.onEvent(event, world) }

@@ -20,7 +20,7 @@ interface ChatServer {
     suspend fun help(sender: String)
     suspend fun sendTo(recipient: String, sender: String, message: String)
     suspend fun message(sender: String, message: String)
-    suspend fun memberLeft(member: String, socket: WebSocketSession);
+    suspend fun memberLeft(member: String, socket: WebSocketSession)
 }
 
 class ChatServerImpl : ChatServer {

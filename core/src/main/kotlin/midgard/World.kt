@@ -4,7 +4,7 @@ package midgard
 class World(
 
         /** All active places in the world. */
-        val places: MutableMap<PlaceId, Place>,
+        val rooms: MutableMap<RoomId, Room>,
 
         /** Online characters map. */
         val characters: MutableMap<CharacterId, Character>,
@@ -20,6 +20,9 @@ class World(
 
         /** List of all pending events. */
         val events: MutableList<Event>,
+
+        /** List of all pending actions. */
+        val actions: MutableList<Action>,
 
         val random: Random,
 

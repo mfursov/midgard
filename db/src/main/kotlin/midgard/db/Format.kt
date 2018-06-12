@@ -1,10 +1,10 @@
 package midgard.db
 
-import midgard.Place
+import midgard.Room
 import java.io.Reader
 import java.io.Writer
 
 interface Format {
-    fun writePlace(id: Place, w: Writer)
-    fun readPlace(reader: Reader): Place
+    fun writePlace(id: Room, w: Writer)
+    fun readRoom(reader: Reader): Room
 }

@@ -36,12 +36,13 @@ val instanceModule = applicationContext {
     bean<Random> { JavaRandom() }
     bean {
         initWorld(World(
-                places = loadPlaces(),
+                rooms = loadPlaces(),
                 characters = loadCharacters(),
                 objects = mutableMapOf(),
                 offlineCharacters = loadOfflineCharacters(),
                 removedCharacters = loadRemovedCharacters(),
                 events = loadPendingEvents(),
+                actions = loadPendingActions(),
                 random = get(),
                 eventIdGenerator = get<EventIdGenerator>(),
                 actionIdGenerator = get<ActionIdGenerator>(),
@@ -51,7 +52,7 @@ val instanceModule = applicationContext {
         )
     }
     bean<Translator> { MPropsTranslator() }
-    bean<EventLoop> { EventLoopImpl() }
+    bean { EventLoop() }
     bean { buildActionHandlers() }
     bean { instancePrograms() }
     bean { EventIdGenerator() }
@@ -65,12 +66,13 @@ val instanceModule = applicationContext {
 }
 
 fun loadPendingEvents() = mutableListOf<Event>()
+fun loadPendingActions() = mutableListOf<Action>()
 fun loadRemovedCharacters() = mutableMapOf<CharacterId, Character>()
 fun loadOfflineCharacters() = mutableMapOf<CharacterId, Character>()
 fun loadCharacters() = mutableMapOf<CharacterId, Character>()
 
 
-fun loadPlaces() = store.readPlaces().associateBy { it.id }.toMutableMap()
+fun loadPlaces() = store.readRooms().associateBy { it.id }.toMutableMap()
 
 class JavaRandom : Random
 
@@ -78,7 +80,7 @@ fun instancePrograms() = listOf(GuardGreetingProgram())
 
 private fun initWorld(world: World): World {
     val charId = world.characterIdGenerator.nextId()
-    val place = world.places.values.first()
+    val place = world.rooms.values.first()
     val char = Character(charId, "Guard", place.id)
     world.characters[charId] = char
     place.characters.add(charId)

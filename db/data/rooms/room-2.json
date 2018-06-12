@@ -1,11 +1,11 @@
 {
-  "id": "place-2",
-  "name": "place-2-name",
+  "id": "room-2",
+  "name": "room-2-name",
   "objects": [],
   "characters": [],
   "exits": {
     "s": {
-      "toPlaceId": "place-1"
+      "to": "room-1"
     }
   }
 }
