@@ -12,11 +12,9 @@
     </parent>
 
     <artifactId>webservice</artifactId>
-    <name>webservice</name>
     <packaging>war</packaging>
 
     <build>
-        <finalName>ROOT</finalName>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <!--<testSourceDirectory>src/test/kotlin</testSourceDirectory>-->
 

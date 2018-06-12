@@ -12,11 +12,9 @@
     </parent>
 
     <artifactId>instance</artifactId>
-    <name>instance</name>
     <packaging>jar</packaging>
 
     <build>
-        <finalName>midgard-engine.jar</finalName>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
 

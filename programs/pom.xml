@@ -12,11 +12,9 @@
     </parent>
 
     <artifactId>programs</artifactId>
-    <name>programs</name>
     <packaging>jar</packaging>
 
     <build>
-        <finalName>midgard-engine.jar</finalName>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
 
@@ -60,21 +58,18 @@
     </build>
 
     <dependencies>
-        <!-- Midgard engine -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
-        <!-- Midgard engine -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>events</artifactId>
             <version>1.0.0</version>
         </dependency>
 
-        <!-- Midgard engine -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>actions</artifactId>
