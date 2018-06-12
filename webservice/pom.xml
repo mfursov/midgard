@@ -11,8 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>web</artifactId>
-    <name>web</name>
+    <artifactId>webservice</artifactId>
+    <name>webservice</name>
     <packaging>war</packaging>
 
     <build>

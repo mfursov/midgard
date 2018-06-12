@@ -16,7 +16,7 @@
         <module>events</module>
         <module>instance</module>
         <module>programs</module>
-        <module>web</module>
+        <module>webservice</module>
     </modules>
 
     <properties>
