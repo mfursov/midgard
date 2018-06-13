@@ -2,7 +2,7 @@ var socket = null;
 
 function connect() {
   console.log("Begin connect");
-  socket = new WebSocket("ws://" + window.location.host + "/chat");
+  socket = new WebSocket("ws://" + window.location.host + "/console");
 
   socket.onerror = function () {
     console.log("socket error");
@@ -59,7 +59,7 @@ function start() {
 
   document.getElementById("sendButton").onclick = onSend;
   document.getElementById("commandInput").onkeydown = function (e) {
-    if (e.keyCode == 13) {
+    if (e.keyCode === 13) {
       onSend();
     }
   };

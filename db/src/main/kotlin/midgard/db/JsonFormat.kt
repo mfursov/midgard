@@ -1,6 +1,9 @@
 package midgard.db
 
-import com.github.salomonbrys.kotson.*
+import com.github.salomonbrys.kotson.fromJson
+import com.github.salomonbrys.kotson.registerTypeHierarchyAdapter
+import com.github.salomonbrys.kotson.string
+import com.github.salomonbrys.kotson.toJson
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import midgard.Direction
@@ -20,7 +23,7 @@ class JsonFormat : Format {
 
 private fun initGSON(): Gson {
     return GsonBuilder()
-            .registerTypeAdapter<Direction> {
+            .registerTypeHierarchyAdapter<Direction> {
                 serialize { it.src.name.substring(0, 1).toLowerCase().toJson() }
                 deserialize {
                     when (it.json.string) {

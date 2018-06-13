@@ -26,12 +26,6 @@ data class ObjId(val id: String)
 
 data class CharacterId(val id: String)
 
-data class Area(
-        val id: AreaId,
-        val name: String,
-        val places: MutableSet<RoomId>
-)
-
 data class Room(
         val id: RoomId,
         val name: String,

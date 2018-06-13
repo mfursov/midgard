@@ -102,10 +102,15 @@
 
     <dependencies>
 
-        <!-- Midgard common -->
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>midgard</groupId>
+            <artifactId>instance</artifactId>
             <version>1.0.0</version>
         </dependency>
 

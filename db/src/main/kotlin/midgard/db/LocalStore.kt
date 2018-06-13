@@ -8,15 +8,15 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 
-const val DATA_DIR = "./db/data"
+class LocalStore(val dataDir: String, val format: Format) : Store {
 
-class LocalStore(val format: Format) : Store {
-
-    override fun loadRooms() = File("$DATA_DIR/rooms").listFiles().map { format.readRoom(FileReader(it)) }
+    override fun loadRooms() = File("$dataDir/rooms").listFiles().map {
+        FileReader(it).use { format.readRoom(it) }
+    }
 
     override fun saveRooms(rooms: Collection<Room>) {
         rooms.forEach { room ->
-            FileWriter(File("$DATA_DIR/rooms/${room.id.id}.json"))
+            FileWriter(File("$dataDir/rooms/${room.id.id}.json"))
                     .use { format.writeRoom(room, it) }
         }
     }

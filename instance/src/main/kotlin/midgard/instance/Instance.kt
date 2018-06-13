@@ -1,7 +1,7 @@
 package midgard.instance
 
 import midgard.*
-import midgard.db.*
+import midgard.db.Store
 import midgard.program.greeting.GuardGreetingProgram
 import org.koin.dsl.module.applicationContext
 
@@ -27,13 +27,11 @@ class ObjectIdGenerator : AbstractIntGenerator<ObjId>() {
     override fun nextId() = ObjId("o-" + incCounter())
 }
 
-val store = LocalStore(JsonFormat())
-
 val instanceModule = applicationContext {
     bean<Random> { JavaRandom() }
     bean {
         initWorld(World(
-                rooms = loadRooms(),
+                rooms = loadRooms(get()),
                 characters = loadCharacters(),
                 objects = mutableMapOf(),
                 offlineCharacters = loadOfflineCharacters(),
@@ -48,7 +46,6 @@ val instanceModule = applicationContext {
                 tick = 0L)
         )
     }
-    bean<Translator> { MPropsTranslator() }
     bean { EventLoop() }
     bean { buildActionHandlers() }
     bean { instancePrograms() }
@@ -56,7 +53,6 @@ val instanceModule = applicationContext {
     bean { ActionIdGenerator() }
     bean { CharacterIdGenerator() }
     bean { ObjectIdGenerator() }
-    bean<Store> { store }
 
     factory { ActionId("a-" + get<ActionIdGenerator>().nextId()) }
     factory { EventId("e-" + get<EventIdGenerator>().nextId()) }
@@ -70,7 +66,7 @@ fun loadOfflineCharacters() = mutableMapOf<CharacterId, Character>()
 fun loadCharacters() = mutableMapOf<CharacterId, Character>()
 
 
-fun loadRooms() = store.loadRooms().associateBy { it.id }.toMutableMap()
+fun loadRooms(store: Store) = store.loadRooms().associateBy { it.id }.toMutableMap()
 
 class JavaRandom : Random
 

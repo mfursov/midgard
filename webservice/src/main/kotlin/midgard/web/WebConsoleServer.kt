@@ -8,14 +8,15 @@ import io.ktor.http.cio.websocket.close
 import kotlinx.coroutines.experimental.channels.ClosedSendChannelException
 import kotlinx.io.core.ByteReadPacket
 import kotlinx.io.core.buildPacket
-import java.util.LinkedList
+import midgard.CharacterId
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
-data class ChatSession(val id: String)
+data class ConsoleSession(val id: String, val charId: CharacterId)
 
-interface ChatServer {
+interface WebConsoleServer {
     suspend fun memberJoin(member: String, socket: WebSocketSession)
     suspend fun memberRenamed(member: String, to: String)
     suspend fun who(sender: String)
@@ -25,7 +26,7 @@ interface ChatServer {
     suspend fun memberLeft(member: String, socket: WebSocketSession)
 }
 
-class ChatServerImpl : ChatServer {
+class WebConsoleServerImpl : WebConsoleServer {
     val usersCounter = AtomicInteger()
     val memberNames = ConcurrentHashMap<String, String>()
     val members = ConcurrentHashMap<String, MutableList<WebSocketSession>>()

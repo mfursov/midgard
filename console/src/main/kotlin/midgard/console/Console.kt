@@ -1,5 +1,7 @@
 package midgard.console
 
+import midgard.Direction
+import midgard.db.*
 import midgard.instance.EventLoop
 import midgard.instance.instanceModule
 import midgard.instance.instancePrograms
@@ -11,7 +13,13 @@ import org.koin.standalone.inject
 
 fun consoleServerPrograms() = listOf(ConsoleInterfaceProgram())
 
+val r = JsonFormat().gsonFormat.toJson(Direction.North)
+
+const val dataDir = "./db/data"
+
 val consoleServerModule = applicationContext {
+    bean<Translator> { MPropsTranslator(dataDir) }
+    bean<Store> { LocalStore(dataDir, JsonFormat()) }
     bean { instancePrograms().union(consoleServerPrograms()).sortedBy { it.order }.toList() }
     bean<ConsoleInterface> { ConsoleServer }
 }
