@@ -14,24 +14,22 @@ enum class Direction {
 }
 
 
-data class AreaId(val id: String)
-
 interface Id {
     val id: String
 }
 
 data class RoomId(override val id: String) : Id
 
-data class ObjId(val id: String)
+data class ObjId(override val id: String) : Id
 
-data class CharacterId(val id: String)
+data class CharacterId(override val id: String) : Id
 
 data class Room(
         val id: RoomId,
         val name: String,
-        val objects: MutableSet<ObjId> = mutableSetOf(),
-        val characters: MutableSet<CharacterId> = mutableSetOf(),
-        val exits: MutableMap<Direction, ExitInfo> = mutableMapOf()
+        val objects: MutableSet<ObjId>,
+        val characters: MutableSet<CharacterId>,
+        val exits: MutableMap<Direction, ExitInfo>
 )
 
 data class ExitInfo(

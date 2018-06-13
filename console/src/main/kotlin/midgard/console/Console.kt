@@ -12,11 +12,7 @@ import org.koin.standalone.inject
 
 fun consoleServerPrograms() = listOf(ConsoleInterfaceProgram())
 
-const val dataDir = "./db/data"
-
 val consoleServerModule = applicationContext {
-    bean<Translator> { MPropsTranslator(dataDir) }
-    bean<Store> { LocalStore(dataDir, JsonFormat()) }
     bean { instancePrograms().union(consoleServerPrograms()).sortedBy { it.order }.toList() }
     bean<ConsoleInterface> { ConsoleServer }
 }

@@ -62,7 +62,7 @@
             <!--WAR file assembler-->
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.2</version>
                 <configuration>
                     <webResources>
 

@@ -1,7 +1,7 @@
 package midgard.instance
 
 import midgard.*
-import midgard.db.Store
+import midgard.db.*
 import midgard.program.greeting.GuardGreetingProgram
 import org.koin.dsl.module.applicationContext
 
@@ -26,6 +26,8 @@ class CharacterIdGenerator : AbstractIntGenerator<CharacterId>() {
 class ObjectIdGenerator : AbstractIntGenerator<ObjId>() {
     override fun nextId() = ObjId("o-" + incCounter())
 }
+
+val dataDir = System.getProperty("midgard.dataDir")!!
 
 val instanceModule = applicationContext {
     bean<Random> { JavaRandom() }
@@ -54,6 +56,9 @@ val instanceModule = applicationContext {
     bean { CharacterIdGenerator() }
     bean { ObjectIdGenerator() }
 
+    bean<Translator> { MPropsTranslator(dataDir) }
+    bean<Store> { LocalStore(dataDir, JsonFormat()) }
+
     factory { ActionId("a-" + get<ActionIdGenerator>().nextId()) }
     factory { EventId("e-" + get<EventIdGenerator>().nextId()) }
     factory { CharacterId("c-" + get<CharacterIdGenerator>().nextId()) }
@@ -70,15 +75,17 @@ fun loadRooms(store: Store) = store.loadRooms().associateBy { it.id }.toMutableM
 
 class JavaRandom : Random
 
-fun instancePrograms() = listOf(GuardGreetingProgram(), StoreProgram())
+fun instancePrograms() = listOf(
+        GuardGreetingProgram()
+//        StoreProgram()
+)
 
 private fun initWorld(world: World): World {
     val charId = world.characterIdGenerator.nextId()
-    val place = world.rooms.values.first()
-    val char = Character(charId, "Guard", place.id)
+    val room = world.rooms.values.first()
+    val char = Character(charId, "Guard", room.id)
     world.characters[charId] = char
-    place.characters.add(charId)
+    room.characters.add(charId)
     char.programData["greeter"] = "yes"
     return world
 }
-

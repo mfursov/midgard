@@ -73,13 +73,8 @@
 
         <!-- Serialization -->
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.salomonbrys.kotson</groupId>
-            <artifactId>kotson</artifactId>
+            <groupId>com.github.openjson</groupId>
+            <artifactId>openjson</artifactId>
         </dependency>
 
         <!-- Dependency injection -->

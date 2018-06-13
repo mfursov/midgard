@@ -37,11 +37,7 @@ import kotlin.collections.set
 
 fun webServerPrograms() = listOf<Program>()
 
-val dataDir = System.getProperty("midgard.dataDir")!!
-
 val webServerModule = applicationContext {
-    bean<Translator> { MPropsTranslator(dataDir) }
-    bean<Store> { LocalStore(dataDir, JsonFormat()) }
     bean { instancePrograms().union(webServerPrograms()).sortedBy { it.order }.toList() }
     bean<ChatServer> { ChatServerImpl() }
     bean<WebConsoleServer> { WebConsoleServerImpl() }
