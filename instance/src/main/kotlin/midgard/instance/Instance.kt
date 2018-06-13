@@ -27,7 +27,7 @@ class ObjectIdGenerator : AbstractIntGenerator<ObjId>() {
     override fun nextId() = ObjId("o-" + incCounter())
 }
 
-val dataDir = System.getProperty("midgard.dataDir")!!
+val dataDir = System.getProperty("midgard.dataDir") ?: throw IllegalStateException("'midgard.dataDir' system property is not set")
 
 val instanceModule = applicationContext {
     bean<Random> { JavaRandom() }
@@ -76,8 +76,8 @@ fun loadRooms(store: Store) = store.loadRooms().associateBy { it.id }.toMutableM
 class JavaRandom : Random
 
 fun instancePrograms() = listOf(
-        GuardGreetingProgram()
-//        StoreProgram()
+        GuardGreetingProgram(),
+        StoreProgram()
 )
 
 private fun initWorld(world: World): World {

@@ -16,7 +16,7 @@ class JsonFormat : Format {
         roomJson.put("id", room.id.id)
         roomJson.put("name", room.name)
         if (room.objects.isNotEmpty()) roomJson.put("objects", ids2Json(room.objects))
-        if (room.characters.isNotEmpty()) roomJson.put("objects", ids2Json(room.characters))
+        if (room.characters.isNotEmpty()) roomJson.put("characters", ids2Json(room.characters))
         if (room.exits.isNotEmpty()) roomJson.put("exists", writeExits(room.exits))
         w.write(roomJson.toString(2))
     }
@@ -25,9 +25,9 @@ class JsonFormat : Format {
         val json = JSONObject(reader.readText())
         return Room(id = RoomId(json.getString("id")),
                 name = json.getString("name"),
-                objects = json2Ids(json.getJSONArray("objects"), ObjId::class),
-                characters = json2Ids(json.getJSONArray("characters"), CharacterId::class),
-                exits = readExits(json))
+                objects = json2Ids(json.optJSONArray("objects"), ObjId::class),
+                characters = json2Ids(json.optJSONArray("characters"), CharacterId::class),
+                exits = readExits(json.optJSONObject("exits")))
     }
 
 }
@@ -39,14 +39,16 @@ private fun ids2Json(objects: Set<Id>): JSONArray {
     return jsonArray
 }
 
-private fun <T : Id> json2Ids(jsonArray: JSONArray, kls: KClass<T>): MutableSet<T> {
+private fun <T : Id> json2Ids(jsonArray: JSONArray?, kls: KClass<T>): MutableSet<T> {
     val result = mutableSetOf<T>()
-    val primaryConstructor = kls.primaryConstructor!!
-    for (i in 0..jsonArray.length()) {
-        val id = jsonArray.getString(i)
-        result.add(primaryConstructor.call(id))
+    if (jsonArray != null && jsonArray.length() != 0) {
+        val primaryConstructor = kls.primaryConstructor!!
+        for (i in 0..jsonArray.length()) {
+            val id = jsonArray.getString(i)
+            result.add(primaryConstructor.call(id))
+        }
     }
-    return result;
+    return result
 }
 
 private fun writeExits(exits: Map<Direction, ExitInfo>): JSONObject {
@@ -56,9 +58,9 @@ private fun writeExits(exits: Map<Direction, ExitInfo>): JSONObject {
     return exitsJson
 }
 
-private fun readExits(json: JSONObject): MutableMap<Direction, ExitInfo> {
+private fun readExits(json: JSONObject?): MutableMap<Direction, ExitInfo> {
     val result = mutableMapOf<Direction, ExitInfo>()
-    json.keySet().forEach {
+    json?.keySet()?.forEach {
         val exitJson = json.getJSONObject(it)
         val exitInfo = ExitInfo(to = RoomId(exitJson.getString("to")))
         val dir = when (it[0]) {
