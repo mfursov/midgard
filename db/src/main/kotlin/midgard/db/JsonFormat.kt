@@ -56,7 +56,7 @@ private fun <T : Id> json2Ids(jsonArray: JSONArray?, kls: KClass<T>): MutableSet
     val result = mutableSetOf<T>()
     if (jsonArray != null && jsonArray.length() != 0) {
         val primaryConstructor = kls.primaryConstructor!!
-        for (i in 0..jsonArray.length()) {
+        for (i in 0 until jsonArray.length()) {
             val id = jsonArray.getString(i)
             result.add(primaryConstructor.call(id))
         }
