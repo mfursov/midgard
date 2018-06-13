@@ -12,15 +12,16 @@ const val DATA_DIR = "./db/data"
 
 class LocalStore(val format: Format) : Store {
 
-    override fun readRooms() = File("$DATA_DIR/rooms").listFiles().map { format.readRoom(FileReader(it)) }
+    override fun loadRooms() = File("$DATA_DIR/rooms").listFiles().map { format.readRoom(FileReader(it)) }
 
-    override fun saveRooms(rooms: List<Room>) {
-        rooms.forEach {
-            format.writePlace(it, FileWriter(File("$DATA_DIR/rooms/${it.id}")))
+    override fun saveRooms(rooms: Collection<Room>) {
+        rooms.forEach { room ->
+            FileWriter(File("$DATA_DIR/rooms/${room.id.id}.json"))
+                    .use { format.writeRoom(room, it) }
         }
     }
 
-    override fun readCharacters(): List<Character> {
+    override fun loadCharacters(): List<Character> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -28,7 +29,7 @@ class LocalStore(val format: Format) : Store {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun readObjects(): List<Obj> {
+    override fun loadObjects(): List<Obj> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -36,7 +37,7 @@ class LocalStore(val format: Format) : Store {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun <T : Id> readIdsList(idsListId: IdsListId): List<T> {
+    override fun <T : Id> loadIdsList(idsListId: IdsListId): List<T> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -44,7 +45,7 @@ class LocalStore(val format: Format) : Store {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun <T> readProperty(name: String): T {
+    override fun <T> loadProperty(name: String): T {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

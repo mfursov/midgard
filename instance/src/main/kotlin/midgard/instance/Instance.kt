@@ -1,10 +1,7 @@
 package midgard.instance
 
 import midgard.*
-import midgard.db.JsonFormat
-import midgard.db.LocalStore
-import midgard.db.MPropsTranslator
-import midgard.db.Translator
+import midgard.db.*
 import midgard.program.greeting.GuardGreetingProgram
 import org.koin.dsl.module.applicationContext
 
@@ -36,7 +33,7 @@ val instanceModule = applicationContext {
     bean<Random> { JavaRandom() }
     bean {
         initWorld(World(
-                rooms = loadPlaces(),
+                rooms = loadRooms(),
                 characters = loadCharacters(),
                 objects = mutableMapOf(),
                 offlineCharacters = loadOfflineCharacters(),
@@ -59,6 +56,7 @@ val instanceModule = applicationContext {
     bean { ActionIdGenerator() }
     bean { CharacterIdGenerator() }
     bean { ObjectIdGenerator() }
+    bean<Store> { store }
 
     factory { ActionId("a-" + get<ActionIdGenerator>().nextId()) }
     factory { EventId("e-" + get<EventIdGenerator>().nextId()) }
@@ -72,11 +70,11 @@ fun loadOfflineCharacters() = mutableMapOf<CharacterId, Character>()
 fun loadCharacters() = mutableMapOf<CharacterId, Character>()
 
 
-fun loadPlaces() = store.readRooms().associateBy { it.id }.toMutableMap()
+fun loadRooms() = store.loadRooms().associateBy { it.id }.toMutableMap()
 
 class JavaRandom : Random
 
-fun instancePrograms() = listOf(GuardGreetingProgram())
+fun instancePrograms() = listOf(GuardGreetingProgram(), StoreProgram())
 
 private fun initWorld(world: World): World {
     val charId = world.characterIdGenerator.nextId()

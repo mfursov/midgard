@@ -25,7 +25,7 @@ class EventLoop : KoinComponent {
             val thread = Thread({
                 while (mainThread != null) {
                     tick(world)
-                    Thread.sleep(10)
+                    Thread.sleep(100)
                 }
             })
             mainThread = thread

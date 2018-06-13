@@ -13,19 +13,19 @@ enum class IdsListId {
 
 interface Store {
 
-    fun readRooms(): List<Room>
-    fun saveRooms(rooms: List<Room>)
+    fun loadRooms(): List<Room>
+    fun saveRooms(rooms: Collection<Room>)
 
-    fun readCharacters(): List<Character>
+    fun loadCharacters(): List<Character>
     fun saveCharacter(character: Character)
 
-    fun readObjects(): List<Obj>
+    fun loadObjects(): List<Obj>
     fun saveObject(obj: Obj)
 
-    fun <T : Id> readIdsList(idsListId: IdsListId): List<T>
+    fun <T : Id> loadIdsList(idsListId: IdsListId): List<T>
     fun <T : Id> saveIdsList(ids: List<T>)
 
-    fun <T> readProperty(name: String): T
+    fun <T> loadProperty(name: String): T
     fun <T> saveProperty(name: String, value: T)
 }
 

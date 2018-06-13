@@ -14,7 +14,7 @@ import kotlin.reflect.full.primaryConstructor
 class JsonFormat : Format {
     val gsonFormat = initGSON()
 
-    override fun writePlace(id: Room, w: Writer) = w.write(gsonFormat.toJson(id))
+    override fun writeRoom(id: Room, w: Writer) = w.write(gsonFormat.toJson(id))
     override fun readRoom(reader: Reader): Room = gsonFormat.fromJson(reader.readText())
 }
 
