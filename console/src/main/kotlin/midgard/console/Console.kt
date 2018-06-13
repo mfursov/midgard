@@ -1,6 +1,5 @@
 package midgard.console
 
-import midgard.Direction
 import midgard.db.*
 import midgard.instance.EventLoop
 import midgard.instance.instanceModule
@@ -12,8 +11,6 @@ import org.koin.standalone.inject
 
 
 fun consoleServerPrograms() = listOf(ConsoleInterfaceProgram())
-
-val r = JsonFormat().gsonFormat.toJson(Direction.North)
 
 const val dataDir = "./db/data"
 

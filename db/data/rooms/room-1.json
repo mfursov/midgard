@@ -4,7 +4,7 @@
   "objects": [],
   "characters": [],
   "exits": {
-    "North": {
+    "n": {
       "to": "room-2"
     }
   }

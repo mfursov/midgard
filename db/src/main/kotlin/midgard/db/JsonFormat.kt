@@ -1,9 +1,6 @@
 package midgard.db
 
-import com.github.salomonbrys.kotson.fromJson
-import com.github.salomonbrys.kotson.registerTypeHierarchyAdapter
-import com.github.salomonbrys.kotson.string
-import com.github.salomonbrys.kotson.toJson
+import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import midgard.Direction
@@ -15,15 +12,16 @@ import kotlin.reflect.full.primaryConstructor
 
 
 class JsonFormat : Format {
-    val gsonFormat = initGSON()
+    val gson = initGSON()
 
-    override fun writeRoom(id: Room, w: Writer) = w.write(gsonFormat.toJson(id))
-    override fun readRoom(reader: Reader): Room = gsonFormat.fromJson(reader.readText())
+    override fun writeRoom(id: Room, w: Writer) = w.write(gson.toJson(id))
+    override fun readRoom(reader: Reader): Room = gson.fromJson(reader.readText())
 }
 
 private fun initGSON(): Gson {
     return GsonBuilder()
-            .registerTypeHierarchyAdapter<Direction> {
+            .enableComplexMapKeySerialization()
+            .registerTypeAdapter<Direction> {
                 serialize { it.src.name.substring(0, 1).toLowerCase().toJson() }
                 deserialize {
                     when (it.json.string) {

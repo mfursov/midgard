@@ -2,13 +2,8 @@
   "id": "room-2",
   "name": "room-2-name",
   "objects": [],
-  "characters": [
-    {
-      "id": "c-1"
-    }
-  ],
   "exits": {
-    "South": {
+    "s": {
       "to": "room-1"
     }
   }
