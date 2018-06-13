@@ -5,9 +5,22 @@ import com.github.openjson.JSONObject
 import midgard.*
 import java.io.Reader
 import java.io.Writer
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
+private val DIR_2_JSON = EnumMap<Direction, String>(mutableMapOf(
+        Pair(Direction.North, "n"),
+        Pair(Direction.East, "e"),
+        Pair(Direction.South, "s"),
+        Pair(Direction.West, "w"),
+        Pair(Direction.Up, "u"),
+        Pair(Direction.Down, "d")
+))
+
+private fun <K, V> Map<K, V>.reversed() = HashMap<V, K>().also { me -> entries.forEach { me[it.value] = it.key } }
+
+private val JSON_2_DIR = DIR_2_JSON.reversed()
 
 class JsonFormat : Format {
 
@@ -53,8 +66,7 @@ private fun <T : Id> json2Ids(jsonArray: JSONArray?, kls: KClass<T>): MutableSet
 
 private fun writeExits(exits: Map<Direction, ExitInfo>): JSONObject {
     val exitsJson = JSONObject()
-    //todo: optimize direction serialization
-    exits.forEach({ dir, exit -> exitsJson.put(dir.name.substring(0, 1).toLowerCase(), JSONObject().put("to", exit.to.id)) })
+    exits.forEach({ dir, exit -> exitsJson.put(DIR_2_JSON[dir], JSONObject().put("to", exit.to.id)) })
     return exitsJson
 }
 
@@ -62,17 +74,8 @@ private fun readExits(json: JSONObject?): MutableMap<Direction, ExitInfo> {
     val result = mutableMapOf<Direction, ExitInfo>()
     json?.keySet()?.forEach {
         val exitJson = json.getJSONObject(it)
-        val exitInfo = ExitInfo(to = RoomId(exitJson.getString("to")))
-        val dir = when (it[0]) {
-            'n' -> Direction.North
-            'e' -> Direction.East
-            's' -> Direction.South
-            'w' -> Direction.West
-            'u' -> Direction.Up
-            'd' -> Direction.Down
-            else -> throw IllegalArgumentException("Failed to parse exit direction: $exitJson")
-        }
-        result[dir] = exitInfo
+        val dir = JSON_2_DIR[it] ?: throw IllegalArgumentException("Failed to deserialize direction: $it in $exitJson")
+        result[dir] = ExitInfo(to = RoomId(exitJson.getString("to")))
     }
     return result
 }

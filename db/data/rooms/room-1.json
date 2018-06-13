@@ -1,9 +1,7 @@
 {
   "id": "room-1",
   "name": "room-1-name",
-  "objects": [],
-  "characters": [],
-  "exits": {
+  "exists": {
     "n": {
       "to": "room-2"
     }

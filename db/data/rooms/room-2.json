@@ -1,6 +1,7 @@
 {
   "id": "room-2",
-  "exits": {
+  "name": "room-2-name",
+  "exists": {
     "s": {
       "to": "room-1"
     }
