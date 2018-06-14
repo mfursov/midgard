@@ -1,17 +1,20 @@
 package midgard.json;
 
+import org.jetbrains.annotations.Nullable;
+
 class JSON {
     /**
      * Returns the input if it is a JSON-permissible value; throws otherwise.
      */
-    static double checkDouble(double d) throws JSONException {
+    static double checkDouble(double d) {
         if (Double.isInfinite(d) || Double.isNaN(d)) {
-            throw new JSONException("Forbidden numeric value: " + d);
+            throw new IllegalArgumentException("Forbidden numeric value: " + d);
         }
         return d;
     }
 
-    static Boolean toBoolean(Object value) {
+    @Nullable
+    static Boolean toBoolean(@Nullable Object value) {
         if (value instanceof Boolean) {
             return (Boolean) value;
         } else if (value instanceof String) {
@@ -25,7 +28,8 @@ class JSON {
         return null;
     }
 
-    static Double toDouble(Object value) {
+    @Nullable
+    static Double toDouble(@Nullable Object value) {
         if (value instanceof Double) {
             return (Double) value;
         } else if (value instanceof Number) {
@@ -39,7 +43,8 @@ class JSON {
         return null;
     }
 
-    static Integer toInteger(Object value) {
+    @Nullable
+    static Integer toInteger(@Nullable Object value) {
         if (value instanceof Integer) {
             return (Integer) value;
         } else if (value instanceof Number) {
@@ -53,7 +58,8 @@ class JSON {
         return null;
     }
 
-    static Long toLong(Object value) {
+    @Nullable
+    static Long toLong(@Nullable Object value) {
         if (value instanceof Long) {
             return (Long) value;
         } else if (value instanceof Number) {
@@ -67,7 +73,8 @@ class JSON {
         return null;
     }
 
-    static String toString(Object value) {
+    @Nullable
+    static String toString(@Nullable Object value) {
         if (value instanceof String) {
             return (String) value;
         } else if (value != null) {
@@ -76,23 +83,22 @@ class JSON {
         return null;
     }
 
-    public static JSONException typeMismatch(Object indexOrName, Object actual,
-                                             String requiredType) throws JSONException {
+    public static IllegalArgumentException typeMismatch(Object indexOrName, Object actual,
+                                                        String requiredType) {
         if (actual == null) {
-            throw new JSONException("Value at " + indexOrName + " is null.");
+            throw new IllegalArgumentException("Value at " + indexOrName + " is null.");
         } else {
-            throw new JSONException("Value " + actual + " at " + indexOrName
+            throw new IllegalArgumentException("Value " + actual + " at " + indexOrName
                     + " of type " + actual.getClass().getName()
                     + " cannot be converted to " + requiredType);
         }
     }
 
-    public static JSONException typeMismatch(Object actual, String requiredType)
-            throws JSONException {
+    public static IllegalArgumentException typeMismatch(Object actual, String requiredType) {
         if (actual == null) {
-            throw new JSONException("Value is null.");
+            throw new IllegalArgumentException("Value is null.");
         } else {
-            throw new JSONException("Value " + actual
+            throw new IllegalArgumentException("Value " + actual
                     + " of type " + actual.getClass().getName()
                     + " cannot be converted to " + requiredType);
         }

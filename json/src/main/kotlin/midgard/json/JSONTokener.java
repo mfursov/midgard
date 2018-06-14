@@ -2,12 +2,15 @@ package midgard.json;
 
 import java.io.IOException;
 import java.io.Reader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class JSONTokener {
 
     /**
      * The input JSON.
      */
+    @NotNull
     private final String in;
 
     /**
@@ -21,15 +24,15 @@ public class JSONTokener {
      *           tokener that throws {@code NullPointerExceptions} when methods are
      *           called.
      */
-    public JSONTokener(String in) {
+    public JSONTokener(@NotNull String in) {
         // consume an optional byte order mark (BOM) if it exists
-        if (in != null && in.startsWith("\ufeff")) {
+        if (in.startsWith("\ufeff")) {
             in = in.substring(1);
         }
         this.in = in;
     }
 
-    public JSONTokener(Reader input) throws IOException {
+    public JSONTokener(@NotNull Reader input) throws IOException {
         StringBuilder s = new StringBuilder();
         char[] readBuf = new char[102400];
         int n = input.read(readBuf);
@@ -46,13 +49,14 @@ public class JSONTokener {
      *
      * @return a {@link JSONObject}, {@link JSONArray}, String, Boolean,
      * Integer, Long, Double or {@link JSONObject#NULL}.
-     * @throws JSONException if the input is malformed.
+     * @throws IllegalArgumentException if the input is malformed.
      */
-    public Object nextValue() throws JSONException {
-        int c = nextCleanInternal();
+    @Nullable
+    public Object nextValue() {
+        char c = nextCleanInternal();
         switch (c) {
-            case -1:
-                throw syntaxError("End of input");
+            case Character.MAX_VALUE:
+                throw new IllegalArgumentException("End of input" + this);
 
             case '{':
                 return readObject();
@@ -62,7 +66,7 @@ public class JSONTokener {
 
             case '\'':
             case '"':
-                return nextString((char) c);
+                return nextString(c);
 
             default:
                 pos--;
@@ -70,9 +74,9 @@ public class JSONTokener {
         }
     }
 
-    private int nextCleanInternal() throws JSONException {
+    private char nextCleanInternal() {
         while (pos < in.length()) {
-            int c = in.charAt(pos++);
+            char c = in.charAt(pos++);
             switch (c) {
                 case '\t':
                 case ' ':
@@ -92,7 +96,7 @@ public class JSONTokener {
                             pos++;
                             int commentEnd = in.indexOf("*/", pos);
                             if (commentEnd == -1) {
-                                throw syntaxError("Unterminated comment");
+                                throw new IllegalArgumentException("Unterminated comment" + this);
                             }
                             pos = commentEnd + 2;
                             continue;
@@ -121,7 +125,7 @@ public class JSONTokener {
             }
         }
 
-        return -1;
+        return Character.MAX_VALUE;
     }
 
     /**
@@ -147,9 +151,10 @@ public class JSONTokener {
      *
      * @param quote either ' or ".
      * @return The unescaped string.
-     * @throws JSONException if the string isn't terminated by a closing quote correctly.
+     * @throws IllegalArgumentException if the string isn't terminated by a closing quote correctly.
      */
-    public String nextString(char quote) throws JSONException {
+    @Nullable
+    public String nextString(char quote) {
         /*
          * For strings that are free of escape sequences, we can just extract
          * the result as a substring of the input. But if we encounter an escape
@@ -175,7 +180,7 @@ public class JSONTokener {
 
             if (c == '\\') {
                 if (pos == in.length()) {
-                    throw syntaxError("Unterminated escape sequence");
+                    throw new IllegalArgumentException("Unterminated escape sequence" + this);
                 }
                 if (builder == null) {
                     builder = new StringBuilder();
@@ -186,7 +191,7 @@ public class JSONTokener {
             }
         }
 
-        throw syntaxError("Unterminated string");
+        throw new IllegalArgumentException("Unterminated string" + this);
     }
 
     /**
@@ -195,19 +200,19 @@ public class JSONTokener {
      * been read. This supports both unicode escapes "u000A" and two-character
      * escapes "\n".
      */
-    private char readEscapeCharacter() throws JSONException {
+    private char readEscapeCharacter() {
         char escaped = in.charAt(pos++);
         switch (escaped) {
             case 'u':
                 if (pos + 4 > in.length()) {
-                    throw syntaxError("Unterminated escape sequence");
+                    throw new IllegalArgumentException("Unterminated escape sequence" + this);
                 }
                 String hex = in.substring(pos, pos + 4);
                 pos += 4;
                 try {
                     return (char) Integer.parseInt(hex, 16);
                 } catch (NumberFormatException nfe) {
-                    throw syntaxError("Invalid escape sequence: " + hex);
+                    throw new IllegalArgumentException(("Invalid escape sequence: " + hex) + this);
                 }
 
             case 't':
@@ -238,11 +243,11 @@ public class JSONTokener {
      * values will be returned as an Integer, Long, or Double, in that order of
      * preference.
      */
-    private Object readLiteral() throws JSONException {
+    private Object readLiteral() {
         String literal = nextToInternal("{}[]/\\:,=;# \t\f");
 
         if (literal.length() == 0) {
-            throw syntaxError("Expected literal value");
+            throw new IllegalArgumentException("Expected literal value" + this);
         } else if ("null".equalsIgnoreCase(literal)) {
             return JSONObject.NULL;
         } else if ("true".equalsIgnoreCase(literal)) {
@@ -293,6 +298,7 @@ public class JSONTokener {
      * Returns the string up to but not including any of the given characters or
      * a newline character. This does not consume the excluded character.
      */
+    @NotNull
     private String nextToInternal(String excluded) {
         int start = pos;
         for (; pos < in.length(); pos++) {
@@ -308,14 +314,15 @@ public class JSONTokener {
      * Reads a sequence of key/value pairs and the trailing closing brace '}' of
      * an object. The opening brace '{' should have already been read.
      */
-    private JSONObject readObject() throws JSONException {
+    @NotNull
+    private JSONObject readObject() {
         JSONObject result = new JSONObject();
 
         /* Peek to see if this is the empty object. */
-        int first = nextCleanInternal();
+        char first = nextCleanInternal();
         if (first == '}') {
             return result;
-        } else if (first != -1) {
+        } else if (first != Character.MAX_VALUE) {
             pos--;
         }
 
@@ -323,10 +330,10 @@ public class JSONTokener {
             Object name = nextValue();
             if (!(name instanceof String)) {
                 if (name == null) {
-                    throw syntaxError("Names cannot be null");
+                    throw new IllegalArgumentException("Names cannot be null" + this);
                 } else {
-                    throw syntaxError("Names must be strings, but " + name
-                            + " is of type " + name.getClass().getName());
+                    throw new IllegalArgumentException(("Names must be strings, but " + name
+                            + " is of type " + name.getClass().getName()) + this);
                 }
             }
 
@@ -337,7 +344,7 @@ public class JSONTokener {
              */
             int separator = nextCleanInternal();
             if (separator != ':' && separator != '=') {
-                throw syntaxError("Expected ':' after " + name);
+                throw new IllegalArgumentException(("Expected ':' after " + name) + this);
             }
             if (pos < in.length() && in.charAt(pos) == '>') {
                 pos++;
@@ -352,7 +359,7 @@ public class JSONTokener {
                 case ',':
                     continue;
                 default:
-                    throw syntaxError("Unterminated object");
+                    throw new IllegalArgumentException("Unterminated object" + this);
             }
         }
     }
@@ -363,7 +370,8 @@ public class JSONTokener {
      * "[]" yields an empty array, but "[,]" returns a two-element array
      * equivalent to "[null,null]".
      */
-    private JSONArray readArray() throws JSONException {
+    @NotNull
+    private JSONArray readArray() {
         JSONArray result = new JSONArray();
 
         /* to cover input that ends with ",]". */
@@ -371,8 +379,8 @@ public class JSONTokener {
 
         while (true) {
             switch (nextCleanInternal()) {
-                case -1:
-                    throw syntaxError("Unterminated array");
+                case Character.MAX_VALUE:
+                    throw new IllegalArgumentException("Unterminated array" + this);
                 case ']':
                     if (hasTrailingSeparator) {
                         result.addNull();
@@ -398,25 +406,15 @@ public class JSONTokener {
                     hasTrailingSeparator = true;
                     continue;
                 default:
-                    throw syntaxError("Unterminated array");
+                    throw new IllegalArgumentException("Unterminated array" + this);
             }
         }
     }
 
     /**
-     * Returns an exception containing the given message plus the current
-     * position and the entire input string.
-     *
-     * @param message The message we want to include.
-     * @return An exception that we can throw.
-     */
-    public JSONException syntaxError(String message) {
-        return new JSONException(message + this);
-    }
-
-    /**
      * Returns the current position and the entire input string.
      */
+    @NotNull
     @Override
     public String toString() {
         // consistent with the original implementation
@@ -457,12 +455,12 @@ public class JSONTokener {
      *
      * @param c The character we are looking for.
      * @return the next character.
-     * @throws JSONException If the next character isn't {@code c}
+     * @throws IllegalArgumentException If the next character isn't {@code c}
      */
-    public char next(char c) throws JSONException {
+    public char next(char c) {
         char result = next();
         if (result != c) {
-            throw syntaxError("Expected " + c + " but was " + result);
+            throw new IllegalArgumentException(("Expected " + c + " but was " + result) + this);
         }
         return result;
     }
@@ -474,11 +472,11 @@ public class JSONTokener {
      * method is ambiguous for JSON strings that contain the character '\0'.
      *
      * @return The next non-whitespace character.
-     * @throws JSONException Should not be possible.
+     * @throws IllegalArgumentException Should not be possible.
      */
-    public char nextClean() throws JSONException {
-        int nextCleanInt = nextCleanInternal();
-        return nextCleanInt == -1 ? '\0' : (char) nextCleanInt;
+    public char nextClean() {
+        char next = nextCleanInternal();
+        return next == Character.MAX_VALUE ? '\0' : next;
     }
 
     /**
@@ -491,12 +489,13 @@ public class JSONTokener {
      *
      * @param length The desired number of characters to return.
      * @return The next few characters.
-     * @throws JSONException if the remaining input is not long enough to
-     *                       satisfy this request.
+     * @throws IllegalArgumentException if the remaining input is not long enough to
+     *                                  satisfy this request.
      */
-    public String next(int length) throws JSONException {
+    @NotNull
+    public String next(int length) {
         if (pos + length > in.length()) {
-            throw syntaxError(length + " is out of bounds");
+            throw new IllegalArgumentException((length + " is out of bounds") + this);
         }
         String result = in.substring(pos, pos + length);
         pos += length;
@@ -520,7 +519,8 @@ public class JSONTokener {
      * @param excluded The limiting string where the search should stop.
      * @return a possibly-empty string
      */
-    public String nextTo(String excluded) {
+    @NotNull
+    public String nextTo(@Nullable String excluded) {
         if (excluded == null) {
             throw new NullPointerException("excluded == null");
         }
@@ -533,6 +533,7 @@ public class JSONTokener {
      * @param excluded The limiting character.
      * @return a possibly-empty string
      */
+    @NotNull
     public String nextTo(char excluded) {
         return nextToInternal(String.valueOf(excluded)).trim();
     }

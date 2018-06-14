@@ -68,13 +68,6 @@
                 <version>${kotlin.version}</version>
             </dependency>
 
-            <!-- Serialization -->
-            <dependency>
-                <groupId>com.github.openjson</groupId>
-                <artifactId>openjson</artifactId>
-                <version>1.0.10</version>
-            </dependency>
-
             <!-- Ktor framework -->
             <dependency>
                 <groupId>io.ktor</groupId>

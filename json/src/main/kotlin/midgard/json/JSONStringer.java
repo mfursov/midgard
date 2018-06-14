@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class JSONStringer {
 
     /**
      * The output data, containing at most one top-level array or object.
      */
-    final protected StringBuilder out = new StringBuilder();
+    protected final StringBuilder out = new StringBuilder();
 
     /**
      * Lexical scoping elements within this stringer, necessary to insert the
@@ -87,9 +89,10 @@ public class JSONStringer {
      * a call to {@link #endArray}.
      *
      * @return this stringer.
-     * @throws JSONException On internal errors. Shouldn't happen.
+     * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    public JSONStringer array() throws JSONException {
+    @NotNull
+    public JSONStringer array() {
         return open(Scope.EMPTY_ARRAY, "[");
     }
 
@@ -97,9 +100,10 @@ public class JSONStringer {
      * Ends encoding the current array.
      *
      * @return this stringer.
-     * @throws JSONException On internal errors. Shouldn't happen.
+     * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    public JSONStringer endArray() throws JSONException {
+    @NotNull
+    public JSONStringer endArray() {
         return close(Scope.EMPTY_ARRAY, Scope.NONEMPTY_ARRAY, "]");
     }
 
@@ -108,9 +112,10 @@ public class JSONStringer {
      * with a call to {@link #endObject}.
      *
      * @return this stringer.
-     * @throws JSONException On internal errors. Shouldn't happen.
+     * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    public JSONStringer object() throws JSONException {
+    @NotNull
+    public JSONStringer object() {
         return open(Scope.EMPTY_OBJECT, "{");
     }
 
@@ -118,9 +123,10 @@ public class JSONStringer {
      * Ends encoding the current object.
      *
      * @return this stringer.
-     * @throws JSONException On internal errors. Shouldn't happen.
+     * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    public JSONStringer endObject() throws JSONException {
+    @NotNull
+    public JSONStringer endObject() {
         return close(Scope.EMPTY_OBJECT, Scope.NONEMPTY_OBJECT, "}");
     }
 
@@ -128,9 +134,10 @@ public class JSONStringer {
      * Enters a new scope by appending any necessary whitespace and the given
      * bracket.
      */
-    JSONStringer open(Scope empty, String openBracket) throws JSONException {
+    @NotNull
+    JSONStringer open(Scope empty, String openBracket) {
         if (stack.isEmpty() && out.length() > 0) {
-            throw new JSONException("Nesting problem: multiple top-level roots");
+            throw new IllegalArgumentException("Nesting problem: multiple top-level roots");
         }
         beforeValue();
         stack.add(empty);
@@ -142,10 +149,11 @@ public class JSONStringer {
      * Closes the current scope by appending any necessary whitespace and the
      * given bracket.
      */
-    JSONStringer close(Scope empty, Scope nonempty, String closeBracket) throws JSONException {
+    @NotNull
+    JSONStringer close(@NotNull Scope empty, @NotNull Scope nonempty, @NotNull String closeBracket) {
         Scope context = peek();
         if (context != nonempty && context != empty) {
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
 
         stack.remove(stack.size() - 1);
@@ -159,9 +167,10 @@ public class JSONStringer {
     /**
      * Returns the value on the top of the stack.
      */
-    private Scope peek() throws JSONException {
+    @NotNull
+    private Scope peek() {
         if (stack.isEmpty()) {
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
         return stack.get(stack.size() - 1);
     }
@@ -180,11 +189,12 @@ public class JSONStringer {
      *              Integer, Long, Double or null. May not be {@link Double#isNaN() NaNs}
      *              or {@link Double#isInfinite() infinities}.
      * @return this stringer.
-     * @throws JSONException On internal errors. Shouldn't happen.
+     * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    public JSONStringer value(Object value) throws JSONException {
+    @NotNull
+    public JSONStringer value(@Nullable Object value) {
         if (stack.isEmpty()) {
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
 
         if (value instanceof JSONArray) {
@@ -205,20 +215,9 @@ public class JSONStringer {
 
         } else if (value instanceof Number) {
             out.append(JSONObject.numberToString((Number) value));
-
         } else {
-            // Hack to make it possible that the value is not surrounded by quotes. (Used for JavaScript function calls)
-            // Example: { "name": "testkey", "value": window.myfunction() }
-            if (value.getClass().getName().contains("JSONFunction")) {
-                // note that no escaping of quotes (or anything else) is done in this case.
-                // that is fine because the only way to get to this point is to
-                // explicitly add a special kind of object into the JSON data structure.
-                out.append(value);
-            } else {
-                string(value.toString());
-            }
+            string(value.toString());
         }
-
         return this;
     }
 
@@ -227,11 +226,11 @@ public class JSONStringer {
      *
      * @param value The value to encode.
      * @return this stringer.
-     * @throws JSONException On internal errors. Shouldn't happen.
+     * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    public JSONStringer value(boolean value) throws JSONException {
+    public JSONStringer value(boolean value) {
         if (stack.isEmpty()) {
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
         beforeValue();
         out.append(value);
@@ -244,11 +243,11 @@ public class JSONStringer {
      * @param value a finite value. May not be {@link Double#isNaN() NaNs} or
      *              {@link Double#isInfinite() infinities}.
      * @return this stringer.
-     * @throws JSONException On internal errors. Shouldn't happen.
+     * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    public JSONStringer value(double value) throws JSONException {
+    public JSONStringer value(double value) {
         if (stack.isEmpty()) {
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
         beforeValue();
         out.append(JSONObject.numberToString(value));
@@ -260,11 +259,12 @@ public class JSONStringer {
      *
      * @param value The value to encode.
      * @return this stringer.
-     * @throws JSONException If we have an internal error. Shouldn't happen.
+     * @throws IllegalArgumentException If we have an internal error. Shouldn't happen.
      */
-    public JSONStringer value(long value) throws JSONException {
+    @NotNull
+    public JSONStringer value(long value) {
         if (stack.isEmpty()) {
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
         beforeValue();
         out.append(value);
@@ -276,16 +276,17 @@ public class JSONStringer {
      *
      * @param entry The entry to encode.
      * @return this stringer.
-     * @throws JSONException If we have an internal error. Shouldn't happen.
+     * @throws IllegalArgumentException If we have an internal error. Shouldn't happen.
      */
-    public JSONStringer entry(Map.Entry<String, Object> entry) {
+    @NotNull
+    public JSONStringer entry(@NotNull Map.Entry<String, Object> entry) {
         if (!JSONObject.NULL.equals(entry.getValue())) {
             this.key(entry.getKey()).value(entry.getValue());
         }
         return this;
     }
 
-    private void string(String value) {
+    private void string(@NotNull String value) {
         out.append("\"");
         char currentChar = 0;
 
@@ -364,6 +365,7 @@ public class JSONStringer {
      * @param name the name of the forthcoming value.
      * @return this stringer.
      */
+    @NotNull
     protected JSONStringer createKey(String name) {
         string(name);
         return this;
@@ -374,12 +376,10 @@ public class JSONStringer {
      *
      * @param name the name of the forthcoming value. May not be null.
      * @return this stringer.
-     * @throws JSONException on internal errors, shouldn't happen.
+     * @throws IllegalArgumentException on internal errors, shouldn't happen.
      */
-    public JSONStringer key(String name) throws JSONException {
-        if (name == null) {
-            throw new JSONException("Names must be non-null");
-        }
+    @NotNull
+    public JSONStringer key(@NotNull String name) {
         beforeKey();
         return createKey(name);
     }
@@ -388,12 +388,12 @@ public class JSONStringer {
      * Inserts any necessary separators and whitespace before a name. Also
      * adjusts the stack to expect the key's value.
      */
-    private void beforeKey() throws JSONException {
+    private void beforeKey() {
         Scope context = peek();
         if (context == Scope.NONEMPTY_OBJECT) { // first in object
             out.append(',');
         } else if (context != Scope.EMPTY_OBJECT) { // not in an object!
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
         newline();
         replaceTop(Scope.DANGLING_KEY);
@@ -404,7 +404,7 @@ public class JSONStringer {
      * inline array, or inline object. Also adjusts the stack to expect either a
      * closing bracket or another element.
      */
-    private void beforeValue() throws JSONException {
+    private void beforeValue() {
         if (stack.isEmpty()) {
             return;
         }
@@ -420,7 +420,7 @@ public class JSONStringer {
             out.append(indent == null ? ":" : ": ");
             replaceTop(Scope.NONEMPTY_OBJECT);
         } else if (context != Scope.NULL) {
-            throw new JSONException("Nesting problem");
+            throw new IllegalArgumentException("Nesting problem");
         }
     }
 
@@ -434,8 +434,9 @@ public class JSONStringer {
      * of {@link Object#toString}, this method returns null if the stringer
      * contains no data.
      */
+    @NotNull
     @Override
     public String toString() {
-        return out.length() == 0 ? null : out.toString();
+        return out.length() == 0 ? "" : out.toString();
     }
 }

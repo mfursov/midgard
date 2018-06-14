@@ -1,8 +1,8 @@
 package midgard.db
 
-import com.github.openjson.JSONArray
-import com.github.openjson.JSONObject
 import midgard.*
+import midgard.json.JSONArray
+import midgard.json.JSONObject
 import java.io.Reader
 import java.io.Writer
 import java.util.*
@@ -26,11 +26,11 @@ class JsonFormat : Format {
 
     override fun writeRoom(room: Room, w: Writer) {
         val roomJson = JSONObject()
-        roomJson.put("id", room.id.id)
-        roomJson.put("name", room.name)
-        if (room.objects.isNotEmpty()) roomJson.put("objects", ids2Json(room.objects))
-        if (room.characters.isNotEmpty()) roomJson.put("characters", ids2Json(room.characters))
-        if (room.exits.isNotEmpty()) roomJson.put("exists", writeExits(room.exits))
+        roomJson["id"] = room.id.id
+        roomJson["name"] = room.name
+        if (room.objects.isNotEmpty()) roomJson["objects"] = ids2Json(room.objects)
+        if (room.characters.isNotEmpty()) roomJson["characters"] = ids2Json(room.characters)
+        if (room.exits.isNotEmpty()) roomJson["exits"] = writeExits(room.exits)
         w.write(roomJson.toString(2))
     }
 
@@ -48,7 +48,7 @@ class JsonFormat : Format {
 
 private fun ids2Json(objects: Set<Id>): JSONArray {
     val jsonArray = JSONArray()
-    objects.forEach { jsonArray.put(it.id) }
+    objects.forEach { jsonArray.add(it.id) }
     return jsonArray
 }
 
@@ -66,7 +66,7 @@ private fun <T : Id> json2Ids(jsonArray: JSONArray?, kls: KClass<T>): MutableSet
 
 private fun writeExits(exits: Map<Direction, ExitInfo>): JSONObject {
     val exitsJson = JSONObject()
-    exits.forEach({ dir, exit -> exitsJson.put(DIR_2_JSON[dir], JSONObject().put("to", exit.to.id)) })
+    exits.forEach({ dir, exit -> exitsJson[DIR_2_JSON[dir]!!] = JSONObject().set("to", exit.to.id) })
     return exitsJson
 }
 
