@@ -5,6 +5,7 @@ import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.content.defaultResource
+import io.ktor.content.resource
 import io.ktor.content.resources
 import io.ktor.content.static
 import io.ktor.features.CallLogging
@@ -54,7 +55,7 @@ fun Application.main() {
 
         install(Sessions) {
             cookie<ChatSession>("CHAT_SESSION")
-            cookie<ConsoleSession>("CONSOLE_SESSION")
+//            cookie<ConsoleSession>("CONSOLE_SESSION")
         }
 
         intercept(ApplicationCallPipeline.Infrastructure) {
@@ -105,7 +106,7 @@ fun Application.main() {
 //        }
         static {
             defaultResource("chat.html", "static")
-            defaultResource("console.html", "static")
+            resource("console.html", "console.html", "static")
             resources("static")
         }
     }
