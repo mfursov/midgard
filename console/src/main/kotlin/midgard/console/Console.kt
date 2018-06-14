@@ -1,6 +1,5 @@
 package midgard.console
 
-import midgard.db.*
 import midgard.instance.EventLoop
 import midgard.instance.instanceModule
 import midgard.instance.instancePrograms
