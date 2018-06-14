@@ -8,7 +8,7 @@ import io.ktor.http.cio.websocket.close
 import kotlinx.coroutines.experimental.channels.ClosedSendChannelException
 import kotlinx.io.core.ByteReadPacket
 import kotlinx.io.core.buildPacket
-import java.util.LinkedList
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
@@ -62,15 +62,48 @@ class ChatServerImpl : ChatServer {
     }
 
     override suspend fun who(sender: String) {
-        members[sender]?.send(Frame.Text(memberNames.values.joinToString(prefix = "[server::who] ")))
+        val t = members[sender] ?: return
+        t.forEach {
+            try {
+                it.send(Frame.Text(memberNames.values.joinToString(prefix = "[server::who] ")).copy())
+            } catch (t: Throwable) {
+                try {
+                    it.close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, ""))
+                } catch (ignore: ClosedSendChannelException) {
+                    // at some point it will get closed
+                }
+            }
+        }
     }
 
     override suspend fun help(sender: String) {
-        members[sender]?.send(Frame.Text("[server::help] Possible commands are: /user, /help and /who"))
+        val t = members[sender] ?: return
+        t.forEach {
+            try {
+                it.send(Frame.Text("[server::help] Possible commands are: /user, /help and /who").copy())
+            } catch (t: Throwable) {
+                try {
+                    it.close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, ""))
+                } catch (ignore: ClosedSendChannelException) {
+                    // at some point it will get closed
+                }
+            }
+        }
     }
 
     override suspend fun sendTo(recipient: String, sender: String, message: String) {
-        members[recipient]?.send(Frame.Text("[$sender] $message"))
+        val t = members[recipient] ?: return
+        t.forEach {
+            try {
+                it.send(Frame.Text("[$sender] $message").copy())
+            } catch (t: Throwable) {
+                try {
+                    it.close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, ""))
+                } catch (ignore: ClosedSendChannelException) {
+                    // at some point it will get closed
+                }
+            }
+        }
     }
 
     override suspend fun message(sender: String, message: String) {
@@ -87,9 +120,7 @@ class ChatServerImpl : ChatServer {
     }
 
     private suspend fun broadcast(message: String) {
-        broadcast(buildPacket {
-            writeStringUtf8(message)
-        })
+        broadcast(buildPacket { writeStringUtf8(message) })
     }
 
     private suspend fun broadcast(sender: String, message: String) {
@@ -98,22 +129,20 @@ class ChatServerImpl : ChatServer {
     }
 
     private suspend fun broadcast(serialized: ByteReadPacket) {
-        members.values.forEach { socket ->
-            socket.send(Frame.Text(fin = true, packet = serialized))
-        }
-    }
-
-    suspend fun List<WebSocketSession>.send(frame: Frame) {
-        forEach {
-            try {
-                it.send(frame.copy())
-            } catch (t: Throwable) {
+        for (memberSessions in members.values) {
+            memberSessions.forEach {
                 try {
-                    it.close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, ""))
-                } catch (ignore: ClosedSendChannelException) {
-                    // at some point it will get closed
+                    val packet = serialized.copy()
+                    it.send(Frame.Text(fin = true, packet = packet))
+                } catch (t: Throwable) {
+                    try {
+                        it.close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, ""))
+                    } catch (ignore: ClosedSendChannelException) {
+                        // at some point it will get closed
+                    }
                 }
             }
         }
     }
+
 }

@@ -23,8 +23,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.2.41</kotlin.version>
-        <ktor.version>0.9.2</ktor.version>
-        <koin.version>0.9.2</koin.version>
+        <ktor.version>0.9.3-alpha-5</ktor.version>
+        <koin.version>0.9.3</koin.version>
 
         <!--TODO: use it in submodules or remove-->
         <midgard.version>1.0.0</midgard.version>

@@ -21,19 +21,13 @@ import io.ktor.util.nextNonce
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.channels.consumeEach
-import midgard.Character
-import midgard.CharacterId
 import midgard.Program
-import midgard.World
-import midgard.db.*
 import midgard.instance.instanceModule
 import midgard.instance.instancePrograms
 import org.koin.dsl.module.applicationContext
-import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
 import org.koin.standalone.StandAloneContext
 import java.time.Duration
-import kotlin.collections.set
 
 fun webServerPrograms() = listOf<Program>()
 
@@ -67,14 +61,9 @@ fun Application.main() {
             if (call.sessions.get<ChatSession>() == null) {
                 call.sessions.set(ChatSession(nextNonce()))
             }
-            if (call.sessions.get<ConsoleSession>() == null) {
-                val midgard = get<World>()
-                val place = midgard.rooms.values.first()
-                val ch = Character(CharacterId("char-1"), "name", place.id)
-                place.characters.add(ch.id)
-                midgard.characters[ch.id] = ch
-                call.sessions.set(ConsoleSession(nextNonce(), ch.id))
-            }
+//            if (call.sessions.get<ConsoleSession>() == null) {
+//                call.sessions.set(ConsoleSession(nextNonce(), "todo-char-id"))
+//            }
         }
 
         get("/hello") { call.respond("Hello!") }
@@ -89,40 +78,31 @@ fun Application.main() {
             chatServer.memberJoin(session.id, this)
 
             try {
-                incoming.consumeEach { frame ->
-                    if (frame is Frame.Text) {
-                        receivedChatMessage(chatServer, session.id, frame.readText())
-                    }
+                incoming.consumeEach { it ->
+                    if (it is Frame.Text) receivedChatMessage(chatServer, session.id, it.readText())
                 }
             } finally {
                 chatServer.memberLeft(session.id, this)
             }
         }
 
-        webSocket("/console") {
-            val session = call.sessions.get<ConsoleSession>()
-            if (session == null) {
-                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "No session"))
-                return@webSocket
-            }
-
-            consoleServer.memberJoin(session.id, this)
-
-            try {
-                incoming.consumeEach { frame ->
-                    if (frame is Frame.Text) {
-                        receivedConsoleMessage(consoleServer, session.id, frame.readText())
-                    }
-                }
-            } finally {
-                consoleServer.memberLeft(session.id, this)
-                val midgard = get<World>()
-                val ch = midgard.characters[session.charId]!!
-                val place = midgard.rooms[ch.roomId]!!
-                place.characters.remove(ch.id)
-                midgard.characters.remove(ch.id)
-            }
-        }
+//        webSocket("/console") {
+//            val session = call.sessions.get<ConsoleSession>()
+//            if (session == null) {
+//                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "No session"))
+//                return@webSocket
+//            }
+//
+//            consoleServer.memberJoin(session.id, this)
+//
+//            try {
+//                incoming.consumeEach {
+//                    if (it is Frame.Text) receivedConsoleMessage(consoleServer, session.id, it.readText())
+//                }
+//            } finally {
+//                consoleServer.memberLeft(session.id, this)
+//            }
+//        }
         static {
             defaultResource("chat.html", "static")
             defaultResource("console.html", "static")
@@ -149,18 +129,8 @@ private suspend fun receivedChatMessage(server: ChatServer, id: String, command:
 }
 
 private suspend fun receivedConsoleMessage(server: WebConsoleServer, id: String, command: String) {
-    when {
-        command.startsWith("/who") -> server.who(id)
-        command.startsWith("/user") -> {
-            val newName = command.removePrefix("/user").trim()
-            when {
-                newName.isEmpty() -> server.sendTo(id, "server::help", "/user [newName]")
-                newName.length > 50 -> server.sendTo(id, "server::help", "new name is too long: 50 characters limit")
-                else -> server.memberRenamed(id, newName)
-            }
-        }
-        command.startsWith("/help") -> server.help(id)
-        command.startsWith("/") -> server.sendTo(id, "server::help", "Unknown command ${command.takeWhile { !it.isWhitespace() }}")
-        else -> server.message(id, command)
+    when (command) {
+        "n" -> server.north(id)
+        "s" -> server.south(id)
     }
 }
