@@ -6,7 +6,7 @@ internal object JSON {
 
     fun checkDouble(d: Double): Double {
         if (d.isInfinite() || d.isNaN()) {
-            throw IllegalArgumentException("Forbidden numeric value: $d")
+            throw IllegalArgumentException("Illegal numeric value: $d")
         }
         return d
     }
@@ -19,35 +19,27 @@ internal object JSON {
                 "false".equals(value, ignoreCase = true) -> return false
             }
         }
-        throw IllegalArgumentException(buildTypeError(value, Boolean::class))
+        throwTypeError(value, Boolean::class)
     }
 
     fun toDouble(value: Any) = when (value) {
         is Double -> value
-        is String -> value.toDoubleOrNull() ?: throw IllegalArgumentException(buildTypeError(value, Double::class))
-        else -> throw IllegalArgumentException(buildTypeError(value, Double::class))
+        is String -> value.toDoubleOrNull() ?: throwTypeError(value, Double::class)
+        else -> throwTypeError(value, Double::class)
     }
 
     fun toLong(value: Any) = when (value) {
         is Long -> value
-        is String -> value.toLongOrNull() ?: throw IllegalArgumentException(buildTypeError(value, Long::class))
-        else -> throw IllegalArgumentException(buildTypeError(value, Long::class))
+        is String -> value.toLongOrNull() ?: throwTypeError(value, Long::class)
+        else -> throwTypeError(value, Long::class)
     }
 
-    fun toString(value: Any) = when (value) {
-        is String -> value
-        else -> throw IllegalArgumentException(buildTypeError(value, String::class))
-    }
+    fun toString(value: Any) = value as? String ?: throwTypeError(value, String::class)
 
-    fun toObject(value: Any) = when (value) {
-        is JSONObject -> value
-        else -> throw IllegalArgumentException(buildTypeError(value, JSONObject::class))
-    }
+    fun toObject(value: Any) = value as? JSONObject ?: throwTypeError(value, JSONObject::class)
 
-    fun toArray(value: Any) = when (value) {
-        is JSONArray -> value
-        else -> throw IllegalArgumentException(buildTypeError(value, JSONArray::class))
-    }
+    fun toArray(value: Any) = value as? JSONArray ?: throwTypeError(value, JSONArray::class)
 
-    private fun buildTypeError(value: Any, expectedType: KClass<out Any>) = "Illegal field value: '$value'. Expected: '${expectedType.simpleName}', got: '${value::class.simpleName}'"
+    private fun throwTypeError(value: Any, expectedType: KClass<out Any>): Nothing =
+            throw IllegalArgumentException("Illegal field value: '$value'. Expected: '${expectedType.simpleName}', got: '${value::class.simpleName}'")
 }
