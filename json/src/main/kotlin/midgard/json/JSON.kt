@@ -5,7 +5,7 @@ internal object JSON {
      * Returns the input if it is a JSON-permissible value; throws otherwise.
      */
     fun checkDouble(d: Double): Double {
-        if (java.lang.Double.isInfinite(d) || java.lang.Double.isNaN(d)) {
+        if (d.isInfinite() || d.isNaN()) {
             throw IllegalArgumentException("Forbidden numeric value: $d")
         }
         return d
@@ -30,7 +30,7 @@ internal object JSON {
             is Double -> return value
             is Number -> return value.toDouble()
             is String -> try {
-                return java.lang.Double.valueOf((value))
+                return value.toDouble()
             } catch (ignored: NumberFormatException) {
             }
         }
@@ -42,7 +42,7 @@ internal object JSON {
             is Int -> return value
             is Number -> return value.toInt()
             is String -> try {
-                return java.lang.Double.parseDouble((value)).toInt()
+                return value.toDouble().toInt()
             } catch (ignored: NumberFormatException) {
             }
         }
@@ -53,7 +53,7 @@ internal object JSON {
         is Long -> value
         is Number -> value.toLong()
         is String -> try {
-            java.lang.Double.parseDouble(value).toLong()
+            value.toDouble().toLong()
         } catch (ignored: NumberFormatException) {
             null
         }
@@ -70,13 +70,13 @@ internal object JSON {
         if (actual == null) {
             throw IllegalArgumentException("Value at $indexOrName is null.")
         }
-        throw IllegalArgumentException("Value $actual at $indexOrName of type ${actual.javaClass.name} cannot be converted to $requiredType")
+        throw IllegalArgumentException("Value $actual at $indexOrName cannot be converted to $requiredType")
     }
 
     fun typeMismatch(actual: Any?, requiredType: String): Nothing {
         if (actual == null) {
             throw IllegalArgumentException("Value is null.")
         }
-        throw IllegalArgumentException("Value $actual of type ${actual.javaClass.name} cannot be converted to $requiredType")
+        throw IllegalArgumentException("Value $actual cannot be converted to $requiredType")
     }
 }
