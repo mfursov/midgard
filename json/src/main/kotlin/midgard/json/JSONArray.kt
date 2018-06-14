@@ -5,12 +5,11 @@ class JSONArray {
     private val values: MutableList<Any?>
 
     constructor() {
-        values = ArrayList()
+        values = mutableListOf()
     }
 
     constructor(tokener: JSONTokener) {
-        // Getting the parser to populate this could get tricky. Instead, just
-        // parse to temporary JSONArray and then steal the data from that.
+        // Getting the parser to populate this could get tricky. Instead, just parse to temporary JSONArray and then steal the data from that.
         val o = tokener.nextValue()
         if (o is JSONArray) values = o.values else throw IllegalArgumentException("Not a valid array")
     }
@@ -23,7 +22,9 @@ class JSONArray {
 
     fun add(value: Double) = addUnsafe(JSON.checkDouble(value))
 
-    fun add(value: Int) = addUnsafe(value)
+    //TODO: fun add(value: Number) = if (value is Float || value is Double) addUnsafe(JSON.checkDouble(value.toDouble())) else add(value.toLong())
+
+    fun add(value: Int) = addUnsafe(value.toLong())
 
     fun add(value: Long) = addUnsafe(value)
 
@@ -40,12 +41,11 @@ class JSONArray {
         return this
     }
 
-
     operator fun set(index: Int, value: Boolean) = setUnsafe(index, value)
 
     operator fun set(index: Int, value: Double) = setUnsafe(index, JSON.checkDouble(value))
 
-    operator fun set(index: Int, value: Int) = setUnsafe(index, value)
+    operator fun set(index: Int, value: Int) = setUnsafe(index, value.toLong())
 
     operator fun set(index: Int, value: Long) = setUnsafe(index, value)
 
@@ -71,63 +71,54 @@ class JSONArray {
 
     fun opt(index: Int) = if (index < 0 || index >= values.size) null else values[index]
 
-    private fun getNN(index: Int, type: String) = get(index) ?: throw IllegalArgumentException("[$index]: null can't be converted to $type")
+    private fun <T> notNull(value: T?, index: Int) = when {
+        value != null -> value
+        index <= 0 || index > size() - 1 -> throw IndexOutOfBoundsException("Index: $index is not within a valid range: 0..${size()})")
+        else -> throw NullPointerException("[$index] value is null")
+    }
 
     fun remove(index: Int) = if (index < 0 || index >= values.size) null else values.removeAt(index)
 
-    fun getBoolean(index: Int) = JSON.toBoolean(getNN(index, "boolean"))
+    fun getBoolean(index: Int) = notNull(optBoolean(index), index)
 
     fun optBoolean(index: Int): Boolean? {
         val o = opt(index) ?: return null
         return JSON.toBoolean(o)
     }
 
-    fun getDouble(index: Int) = JSON.toBoolean(getNN(index, "double"))
+    fun getDouble(index: Int) = notNull(optDouble(index), index)
 
     fun optDouble(index: Int): Double? {
         val o = opt(index) ?: return null
         return JSON.toDouble(o)
     }
 
-    fun getInt(index: Int) = JSON.toInt(getNN(index, "int"))
-
-    fun optInt(index: Int): Int? {
-        val o = opt(index) ?: return null
-        return JSON.toInt(o)
-    }
-
-    fun getLong(index: Int) = JSON.toLong(getNN(index, "long"))
+    fun getLong(index: Int) = notNull(optLong(index), index)
 
     fun optLong(index: Int): Long? {
         val o = opt(index) ?: return null
         return JSON.toLong(o)
     }
 
-    fun getString(index: Int) = JSON.toString(getNN(index, "string"))
+    fun getString(index: Int) = notNull(optString(index), index)
 
     fun optString(index: Int): String? {
         val o = opt(index) ?: return null
         return JSON.toString(o)
     }
 
-    fun getJSONArray(index: Int): JSONArray {
-        val o = getNN(index, "array")
-        if (o is JSONArray) return o else throw IllegalArgumentException("[$index] Not an array: $o")
-    }
+    fun getArray(index: Int) = notNull(optArray(index), index)
 
-    fun optJSONArray(index: Int): JSONArray? {
+    fun optArray(index: Int): JSONArray? {
         val o = opt(index) ?: return null
-        if (o is JSONArray) return o else throw IllegalArgumentException("[$index] Not an array: $o")
+        return JSON.toArray(o)
     }
 
-    fun getJSONObject(index: Int): JSONObject {
-        val o = getNN(index, "object")
-        if (o is JSONObject) return o else throw IllegalArgumentException("[$index] Not an object: $o")
-    }
+    fun getObject(index: Int) = notNull(optObject(index), index)
 
-    fun optJSONObject(index: Int): JSONObject? {
+    fun optObject(index: Int): JSONObject? {
         val o = opt(index) ?: return null
-        if (o is JSONObject) return o else throw IllegalArgumentException("[$index] Not an object: $o")
+        return JSON.toObject(o)
     }
 
     override fun toString() = toString(JSONStringer())

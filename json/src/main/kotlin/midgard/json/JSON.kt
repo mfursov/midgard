@@ -1,9 +1,9 @@
 package midgard.json
 
+import kotlin.reflect.KClass
+
 internal object JSON {
-    /**
-     * Returns the input if it is a JSON-permissible value; throws otherwise.
-     */
+
     fun checkDouble(d: Double): Double {
         if (d.isInfinite() || d.isNaN()) {
             throw IllegalArgumentException("Forbidden numeric value: $d")
@@ -14,55 +14,40 @@ internal object JSON {
     fun toBoolean(value: Any): Boolean {
         when (value) {
             is Boolean -> return value
-            is String -> {
-                when {
-                    "true".equals(value, ignoreCase = true) -> return true
-                    "false".equals(value, ignoreCase = true) -> return false
-                }
+            is String -> when {
+                "true".equals(value, ignoreCase = true) -> return true
+                "false".equals(value, ignoreCase = true) -> return false
             }
         }
-        throw IllegalArgumentException("Not a boolean: $value")
+        throw IllegalArgumentException(buildTypeError(value, Boolean::class))
     }
 
-    fun toDouble(value: Any): Double {
-        when (value) {
-            is Double -> return value
-            is Number -> return value.toDouble()
-            is String -> try {
-                return value.toDouble()
-            } catch (ignored: NumberFormatException) {
-            }
-        }
-        throw IllegalArgumentException("Not a double: $value")
+    fun toDouble(value: Any) = when (value) {
+        is Double -> value
+        is String -> value.toDoubleOrNull() ?: throw IllegalArgumentException(buildTypeError(value, Double::class))
+        else -> throw IllegalArgumentException(buildTypeError(value, Double::class))
     }
 
-    fun toInt(value: Any): Int {
-        when (value) {
-            is Int -> return value
-            is Number -> return value.toInt()
-            is String -> try {
-                return value.toDouble().toInt()
-            } catch (ignored: NumberFormatException) {
-            }
-        }
-        throw IllegalArgumentException("Not an integer: $value")
+    fun toLong(value: Any) = when (value) {
+        is Long -> value
+        is String -> value.toLongOrNull() ?: throw IllegalArgumentException(buildTypeError(value, Long::class))
+        else -> throw IllegalArgumentException(buildTypeError(value, Long::class))
     }
 
-    fun toLong(value: Any): Long {
-        when (value) {
-            is Long -> return value
-            is Number -> return value.toLong()
-            is String -> try {
-                return value.toDouble().toLong()
-            } catch (ignored: NumberFormatException) {
-            }
-        }
-        throw IllegalArgumentException("Not an long: $value")
-    }
-
-    //todo: avoid auto-conversion?
     fun toString(value: Any) = when (value) {
         is String -> value
-        else -> value.toString()
+        else -> throw IllegalArgumentException(buildTypeError(value, String::class))
     }
+
+    fun toObject(value: Any) = when (value) {
+        is JSONObject -> value
+        else -> throw IllegalArgumentException(buildTypeError(value, JSONObject::class))
+    }
+
+    fun toArray(value: Any) = when (value) {
+        is JSONArray -> value
+        else -> throw IllegalArgumentException(buildTypeError(value, JSONArray::class))
+    }
+
+    private fun buildTypeError(value: Any, expectedType: KClass<out Any>) = "Illegal field value: '$value'. Expected: '${expectedType.simpleName}', got: '${value::class.simpleName}'"
 }

@@ -25,13 +25,15 @@ private val JSON_2_DIR = DIR_2_JSON.reversed()
 class JsonFormat : Format {
 
     override fun writeRoom(room: Room, w: Writer) {
-        val roomJson = JSONObject()
-        roomJson["id"] = room.id.id
-        roomJson["name"] = room.name
-        if (room.objects.isNotEmpty()) roomJson["objects"] = ids2Json(room.objects)
-        if (room.characters.isNotEmpty()) roomJson["characters"] = ids2Json(room.characters)
-        if (room.exits.isNotEmpty()) roomJson["exits"] = writeExits(room.exits)
-        w.write(roomJson.toString(2))
+        val json = JSONObject()
+        room.apply {
+            json["id"] = id.id
+            json["name"] = name
+            if (objects.isNotEmpty()) json["objects"] = ids2Json(objects)
+            if (characters.isNotEmpty()) json["characters"] = ids2Json(characters)
+            if (exits.isNotEmpty()) json["exits"] = writeExits(exits)
+        }
+        w.write(json.toString(2))
     }
 
     override fun readRoom(reader: Reader): Room {

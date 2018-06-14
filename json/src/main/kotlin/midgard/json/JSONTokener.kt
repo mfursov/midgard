@@ -1,33 +1,28 @@
 package midgard.json
 
-class JSONTokener// consume an optional byte order mark (BOM) if it exists
-/**
- * @param jsonString JSON encoded string. Null is not permitted and will yield a
- * tokener that throws `NullPointerExceptions` when methods are
- * called.
- */(jsonString: String) {
+private const val STOP_CHAR = Character.MAX_VALUE // TODO: check if it's safe.
 
-    /**
-     * The input JSON.
-     */
+class JSONTokener(jsonString: String) {
+
+    /** The input JSON. */
     private val inputJson: String
 
-    /**
-     * The index of the next character to be returned by [.next]. When
-     * the input is exhausted, this equals the input's size.
-     */
+    /**  The index of the next character to be returned by [.next]. When the input is exhausted, this equals the input's size.*/
     private var pos: Int = 0
 
-    /**
-     * Returns the next value from the input.
-     *
-     * @return a [JSONObject], [JSONArray], String, Boolean, Integer, Long, Double
-     * @throws IllegalArgumentException if the input is malformed.
-     */
+    init {
+        var json = jsonString
+        if (json.startsWith("\ufeff")) { // consume an optional byte order mark (BOM) if it exists
+            json = json.substring(1)
+        }
+        this.inputJson = json
+    }
+
+    /** Returns the next value from the input. */
     fun nextValue(): Any? {
         val c = nextCleanInternal()
         return when (c) {
-            Character.MAX_VALUE -> throw IllegalArgumentException("End of input" + this)
+            STOP_CHAR -> throw IllegalArgumentException("End of input ${this}")
             '{' -> readObject()
             '[' -> readArray()
             '\'', '"' -> nextString(c)
@@ -50,18 +45,15 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
                     }
                     val peek = inputJson[pos]
                     when (peek) {
-                        '*' -> {
-                            // skip a /* c-style comment */
+                        '*' -> { // skip a /* c-style comment */
                             pos++
                             val commentEnd = inputJson.indexOf("*/", pos)
                             if (commentEnd == -1) {
-                                throw IllegalArgumentException("Unterminated comment" + this)
+                                throw IllegalArgumentException("Unterminated comment ${this}")
                             }
                             pos = commentEnd + 2
                         }
-
-                        '/' -> {
-                            // skip a // end-of-line comment
+                        '/' -> { // skip a // end-of-line comment
                             pos++
                             skipToEndOfLine()
                         }
@@ -69,21 +61,14 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
                         else -> return c
                     }
                 }
-
-                '#' -> {
-                    /*
-                     * Skip a # hash end-of-line comment. The JSON RFC doesn't
-                     * specify this behavior, but it's required to parse
-                     * existing documents. See http://b/2571423.
-                     */
+                '#' -> { // Skip a # hash end-of-line comment.
                     skipToEndOfLine()
                 }
 
                 else -> return c
             }
         }
-
-        return Character.MAX_VALUE
+        return STOP_CHAR
     }
 
     /**
@@ -124,10 +109,9 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
         var start = pos
 
         while (pos < inputJson.length) {
-            val c = inputJson[pos++].toInt()
-            if (c == quote.toInt()) {
-                return if (builder == null) {
-                    // a new string avoids leaking memory
+            val c = inputJson[pos++]
+            if (c == quote) {
+                return if (builder == null) { // a new string avoids leaking memory
                     inputJson.substring(start, pos - 1)
                 } else {
                     builder.append(inputJson, start, pos - 1)
@@ -135,9 +119,9 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
                 }
             }
 
-            if (c == '\\'.toInt()) {
+            if (c == '\\') {
                 if (pos == inputJson.length) {
-                    throw IllegalArgumentException("Unterminated escape sequence" + this)
+                    throw IllegalArgumentException("Unterminated escape sequence ${this}")
                 }
                 if (builder == null) {
                     builder = StringBuilder()
@@ -147,8 +131,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
                 start = pos
             }
         }
-
-        throw IllegalArgumentException("Unterminated string" + this)
+        throw IllegalArgumentException("Unterminated string ${this}")
     }
 
     /**
@@ -162,27 +145,21 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
         when (escaped) {
             'u' -> {
                 if (pos + 4 > inputJson.length) {
-                    throw IllegalArgumentException("Unterminated escape sequence" + this)
+                    throw IllegalArgumentException("Unterminated escape sequence $this")
                 }
                 val hex = inputJson.substring(pos, pos + 4)
                 pos += 4
                 try {
                     return Integer.parseInt(hex, 16).toChar()
                 } catch (nfe: NumberFormatException) {
-                    throw IllegalArgumentException("Invalid escape sequence: $hex" + this)
+                    throw IllegalArgumentException("Invalid escape sequence: $hex $this")
                 }
             }
-
             't' -> return '\t'
-
             'b' -> return '\b'
-
             'n' -> return '\n'
-
             'r' -> return '\r'
-
         //todo: 'f' -> return '\f'
-
             '\'', '"', '\\' -> return escaped
             else -> return escaped
         }
@@ -190,19 +167,19 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
 
     /**
      * Reads a null, boolean, numeric or unquoted string literal value. Numeric
-     * values will be returned as an Integer, Long, or Double, inputJson that order of
+     * values will be returned as an Long, or Double, inputJson that order of
      * preference.
      */
     private fun readLiteral(): Any? {
         val literal = nextToInternal("{}[]/\\:,=;# \t") // todo \f
 
         when {
-            literal.isEmpty() -> throw IllegalArgumentException("Expected literal value" + this)
+            literal.isEmpty() -> throw IllegalArgumentException("Expected literal value $this")
             "null".equals(literal, ignoreCase = true) -> return null
-            "true".equals(literal, ignoreCase = true) -> return java.lang.Boolean.TRUE
-            "false".equals(literal, ignoreCase = true) -> return java.lang.Boolean.FALSE
+            "true".equals(literal, ignoreCase = true) -> return true
+            "false".equals(literal, ignoreCase = true) -> return false
 
-        /* try to parse as an integral type... */
+        // try to parse as an integral type...
             literal.indexOf('.') == -1 -> {
                 var base = 10
                 var number = literal
@@ -214,37 +191,17 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
                     base = 8
                 }
                 try {
-                    val longValue = java.lang.Long.parseLong(number, base)
-                    return if (longValue <= Integer.MAX_VALUE && longValue >= Integer.MIN_VALUE) {
-                        longValue.toInt()
-                    } else {
-                        longValue
-                    }
+                    return number.toLong(base)
                 } catch (e: NumberFormatException) {
-                    /*
-                 * This only happens for integral numbers greater than
-                 * Long.MAX_VALUE, numbers inputJson exponential form (5e-10) and
-                 * unquoted strings. Fall through to try floating point.
-                 */
+                    // This only happens for integral numbers greater than Long.MAX_VALUE,
+                    // numbers inputJson exponential form (5e-10) and unquoted strings.
+                    // Fall through to try floating point.
                 }
-
             }
-
-        /* ...next try to parse as a floating point... */
-
-        /* ... finally give up. We have an unquoted string */
-        // a new string avoids leaking memory
         }
 
-        /* ...next try to parse as a floating point... */
-        try {
-            return java.lang.Double.valueOf(literal)
-        } catch (ignored: NumberFormatException) {
-        }
-
-        /* ... finally give up. We have an unquoted string */
-
-        return literal // a new string avoids leaking memory
+        // next try to parse as a floating point or give up...
+        return literal.toDoubleOrNull() ?: literal
     }
 
     /**
@@ -274,18 +231,16 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
         val first = nextCleanInternal()
         if (first == '}') {
             return result
-        } else if (first != Character.MAX_VALUE) {
+        }
+        if (first != STOP_CHAR) {
             pos--
         }
-
         while (true) {
             val name = nextValue()
             if (name !is String) {
-                if (name == null) {
-                    throw IllegalArgumentException("Names cannot be null" + this)
-                } else {
-                    throw IllegalArgumentException(("Names must be strings, but " + name
-                            + " is of type " + name.javaClass.name) + this)
+                when (name) {
+                    null -> throw IllegalArgumentException("Names cannot be null ${this}")
+                    else -> throw IllegalArgumentException(("Names must be strings, but $name is of type ${name::class}") + this)
                 }
             }
 
@@ -294,9 +249,9 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
              * equals sign '=', or an arrow "=>". The last two are bogus but we
              * include them because that's what the original implementation did.
              */
-            val separator = nextCleanInternal().toInt()
-            if (separator != ':'.toInt() && separator != '='.toInt()) {
-                throw IllegalArgumentException("Expected ':' after " + name + this)
+            val separator = nextCleanInternal()
+            if (separator != ':' && separator != '=') {
+                throw IllegalArgumentException("Expected ':' after $name ${this}")
             }
             if (pos < inputJson.length && inputJson[pos] == '>') {
                 pos++
@@ -308,7 +263,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
                 '}' -> return result
                 ';', ',' -> {
                 }
-                else -> throw IllegalArgumentException("Unterminated object" + this)
+                else -> throw IllegalArgumentException("Unterminated object ${this}")
             }
         }
     }
@@ -328,7 +283,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
         while (true) {
             var cont = false
             when (nextCleanInternal()) {
-                Character.MAX_VALUE -> throw IllegalArgumentException("Unterminated array" + this)
+                STOP_CHAR -> throw IllegalArgumentException("Unterminated array ${this}")
                 ']' -> {
                     if (hasTrailingSeparator) {
                         result.addNull()
@@ -353,7 +308,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
             when (nextCleanInternal()) {
                 ']' -> return result
                 ',', ';' -> hasTrailingSeparator = true
-                else -> throw IllegalArgumentException("Unterminated array" + this)
+                else -> throw IllegalArgumentException("Unterminated array ${this}")
             }
         }
     }
@@ -361,10 +316,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
     /**
      * Returns the current position and the entire input string.
      */
-    override fun toString(): String {
-        // consistent with the original implementation
-        return " at character $pos of $inputJson"
-    }
+    override fun toString() = "at character $pos of $inputJson"
 
     /*
      * Legacy APIs.
@@ -394,7 +346,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
     fun next(c: Char): Char {
         val result = next()
         if (result != c) {
-            throw IllegalArgumentException("Expected $c but was $result" + this)
+            throw IllegalArgumentException("Expected $c but was $result $this")
         }
         return result
     }
@@ -415,19 +367,10 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
      */
     fun next(length: Int): String {
         if (pos + length > inputJson.length) {
-            throw IllegalArgumentException(length.toString() + " is out of bounds" + this)
+            throw IllegalArgumentException("$length is out of bounds $this")
         }
         val result = inputJson.substring(pos, pos + length)
         pos += length
         return result
     }
-
-    init {
-        var json = jsonString
-        if (json.startsWith("\ufeff")) {
-            json = json.substring(1)
-        }
-        this.inputJson = json
-    }
-
 }

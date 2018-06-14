@@ -69,15 +69,15 @@ class ParsingTest {
 
     @Test
     fun testParsingNumbersThatAreBestRepresentedAsIntegers() {
-        assertParsed(0, "0")
-        assertParsed(5, "5")
+        assertParsed(0L, "0")
+        assertParsed(5L, "5")
         //todo: assertParsed(--2147483648, "-2147483648")
-        assertParsed(2147483647, "2147483647")
+        assertParsed(2147483647L, "2147483647")
     }
 
     @Test
     fun testParsingNegativeZero() {
-        assertParsed(0, "-0")
+        assertParsed(0L, "-0")
     }
 
     @Test
@@ -100,24 +100,24 @@ class ParsingTest {
 
     @Test
     fun testParsingOctalNumbers() {
-        assertParsed(5, "05")
-        assertParsed(8, "010")
-        assertParsed(1046, "02026")
+        assertParsed(5L, "05")
+        assertParsed(8L, "010")
+        assertParsed(1046L, "02026")
     }
 
     @Test
     fun testParsingHexNumbers() {
-        assertParsed(5, "0x5")
-        assertParsed(16, "0x10")
-        assertParsed(17, "0X11")
-        assertParsed(8230, "0x2026")
-        assertParsed(180150010, "0xABCDEFA")
-        assertParsed(2077093803, "0x7BCDEFAB")
+        assertParsed(5L, "0x5")
+        assertParsed(16L, "0x10")
+        assertParsed(17L, "0X11")
+        assertParsed(8230L, "0x2026")
+        assertParsed(180150010L, "0xABCDEFA")
+        assertParsed(2077093803L, "0x7BCDEFAB")
     }
 
     @Test
     fun testParsingLargeHexValues() {
-        assertParsed(Integer.MAX_VALUE, "0x7FFFFFFF")
+        assertParsed(Integer.MAX_VALUE.toLong(), "0x7FFFFFFF")
         val message = "Hex values are parsed as Strings if their signed " + "value is greater than Integer.MAX_VALUE."
         assertParsed(message, 0x80000000L, "0x80000000")
     }
@@ -140,11 +140,11 @@ class ParsingTest {
         assertParsed("baz", "  # foo bar \n baz")
         assertParsed("baz", "  # foo bar \r baz")
         assertParsed("baz", "  # foo bar \r\n baz")
-        assertParsed(5, "  /* foo bar \n baz */ 5")
-        assertParsed(5, "  /* foo bar \n baz */ 5 // quux")
-        assertParsed(5, "  5   ")
-        assertParsed(5, "  5  \r\n\t ")
-        assertParsed(5, "\r\n\t   5 ")
+        assertParsed(5L, "  /* foo bar \n baz */ 5")
+        assertParsed(5L, "  /* foo bar \n baz */ 5 // quux")
+        assertParsed(5L, "  5   ")
+        assertParsed(5L, "  5  \r\n\t ")
+        assertParsed(5L, "\r\n\t   5 ")
     }
 
     @Test
@@ -236,24 +236,20 @@ class ParsingTest {
      * equivalent ArrayList.
      */
     private fun canonical(input: Any?): Any? {
-        when (input) {
+        return when (input) {
             is JSONArray -> {
-                val result = ArrayList<Any?>()
+                val result = mutableListOf<Any?>()
                 for (i in 0 until input.size()) {
                     result.add(canonical(input.opt(i)))
                 }
-                return result
+                result
             }
             is JSONObject -> {
                 val result = HashMap<String, Any?>()
-                val i = input.keys()
-                while (i.hasNext()) {
-                    val key = i.next()
-                    result[key] = canonical(input[key])
-                }
-                return result
+                input.keySet().forEach { result[it] = canonical(input[it]) }
+                result
             }
-            else -> return input
+            else -> input
         }
     }
 }

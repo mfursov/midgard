@@ -19,9 +19,9 @@ class JSONObject {
 
     operator fun set(name: String, value: Double) = setUnsafe(name, JSON.checkDouble(value))
 
-    operator fun set(name: String, value: Int) = setUnsafe(name, value)
-
     operator fun set(name: String, value: Long) = setUnsafe(name, value)
+
+    operator fun set(name: String, value: Int) = setUnsafe(name, value.toLong())
 
     operator fun set(name: String, value: JSONObject) = setUnsafe(name, value)
 
@@ -44,82 +44,63 @@ class JSONObject {
 
     fun has(name: String) = nameValuePairs.containsKey(name)
 
-    private fun getNN(name: String, type: String): Any {
-        return get(name) ?: if (has(name)) {
-            throw IllegalArgumentException("$name: null can't be converted to $type")
-        } else {
-            throw IllegalArgumentException("Property not found: $name")
-        }
+    private fun <T> notNull(value: T?, name: String) = when {
+        value != null -> value
+        has(name) -> throw NullPointerException("$name: is null")
+        else -> throw IllegalArgumentException("Property not found: $name")
     }
 
     operator fun get(name: String) = if (nameValuePairs.containsKey(name)) opt(name) else throw IllegalArgumentException("Property not found :$name")
 
     fun opt(name: String) = nameValuePairs[name]
 
-    fun getBoolean(name: String) = JSON.toBoolean(getNN(name, "boolean"))
+    fun getBoolean(name: String) = notNull(optBoolean(name), name)
 
     fun optBoolean(name: String): Boolean? {
         val o = opt(name) ?: return null
         return JSON.toBoolean(o)
     }
 
-    fun getDouble(name: String) = JSON.toDouble(getNN(name, "double"))
+    fun getDouble(name: String) = notNull(optDouble(name), name)
 
     fun optDouble(name: String): Double? {
         val o = opt(name) ?: return null
         return JSON.toDouble(o)
     }
 
-    fun getInt(name: String) = JSON.toInt(getNN(name, "int"))
-
-    fun optInt(name: String): Int? {
-        val o = opt(name) ?: return null
-        return JSON.toInt(o)
-    }
-
-    fun getLong(name: String) = JSON.toLong(getNN(name, "long"))
+    fun getLong(name: String) = notNull(optLong(name), name)
 
     fun optLong(name: String): Long? {
         val o = opt(name) ?: return null
         return JSON.toLong(o)
     }
 
-    fun getString(name: String) = JSON.toString(getNN(name, "string"))
+    fun getString(name: String) = notNull(optString(name), name)
 
     fun optString(name: String): String? {
         val o = opt(name) ?: return null
         return JSON.toString(o)
     }
 
-    fun getArray(name: String): JSONArray {
-        val o = getNN(name, "array")
-        if (o is JSONArray) return o else throw IllegalArgumentException("Not an array: $o")
-    }
+    fun getArray(name: String) = notNull(optArray(name), name)
 
     fun optArray(name: String): JSONArray? {
         val o = opt(name) ?: return null
-        if (o is JSONArray) return o else throw IllegalArgumentException("Not an array: $o")
+        return JSON.toArray(o)
     }
 
-    fun getObject(name: String): JSONObject {
-        val o = getNN(name, "object")
-        if (o is JSONObject) return o else throw IllegalArgumentException("Not an object: $o")
-    }
+    fun getObject(name: String) = notNull(optObject(name), name)
 
     fun optObject(name: String): JSONObject? {
         val o = opt(name) ?: return null
-        if (o is JSONObject) return o else throw IllegalArgumentException("Not an object: $o")
+        return JSON.toObject(o)
     }
-
-    fun keys() = nameValuePairs.keys.iterator()
 
     fun keySet() = nameValuePairs.keys
 
     override fun toString() = toString(JSONStringer())
 
-    fun toString(indentSpaces: Int): String {
-        return toString(JSONStringer(indentSpaces))
-    }
+    fun toString(indentSpaces: Int) = toString(JSONStringer(indentSpaces))
 
     fun toString(stringer: JSONStringer): String {
         encode(stringer)

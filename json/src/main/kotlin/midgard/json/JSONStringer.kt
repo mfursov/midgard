@@ -172,7 +172,7 @@ open class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * Encodes `value`.
      *
      * @param value a [JSONObject], [JSONArray], String, Boolean,
-     * Integer, Long, Double or null. May not be [NaNs][Double.isNaN]
+     * Long, Double or null. May not be [NaNs][Double.isNaN]
      * or [infinities][Double.isInfinite].
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.

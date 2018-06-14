@@ -10,7 +10,7 @@ class JSONTokenerTest : TestCase() {
 
     fun testEmptyString() {
         val backTokener = JSONTokener("")
-        TestCase.assertEquals(" at character 0 of ", backTokener.toString())
+        TestCase.assertEquals("at character 0 of ", backTokener.toString())
         TestCase.assertEquals('\u0000', JSONTokener("").next())
         try {
             JSONTokener("").next(3)
@@ -37,7 +37,7 @@ class JSONTokenerTest : TestCase() {
         }
 
 
-        TestCase.assertEquals(" at character 0 of ", JSONTokener("").toString())
+        TestCase.assertEquals("at character 0 of ", JSONTokener("").toString())
     }
 
     fun testCharacterNavigation() {
