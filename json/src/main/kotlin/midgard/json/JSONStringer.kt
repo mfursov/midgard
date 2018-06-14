@@ -1,8 +1,12 @@
 package midgard.json
 
-import java.util.*
+import java.util.Arrays
+import kotlin.collections.ArrayList
+import kotlin.collections.Map
+import kotlin.collections.indices
+import kotlin.collections.last
 
-class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
+open class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
 
     /**
      * The output data, containing at most one top-level array or object.
@@ -80,7 +84,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    fun array(): JSONStringer {
+    open fun array(): JSONStringer {
         return open(Scope.EMPTY_ARRAY, "[")
     }
 
@@ -90,7 +94,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    fun endArray(): JSONStringer {
+    open fun endArray(): JSONStringer {
         return close(Scope.EMPTY_ARRAY, Scope.NONEMPTY_ARRAY, "]")
     }
 
@@ -101,7 +105,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    fun obj(): JSONStringer {
+    open fun startObject(): JSONStringer {
         return open(Scope.EMPTY_OBJECT, "{")
     }
 
@@ -111,7 +115,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    fun endObject(): JSONStringer {
+    open fun endObject(): JSONStringer {
         return close(Scope.EMPTY_OBJECT, Scope.NONEMPTY_OBJECT, "}")
     }
 
@@ -119,7 +123,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * Enters a new scope by appending any necessary whitespace and the given
      * bracket.
      */
-    fun open(empty: Scope, openBracket: String): JSONStringer {
+    open fun open(empty: Scope, openBracket: String): JSONStringer {
         if (stack.isEmpty() && out.isNotEmpty()) {
             throw IllegalArgumentException("Nesting problem: multiple top-level roots")
         }
@@ -133,7 +137,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * Closes the current scope by appending any necessary whitespace and the
      * given bracket.
      */
-    fun close(empty: Scope, nonempty: Scope, closeBracket: String): JSONStringer {
+    open fun close(empty: Scope, nonempty: Scope, closeBracket: String): JSONStringer {
         val context = peek()
         if (context != nonempty && context != empty) {
             throw IllegalArgumentException("Nesting problem")
@@ -150,17 +154,17 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
     /**
      * Returns the value on the top of the stack.
      */
-    private fun peek(): Scope {
+    open fun peek(): Scope {
         if (stack.isEmpty()) {
             throw IllegalArgumentException("Nesting problem")
         }
-        return stack[stack.size - 1]
+        return stack.last()
     }
 
     /**
      * Replace the value on the top of the stack with the given value.
      */
-    private fun replaceTop(topOfStack: Scope) {
+    protected open fun replaceTop(topOfStack: Scope) {
         stack[stack.size - 1] = topOfStack
     }
 
@@ -173,7 +177,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    fun value(value: Any?): JSONStringer {
+    open fun value(value: Any?): JSONStringer {
         if (stack.isEmpty()) {
             throw IllegalArgumentException("Nesting problem")
         }
@@ -190,8 +194,8 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
         beforeValue()
 
         when {
-            value === null || value is Boolean || value === JSONObject.NULL -> out.append(value)
-            value is Number -> out.append(JSONObject.numberToString(value as Number?))
+            value === null || value is Boolean -> out.append(value)
+            value is Number -> out.append(numberToString(value as Number?))
             else -> string(value.toString())
         }
         return this
@@ -204,7 +208,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    fun value(value: Boolean): JSONStringer {
+    open fun value(value: Boolean): JSONStringer {
         if (stack.isEmpty()) {
             throw IllegalArgumentException("Nesting problem")
         }
@@ -221,12 +225,12 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException On internal errors. Shouldn't happen.
      */
-    fun value(value: Double): JSONStringer {
+    open fun value(value: Double): JSONStringer {
         if (stack.isEmpty()) {
             throw IllegalArgumentException("Nesting problem")
         }
         beforeValue()
-        out.append(JSONObject.numberToString(value))
+        out.append(numberToString(value))
         return this
     }
 
@@ -237,7 +241,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException If we have an internal error. Shouldn't happen.
      */
-    fun value(value: Long): JSONStringer {
+    open fun value(value: Long): JSONStringer {
         if (stack.isEmpty()) {
             throw IllegalArgumentException("Nesting problem")
         }
@@ -253,14 +257,12 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @return this stringer.
      * @throws IllegalArgumentException If we have an internal error. Shouldn't happen.
      */
-    fun entry(entry: Map.Entry<String, Any>): JSONStringer {
-        if (JSONObject.NULL != entry.value) {
-            this.key(entry.key).value(entry.value)
-        }
+    open fun entry(entry: Map.Entry<String, Any?>): JSONStringer {
+        this.key(entry.key).value(entry.value)
         return this
     }
 
-    private fun string(value: String) {
+    open fun string(value: String) {
         out.append("\"")
         var currentChar: Char = 0.toChar()
 
@@ -309,7 +311,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
         out.append("\"")
     }
 
-    private fun newline() {
+    open fun newline() {
         if (indent == null) {
             return
         }
@@ -327,7 +329,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @param name the name of the forthcoming value.
      * @return this stringer.
      */
-    fun createKey(name: String): JSONStringer {
+    open fun createKey(name: String): JSONStringer {
         string(name)
         return this
     }
@@ -348,7 +350,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * Inserts any necessary separators and whitespace before a name. Also
      * adjusts the stack to expect the key's value.
      */
-    private fun beforeKey() {
+    open fun beforeKey() {
         val context = peek()
         if (context == Scope.NONEMPTY_OBJECT) { // first in object
             out.append(',')
@@ -364,7 +366,7 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * inline array, or inline object. Also adjusts the stack to expect either a
      * closing bracket or another element.
      */
-    private fun beforeValue() {
+    open fun beforeValue() {
         if (stack.isEmpty()) {
             return
         }
@@ -400,4 +402,35 @@ class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * contains no data.
      */
     override fun toString() = if (out.isEmpty()) "" else out.toString()
+
+    companion object {
+        private const val NEGATIVE_ZERO = -0.0
+
+        /**
+         * Encodes the number as a JSON string.
+         *
+         * @param number a finite value. May not be [NaNs][Double.isNaN] or
+         * [infinities][Double.isInfinite].
+         * @return The encoded number in string form.
+         * @throws IllegalArgumentException On internal errors. Shouldn't happen.
+         */
+        fun numberToString(number: Number?): String {
+            if (number == null) {
+                throw IllegalArgumentException("Number must be non-null")
+            }
+
+            val doubleValue = number.toDouble()
+            JSON.checkDouble(doubleValue)
+
+            // the original returns "-0" instead of "-0.0" for negative zero
+            if (number == NEGATIVE_ZERO) {
+                return "-0"
+            }
+
+            val longValue = number.toLong()
+            return if (doubleValue == longValue.toDouble()) longValue.toString() else number.toString()
+
+        }
+    }
+
 }

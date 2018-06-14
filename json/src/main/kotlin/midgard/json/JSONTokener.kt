@@ -14,15 +14,14 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
 
     /**
      * The index of the next character to be returned by [.next]. When
-     * the input is exhausted, this equals the input's length.
+     * the input is exhausted, this equals the input's size.
      */
     private var pos: Int = 0
 
     /**
      * Returns the next value from the input.
      *
-     * @return a [JSONObject], [JSONArray], String, Boolean,
-     * Integer, Long, Double or [JSONObject.NULL].
+     * @return a [JSONObject], [JSONArray], String, Boolean, Integer, Long, Double
      * @throws IllegalArgumentException if the input is malformed.
      */
     fun nextValue(): Any? {
@@ -194,12 +193,12 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
      * values will be returned as an Integer, Long, or Double, inputJson that order of
      * preference.
      */
-    private fun readLiteral(): Any {
+    private fun readLiteral(): Any? {
         val literal = nextToInternal("{}[]/\\:,=;# \t") // todo \f
 
         when {
             literal.isEmpty() -> throw IllegalArgumentException("Expected literal value" + this)
-            "null".equals(literal, ignoreCase = true) -> return JSONObject.NULL
+            "null".equals(literal, ignoreCase = true) -> return null
             "true".equals(literal, ignoreCase = true) -> return java.lang.Boolean.TRUE
             "false".equals(literal, ignoreCase = true) -> return java.lang.Boolean.FALSE
 
@@ -303,7 +302,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
                 pos++
             }
 
-            result.putUnsafe((name as String?)!!, nextValue())
+            result.setUnsafe((name as String?)!!, nextValue())
 
             when (nextCleanInternal()) {
                 '}' -> return result
@@ -382,9 +381,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
      *
      * @return the next character.
      */
-    operator fun next(): Char {
-        return if (pos < inputJson.length) inputJson[pos++] else '\u0000'
-    }
+    operator fun next() = if (pos < inputJson.length) inputJson[pos++] else '\u0000'
 
     /**
      * Returns the next available character if it equals `c`. Otherwise an
@@ -403,7 +400,7 @@ class JSONTokener// consume an optional byte order mark (BOM) if it exists
     }
 
     /**
-     * Returns the next `length` characters of the input.
+     * Returns the next `size` characters of the input.
      *
      *
      * The returned string shares its backing character array with this

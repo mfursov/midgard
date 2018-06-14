@@ -11,21 +11,20 @@ internal object JSON {
         return d
     }
 
-    fun toBoolean(value: Any?): Boolean? {
+    fun toBoolean(value: Any): Boolean {
         when (value) {
             is Boolean -> return value
             is String -> {
-                return when {
-                    "true".equals(value, ignoreCase = true) -> true
-                    "false".equals(value, ignoreCase = true) -> false
-                    else -> null
+                when {
+                    "true".equals(value, ignoreCase = true) -> return true
+                    "false".equals(value, ignoreCase = true) -> return false
                 }
             }
         }
-        return null
+        throw IllegalArgumentException("Not a boolean: $value")
     }
 
-    fun toDouble(value: Any?): Double? {
+    fun toDouble(value: Any): Double {
         when (value) {
             is Double -> return value
             is Number -> return value.toDouble()
@@ -34,10 +33,10 @@ internal object JSON {
             } catch (ignored: NumberFormatException) {
             }
         }
-        return null
+        throw IllegalArgumentException("Not a double: $value")
     }
 
-    fun toInteger(value: Any?): Int? {
+    fun toInt(value: Any): Int {
         when (value) {
             is Int -> return value
             is Number -> return value.toInt()
@@ -46,37 +45,24 @@ internal object JSON {
             } catch (ignored: NumberFormatException) {
             }
         }
-        return null
+        throw IllegalArgumentException("Not an integer: $value")
     }
 
-    fun toLong(value: Any?) = when (value) {
-        is Long -> value
-        is Number -> value.toLong()
-        is String -> try {
-            value.toDouble().toLong()
-        } catch (ignored: NumberFormatException) {
-            null
+    fun toLong(value: Any): Long {
+        when (value) {
+            is Long -> return value
+            is Number -> return value.toLong()
+            is String -> try {
+                return value.toDouble().toLong()
+            } catch (ignored: NumberFormatException) {
+            }
         }
-        else -> null
+        throw IllegalArgumentException("Not an long: $value")
     }
 
-    fun toString(value: Any?) = when {
-        value is String -> value
-        value != null -> value.toString()
-        else -> null
-    }
-
-    fun typeMismatch(indexOrName: Any, actual: Any?, requiredType: String): Nothing {
-        if (actual == null) {
-            throw IllegalArgumentException("Value at $indexOrName is null.")
-        }
-        throw IllegalArgumentException("Value $actual at $indexOrName cannot be converted to $requiredType")
-    }
-
-    fun typeMismatch(actual: Any?, requiredType: String): Nothing {
-        if (actual == null) {
-            throw IllegalArgumentException("Value is null.")
-        }
-        throw IllegalArgumentException("Value $actual cannot be converted to $requiredType")
+    //todo: avoid auto-conversion?
+    fun toString(value: Any) = when (value) {
+        is String -> value
+        else -> value.toString()
     }
 }

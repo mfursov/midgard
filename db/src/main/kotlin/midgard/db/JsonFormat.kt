@@ -38,9 +38,9 @@ class JsonFormat : Format {
         val json = JSONObject(reader.readText())
         return Room(id = RoomId(json.getString("id")),
                 name = json.getString("name"),
-                objects = json2Ids(json.optJSONArray("objects"), ObjId::class),
-                characters = json2Ids(json.optJSONArray("characters"), CharacterId::class),
-                exits = readExits(json.optJSONObject("exits")))
+                objects = json2Ids(json.optArray("objects"), ObjId::class),
+                characters = json2Ids(json.optArray("characters"), CharacterId::class),
+                exits = readExits(json.optObject("exits")))
     }
 
 }
@@ -54,9 +54,9 @@ private fun ids2Json(objects: Set<Id>): JSONArray {
 
 private fun <T : Id> json2Ids(jsonArray: JSONArray?, kls: KClass<T>): MutableSet<T> {
     val result = mutableSetOf<T>()
-    if (jsonArray != null && jsonArray.length() != 0) {
+    if (jsonArray != null && jsonArray.size() != 0) {
         val primaryConstructor = kls.primaryConstructor!!
-        for (i in 0 until jsonArray.length()) {
+        for (i in 0 until jsonArray.size()) {
             val id = jsonArray.getString(i)
             result.add(primaryConstructor.call(id))
         }
@@ -73,7 +73,7 @@ private fun writeExits(exits: Map<Direction, ExitInfo>): JSONObject {
 private fun readExits(json: JSONObject?): MutableMap<Direction, ExitInfo> {
     val result = mutableMapOf<Direction, ExitInfo>()
     json?.keySet()?.forEach {
-        val exitJson = json.getJSONObject(it)
+        val exitJson = json.getObject(it)
         val dir = JSON_2_DIR[it] ?: throw IllegalArgumentException("Failed to deserialize direction: $it in $exitJson")
         result[dir] = ExitInfo(to = RoomId(exitJson.getString("to")))
     }
