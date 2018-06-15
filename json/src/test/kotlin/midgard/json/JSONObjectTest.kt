@@ -555,7 +555,6 @@ class JSONObjectTest {
         Assert.assertEquals(setOf("foo", "bar"), o.keySet())
     }
 
-
     // https://code.google.com/p/android/issues/detail?id=103641
     @Test
     fun testInvalidUnicodeEscape() {

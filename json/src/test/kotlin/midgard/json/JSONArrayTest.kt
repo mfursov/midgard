@@ -38,7 +38,7 @@ class JSONArrayTest {
         val a = JSONArray()
         val b = JSONArray()
         assertEquals(a, b)
-        assertEquals("equals() not consistent with hashCode()", a.hashCode().toLong(), b.hashCode().toLong())
+        assertEquals("equals() not consistent with hashCode()", a.hashCode(), b.hashCode())
 
         a.add(true)
         a.add(false)
@@ -46,7 +46,7 @@ class JSONArrayTest {
         b.add(false)
         assertTrue(a.isNotEmpty())
         assertEquals(a, b)
-        assertEquals(a.hashCode().toLong(), b.hashCode().toLong())
+        assertEquals(a.hashCode(), b.hashCode())
 
         b.add(true)
         assertNotEquals(a, b)
@@ -56,13 +56,15 @@ class JSONArrayTest {
     @Test
     fun testBooleans() {
         val array = JSONArray()
-        array.add(true)
-        array.add(false)
+        array.add(true)  // 0
+        array.add(false) // 1
+        array.resize(4)
+
         array[2] = false
         array[3] = false
         array[2] = true
         assertEquals("[true,false,true,false]", array.toString())
-        assertEquals(4, array.size().toLong())
+        assertEquals(4, array.size())
         assertEquals(true, array[0])
         assertEquals(false, array[1])
         assertEquals(true, array[2])
@@ -144,8 +146,10 @@ class JSONArrayTest {
     @Test
     fun testNulls() {
         val array = JSONArray()
+        array.resize(4)
+
         array[3] = null
-        assertEquals(4, array.size().toLong())
+        assertEquals(4, array.size())
         assertEquals("[null,null,null,null]", array.toString())
 
         assertNull(array.opt(0))
@@ -191,7 +195,7 @@ class JSONArrayTest {
         val arrElement = JSONArray()
         array.add(arrElement)
         array.add(Integer.MIN_VALUE)
-        assertEquals(7, array.size().toLong())
+        assertEquals(7, array.size())
 
         // toString() and getString(int) return different values for -0d
         assertEquals("[4.9E-324,9223372036854775806,1.7976931348623157E308,-0,{},[],-2147483648]", array.toString())
@@ -227,19 +231,14 @@ class JSONArrayTest {
 
     @Test
     fun testStrings() {
-        val array = JSONArray()
-        array.add("true")
+        val array = JSONArray(1)
+        array[0] = "true"
         array.add("5.5")
         array.add("9223372036854775806")
         array.add("null")
         array.add("5\"8' tall")
-        assertEquals(5, array.size().toLong())
+        assertEquals(5, array.size())
         assertEquals("[\"true\",\"5.5\",\"9223372036854775806\",\"null\",\"5\\\"8' tall\"]", array.toString())
-
-        // although the documentation doesn't mention it, join() escapes text and wraps
-        // strings in quotes
-        assertEquals("\"true\" \"5.5\" \"9223372036854775806\" \"null\" \"5\\\"8' tall\"", array.join(" "))
-
         assertEquals("true", array[0])
         assertEquals("null", array.getString(3))
         assertEquals("5\"8' tall", array.getString(4))
@@ -273,26 +272,7 @@ class JSONArrayTest {
     }
 
     @Test
-    fun testJoin() {
-        val array = JSONArray()
-        array.add(null)
-        assertEquals("null", array.join(" & "))
-        array.add("\"")
-        assertEquals("null & \"\\\"\"", array.join(" & "))
-        array.add(5)
-        assertEquals("null & \"\\\"\" & 5", array.join(" & "))
-        array.add(true)
-        assertEquals("null & \"\\\"\" & 5 & true", array.join(" & "))
-    }
-
-    @Test
-    fun testJoinWithSpecialCharacters() {
-        val array = JSONArray("[5, 6]")
-        assertEquals("5\"6", array.join("\""))
-    }
-
-    @Test
-    fun testPutUnsupportedNumbers() {
+    fun testSetUnsupportedNumbers() {
         val array = JSONArray()
         try {
             array.add(Double.NaN)
@@ -310,7 +290,6 @@ class JSONArrayTest {
         } catch (e: IllegalArgumentException) {
         }
     }
-
 
     @Test
     fun testToStringWithNulls() {
@@ -334,10 +313,17 @@ class JSONArrayTest {
     }
 
     @Test
+    fun testArrays() {
+        val a = JSONArray(1)
+        a[0] = a
+        assertSame(a, a[0])
+    }
+
+    @Test
     fun testTokenerConstructor() {
-        val `object` = JSONArray(JSONTokener("[false]"))
-        assertEquals(1, `object`.size().toLong())
-        assertEquals(false, `object`[0])
+        val o = JSONArray(JSONTokener("[false]"))
+        assertEquals(1, o.size())
+        assertEquals(false, o[0])
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -364,9 +350,9 @@ class JSONArrayTest {
 
     @Test
     fun testStringConstructor() {
-        val `object` = JSONArray("[false]")
-        assertEquals(1, `object`.size().toLong())
-        assertEquals(false, `object`[0])
+        val o = JSONArray("[false]")
+        assertEquals(1, o.size())
+        assertEquals(false, o[0])
     }
 
     @Test
@@ -431,7 +417,7 @@ class JSONArrayTest {
     }
 
     @Test
-    fun test_remove() {
+    fun testRemove() {
         val a = JSONArray()
         assertNull(a.remove(-1))
         assertNull(a.remove(0))
@@ -443,4 +429,48 @@ class JSONArrayTest {
         assertNull(a.remove(0))
     }
 
+    @Test
+    fun testResize() {
+        val a = JSONArray()
+        a.add(1)
+        assertEquals(1, a.size())
+
+        a.resize(1)
+        assertEquals(1, a.size())
+
+        a.resize(10)
+        assertEquals(10, a.size())
+
+        assertEquals(1L, a[0])
+        assertTrue(a.isNull(9))
+        a.clear()
+
+        assertTrue(a.isEmpty())
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testResizeBadRange() {
+        JSONArray().resize(-1)
+    }
+
+    @Test
+    fun testResizeNoOp() {
+        val a = JSONArray()
+        a.add(1)
+        a.resize(1)
+        assertEquals(1L, a[0])
+    }
+
+    @Test(expected = IndexOutOfBoundsException::class)
+    fun testResizeNoAccess() {
+        val a = JSONArray()
+        a.resize(10)
+        a.resize(2)
+        a[3]
+    }
+
+    @Test(expected = NullPointerException::class)
+    fun testGetNull() {
+        JSONArray(1).getLong(0)
+    }
 }

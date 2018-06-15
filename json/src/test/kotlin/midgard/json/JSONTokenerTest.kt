@@ -1,6 +1,5 @@
 package midgard.json
 
-import junit.framework.AssertionFailedError
 import junit.framework.TestCase
 
 /**
@@ -11,19 +10,6 @@ class JSONTokenerTest : TestCase() {
     fun testEmptyString() {
         val backTokener = JSONTokener("")
         TestCase.assertEquals("at character 0 of ", backTokener.toString())
-        TestCase.assertEquals('\u0000', JSONTokener("").next())
-        try {
-            JSONTokener("").next(3)
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
-        try {
-            JSONTokener("").next('A')
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
         try {
             JSONTokener("").nextString('"')
             TestCase.fail()
@@ -40,93 +26,6 @@ class JSONTokenerTest : TestCase() {
         TestCase.assertEquals("at character 0 of ", JSONTokener("").toString())
     }
 
-    fun testCharacterNavigation() {
-        val abcdeTokener = JSONTokener("ABCDE")
-        TestCase.assertEquals('A', abcdeTokener.next())
-        TestCase.assertEquals('B', abcdeTokener.next('B'))
-        TestCase.assertEquals("CD", abcdeTokener.next(2))
-        try {
-            abcdeTokener.next(2)
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
-        TestCase.assertEquals('E', abcdeTokener.next())
-    }
-
-    fun testBackNextAndMore() {
-        val abcTokener = JSONTokener("ABC")
-        abcTokener.next()
-        abcTokener.next()
-        abcTokener.next()
-        abcTokener.next()
-        TestCase.assertEquals('\u0000', abcTokener.next())
-    }
-
-    fun testNextMatching() {
-        val abcdTokener = JSONTokener("ABCD")
-        TestCase.assertEquals('A', abcdTokener.next('A'))
-        try {
-            abcdTokener.next('C') // although it failed, this op consumes a character of input
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
-        TestCase.assertEquals('C', abcdTokener.next('C'))
-        TestCase.assertEquals('D', abcdTokener.next('D'))
-        try {
-            abcdTokener.next('E')
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
-    }
-
-    fun testNextN() {
-        val abcdeTokener = JSONTokener("ABCDEF")
-        TestCase.assertEquals("", abcdeTokener.next(0))
-        try {
-            abcdeTokener.next(7)
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
-        TestCase.assertEquals("ABC", abcdeTokener.next(3))
-        try {
-            abcdeTokener.next(4)
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
-    }
-
-    fun testNextNWithAllRemaining() {
-        val tokener = JSONTokener("ABCDEF")
-        tokener.next(3)
-        try {
-            tokener.next(3)
-        } catch (e: IllegalArgumentException) {
-            val error = AssertionFailedError("off-by-one error?")
-            error.initCause(e)
-            throw error
-        }
-
-    }
-
-    fun testNext0() {
-        val tokener = JSONTokener("ABCDEF")
-        tokener.next(5)
-        tokener.next()
-        try {
-            tokener.next(0)
-        } catch (e: IllegalArgumentException) {
-            val error = AssertionFailedError("Returning an empty string should be valid")
-            error.initCause(e)
-            throw error
-        }
-
-    }
-
     fun testNextString() {
         TestCase.assertEquals("", JSONTokener("'").nextString('\''))
         TestCase.assertEquals("", JSONTokener("\"").nextString('\"'))
@@ -135,35 +34,6 @@ class JSONTokenerTest : TestCase() {
 
         // nextString permits slash-escaping of arbitrary characters!
         TestCase.assertEquals("ABC", JSONTokener("A\\B\\C'DEF").nextString('\''))
-
-        val tokener = JSONTokener(" 'abc' 'def' \"ghi\"")
-        tokener.next()
-        TestCase.assertEquals('\'', tokener.next())
-        TestCase.assertEquals("abc", tokener.nextString('\''))
-        tokener.next()
-        TestCase.assertEquals('\'', tokener.next())
-        TestCase.assertEquals("def", tokener.nextString('\''))
-        tokener.next()
-        TestCase.assertEquals('"', tokener.next())
-        TestCase.assertEquals("ghi", tokener.nextString('\"'))
-    }
-
-    fun testNextStringNoDelimiter() {
-        try {
-            JSONTokener("").nextString('\'')
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
-        val tokener = JSONTokener(" 'abc")
-        tokener.next()
-        tokener.next()
-        try {
-            tokener.next('\'')
-            TestCase.fail()
-        } catch (ignored: IllegalArgumentException) {
-        }
-
     }
 
     fun testNextStringEscapedQuote() {

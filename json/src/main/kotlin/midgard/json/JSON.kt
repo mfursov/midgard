@@ -4,22 +4,19 @@ import kotlin.reflect.KClass
 
 internal object JSON {
 
-    fun checkDouble(d: Double): Double {
-        if (d.isInfinite() || d.isNaN()) {
-            throw IllegalArgumentException("Illegal numeric value: $d")
-        }
-        return d
+    fun checkDouble(d: Double) = when {
+        d.isInfinite() || d.isNaN() -> throw IllegalArgumentException("Illegal numeric value: $d")
+        else -> d
     }
 
-    fun toBoolean(value: Any): Boolean {
-        when (value) {
-            is Boolean -> return value
-            is String -> when {
-                "true".equals(value, ignoreCase = true) -> return true
-                "false".equals(value, ignoreCase = true) -> return false
-            }
+    fun toBoolean(value: Any) = when (value) {
+        is Boolean -> value
+        is String -> when {
+            "true".equals(value, ignoreCase = true) -> true
+            "false".equals(value, ignoreCase = true) -> false
+            else -> throwTypeError(value, Boolean::class)
         }
-        throwTypeError(value, Boolean::class)
+        else -> throwTypeError(value, Boolean::class)
     }
 
     fun toDouble(value: Any) = when (value) {
