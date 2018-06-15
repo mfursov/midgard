@@ -6,11 +6,10 @@ open class JSONTokener(protected val inputJson: String) {
 
 
     /**
-     * The index of the next character to be returned by [.next].
+     * The index of the next character to be read.
      * When the input is exhausted, this equals the input's size.
-     * (Consume an optional byte order mark (BOM) if it exists)
      */
-    protected var pos: Int = if (inputJson.startsWith("\ufeff")) 1 else 0
+    protected var pos: Int = if (inputJson.startsWith("\ufeff")) 1 else 0 // Consume an optional byte order mark (BOM) if it exists
 
     /** Returns the next value from the input. */
     open fun nextValue(): Any? {
