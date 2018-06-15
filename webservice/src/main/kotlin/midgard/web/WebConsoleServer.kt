@@ -1,12 +1,10 @@
 package midgard.web
 
 
-import io.ktor.http.cio.websocket.CloseReason
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.WebSocketSession
-import io.ktor.http.cio.websocket.close
+import io.ktor.http.cio.websocket.*
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.ClosedSendChannelException
-import midgard.CharacterId
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -15,14 +13,16 @@ data class ConsoleSession(val id: String, val charId: String)
 interface WebConsoleServer {
     suspend fun memberJoin(member: String, socket: WebSocketSession)
     suspend fun memberLeft(member: String, socket: WebSocketSession)
+    suspend fun onInput(member: String, input: Frame.Text)
 
-    suspend fun north(member: String)
-    suspend fun south(member: String)
+    fun send2Char(member: String, message: String)
+    fun nextLine(member: String): String?
 }
 
 class WebConsoleServerImpl : WebConsoleServer {
 
     val members = ConcurrentHashMap<String, MutableList<WebSocketSession>>()
+    val inputQueue = LinkedList<String>()
 
     override suspend fun memberJoin(member: String, socket: WebSocketSession) {
         val list = members.computeIfAbsent(member) { CopyOnWriteArrayList<WebSocketSession>() }
@@ -34,14 +34,18 @@ class WebConsoleServerImpl : WebConsoleServer {
         connections?.remove(socket)
     }
 
-
-    override suspend fun north(member: String) {
-        members[member]?.send(Frame.Text("Got 'North'"))
+    override suspend fun onInput(member: String, input: Frame.Text) {
+        inputQueue.add(input.readText())
     }
 
-    override suspend fun south(member: String) {
-        members[member]?.send(Frame.Text("Got 'South'"))
+    override fun send2Char(member: String, message: String) {
+        val allMembers = members.keys().toList()
+        for (m in allMembers) {
+            async { members[m]?.send(Frame.Text(message)) }
+        }
     }
+
+    override fun nextLine(member: String) = if (inputQueue.size > 0) inputQueue.removeFirst() else null
 
     suspend fun List<WebSocketSession>.send(frame: Frame) {
         forEach {

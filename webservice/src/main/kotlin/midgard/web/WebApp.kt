@@ -23,6 +23,7 @@ import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.channels.consumeEach
 import midgard.Program
+import midgard.instance.EventLoop
 import midgard.instance.instanceModule
 import midgard.instance.instancePrograms
 import org.koin.dsl.module.applicationContext
@@ -30,7 +31,7 @@ import org.koin.ktor.ext.inject
 import org.koin.standalone.StandAloneContext
 import java.time.Duration
 
-fun webServerPrograms() = listOf<Program>()
+fun webServerPrograms() = listOf<Program>(WebConsoleInterfaceProgram())
 
 val webServerModule = applicationContext {
     bean { instancePrograms().union(webServerPrograms()).sortedBy { it.order }.toList() }
@@ -48,23 +49,25 @@ fun Application.main() {
         pingPeriod = Duration.ofSeconds(10)
     }
 
-    val chatServer: ChatServer by inject()
-    val consoleServer: WebConsoleServer by inject()
+    val chatServer by inject<ChatServer>()
+    val consoleServer by inject<WebConsoleServer>()
+    val eventLoop by inject<EventLoop>()
+    eventLoop.start()
 
     routing {
 
         install(Sessions) {
             cookie<ChatSession>("CHAT_SESSION")
-//            cookie<ConsoleSession>("CONSOLE_SESSION")
+            cookie<ConsoleSession>("CONSOLE_SESSION")
         }
 
         intercept(ApplicationCallPipeline.Infrastructure) {
             if (call.sessions.get<ChatSession>() == null) {
                 call.sessions.set(ChatSession(nextNonce()))
             }
-//            if (call.sessions.get<ConsoleSession>() == null) {
-//                call.sessions.set(ConsoleSession(nextNonce(), "todo-char-id"))
-//            }
+            if (call.sessions.get<ConsoleSession>() == null) {
+                call.sessions.set(ConsoleSession(nextNonce(), "todo-char-id"))
+            }
         }
 
         get("/hello") { call.respond("Hello!") }
@@ -87,23 +90,25 @@ fun Application.main() {
             }
         }
 
-//        webSocket("/console") {
-//            val session = call.sessions.get<ConsoleSession>()
-//            if (session == null) {
-//                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "No session"))
-//                return@webSocket
-//            }
-//
-//            consoleServer.memberJoin(session.id, this)
-//
-//            try {
-//                incoming.consumeEach {
-//                    if (it is Frame.Text) receivedConsoleMessage(consoleServer, session.id, it.readText())
-//                }
-//            } finally {
-//                consoleServer.memberLeft(session.id, this)
-//            }
-//        }
+        webSocket("/console") {
+            val session = call.sessions.get<ConsoleSession>()
+            if (session == null) {
+                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "No session"))
+                return@webSocket
+            }
+
+            consoleServer.memberJoin(session.id, this)
+
+            try {
+                incoming.consumeEach {
+                    if (it is Frame.Text) {
+                        consoleServer.onInput(session.id, it)
+                    }
+                }
+            } finally {
+                consoleServer.memberLeft(session.id, this)
+            }
+        }
         static {
             defaultResource("chat.html", "static")
             resource("console.html", "console.html", "static")
@@ -129,9 +134,3 @@ private suspend fun receivedChatMessage(server: ChatServer, id: String, command:
     }
 }
 
-private suspend fun receivedConsoleMessage(server: WebConsoleServer, id: String, command: String) {
-    when (command) {
-        "n" -> server.north(id)
-        "s" -> server.south(id)
-    }
-}
