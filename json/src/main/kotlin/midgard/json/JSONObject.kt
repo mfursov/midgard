@@ -23,13 +23,13 @@ class JSONObject {
 
     operator fun set(name: String, value: Int) = setUnsafe(name, value.toLong())
 
-    operator fun set(name: String, value: JSONObject) = setUnsafe(name, value)
+    operator fun set(name: String, value: Number) = if (value is Float || value is Double) set(name, value.toDouble()) else set(name, value.toLong())
+
+    operator fun set(name: String, value: JSONObject?) = setUnsafe(name, value)
 
     operator fun set(name: String, value: JSONArray) = setUnsafe(name, value)
 
     operator fun set(name: String, value: String) = setUnsafe(name, value)
-
-    fun setNull(name: String) = setUnsafe(name, null)
 
     internal fun setUnsafe(name: String, value: Any?): JSONObject {
         nameValuePairs[checkName(name)] = value

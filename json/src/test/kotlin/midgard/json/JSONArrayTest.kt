@@ -144,14 +144,14 @@ class JSONArrayTest {
     @Test
     fun testNulls() {
         val array = JSONArray()
-        array.setNull(3)
+        array[3] = null
         assertEquals(4, array.size().toLong())
         assertEquals("[null,null,null,null]", array.toString())
 
         assertNull(array.opt(0))
         assertNull(array.opt(1))
         assertNull(array.opt(2))
-        assertNull(array.opt(3))
+        assertNull(array[3])
         assertTrue(array.isNull(0))
         assertTrue(array.isNull(1))
         assertTrue(array.isNull(2))
@@ -169,7 +169,7 @@ class JSONArrayTest {
     @Test
     fun testParseNullYieldsJSONObjectNull() {
         val array = JSONArray("[\"null\",null]")
-        array.addNull()
+        array.add(null)
         assertEquals("null", array[0])
         assertNull(array[1])
         assertNull(array[2])
@@ -275,7 +275,7 @@ class JSONArrayTest {
     @Test
     fun testJoin() {
         val array = JSONArray()
-        array.addNull()
+        array.add(null)
         assertEquals("null", array.join(" & "))
         array.add("\"")
         assertEquals("null & \"\\\"\"", array.join(" & "))
@@ -318,16 +318,16 @@ class JSONArrayTest {
                 JSONObject()
                         .set("a", "A String")
                         .set("n", 666)
-                        .setNull("null")
+                        .set("null", null)
                         .set("o", JSONObject()
                                 .set("b", "B String")
-                                .setNull("null")
+                                .set("null", null)
                                 .set("bool", false))
                         .toString()
                 + ", " + JSONObject()
                 .set("a", "A String")
                 .set("n", 666)
-                .setNull("null")
+                .set("null", null)
                 .toString()
                 + "]")
         assertEquals("[{\"a\":\"A String\",\"n\":666,\"null\":null,\"o\":{\"b\":\"B String\",\"null\":null,\"bool\":false}},{\"a\":\"A String\",\"n\":666,\"null\":null}]", array.toString())

@@ -22,19 +22,17 @@ class JSONArray {
 
     fun add(value: Double) = addUnsafe(JSON.checkDouble(value))
 
-    //TODO: fun add(value: Number) = if (value is Float || value is Double) addUnsafe(JSON.checkDouble(value.toDouble())) else add(value.toLong())
+    fun add(value: Number) = if (value is Float || value is Double) add(value.toDouble()) else add(value.toLong())
 
     fun add(value: Int) = addUnsafe(value.toLong())
 
     fun add(value: Long) = addUnsafe(value)
 
-    fun add(value: JSONObject) = addUnsafe(value)
-
     fun add(value: String) = addUnsafe(value)
 
-    fun add(value: JSONArray) = addUnsafe(value)
+    fun add(value: JSONObject?) = addUnsafe(value)
 
-    fun addNull() = addUnsafe(null)
+    fun add(value: JSONArray) = addUnsafe(value)
 
     internal fun addUnsafe(o: Any?): JSONArray {
         values.add(o)
@@ -49,13 +47,14 @@ class JSONArray {
 
     operator fun set(index: Int, value: Long) = setUnsafe(index, value)
 
+    operator fun set(index: Int, value: Number) =
+            if (value is Float || value is Double) set(index, value.toDouble()) else set(index, value.toLong())
+
     operator fun set(index: Int, value: String) = setUnsafe(index, value)
 
-    operator fun set(index: Int, value: JSONObject) = setUnsafe(index, value)
+    operator fun set(index: Int, value: JSONObject?) = setUnsafe(index, value)
 
     operator fun set(index: Int, array: JSONArray) = setUnsafe(index, array)
-
-    fun setNull(index: Int) = setUnsafe(index, null)
 
     private fun setUnsafe(index: Int, value: Any?): JSONArray {
         while (values.size <= index) { //todo: remove this logic?

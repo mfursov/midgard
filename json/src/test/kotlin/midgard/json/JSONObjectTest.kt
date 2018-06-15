@@ -108,7 +108,7 @@ class JSONObjectTest {
         assertEquals(java.lang.Long.MAX_VALUE - 1, o["bar"])
         o["baz"] = "x"
         assertEquals("x", o["baz"])
-        o.setNull("bar")
+        o["bar"] = null
         assertNull(o["bar"])
     }
 
@@ -116,10 +116,11 @@ class JSONObjectTest {
     fun testPutNullDoesNotRemoves() {
         val o = JSONObject()
         o["foo"] = "bar"
-        o.setNull("foo")
+        o["foo"] = null
         assertTrue(o.isNotEmpty())
         assertEquals(1, o.size())
         assertTrue(o.has("foo"))
+        assertNull(o["foo"])
     }
 
     @Test
@@ -343,7 +344,7 @@ class JSONObjectTest {
     @Test
     fun testNullCoercionToString() {
         val o = JSONObject()
-        o.setNull("foo")
+        o["foo"] = null
         assertNull(o.optString("foo"))
     }
 
@@ -502,7 +503,7 @@ class JSONObjectTest {
     @Test
     fun testNullValue() {
         val o = JSONObject()
-        o.setNull("foo")
+        o["foo"] = null
 
         // there are two ways to represent null; each behaves differently!
         assertTrue(o.has("foo"))
@@ -531,9 +532,9 @@ class JSONObjectTest {
         val obj = JSONObject()
         obj["a"] = "A String"
         obj["n"] = 666
-        obj.setNull("null")
+        obj["null"] = null
 
-        obj["o"] = JSONObject().set("b", "B String").setNull("null").set("bool", false)
+        obj["o"] = JSONObject().set("b", "B String").set("null", null).set("bool", false)
 
         assertEquals("{\"a\":\"A String\",\"n\":666,\"null\":null,\"o\":{\"b\":\"B String\",\"null\":null,\"bool\":false}}", obj.toString())
     }

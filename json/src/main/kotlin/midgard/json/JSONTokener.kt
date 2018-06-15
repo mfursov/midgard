@@ -220,14 +220,12 @@ class JSONTokener(jsonString: String) {
         return inputJson.substring(start)
     }
 
-    /**
-     * Reads a sequence of key/value pairs and the trailing closing brace '}' of
-     * an object. The opening brace '{' should have already been read.
-     */
+    /** Reads a sequence of key/value pairs and the trailing closing brace '}' of
+     * an object. The opening brace '{' should have already been read.*/
     private fun readObject(): JSONObject {
         val result = JSONObject()
 
-        /* Peek to see if this is the empty object. */
+        // Peek to see if this is the empty object
         val first = nextCleanInternal()
         if (first == '}') {
             return result
@@ -286,13 +284,12 @@ class JSONTokener(jsonString: String) {
                 STOP_CHAR -> throw IllegalArgumentException("Unterminated array ${this}")
                 ']' -> {
                     if (hasTrailingSeparator) {
-                        result.addNull()
+                        result.add(null)
                     }
                     return result
                 }
-                ',', ';' -> {
-                    /* A separator without a value first means "null". */
-                    result.addNull()
+                ',', ';' -> { // A separator without a value first means "null"
+                    result.add(null)
                     hasTrailingSeparator = true
                     cont = true
                 }

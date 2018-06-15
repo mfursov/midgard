@@ -152,8 +152,8 @@ class ParsingTest {
         assertParsed(JSONArray(), "[]")
         assertParsed(JSONArray().add(5).add(6).add(true), "[5,6,true]")
         assertParsed(JSONArray().add(5).add(6).add(JSONArray()), "[5,6,[]]")
-        assertParsed(JSONArray().add(5).add(6).add(7).addNull(), "[5,6,7,null]")
-        assertParsed(JSONArray().addNull().addNull(), "[null,null]")
+        assertParsed(JSONArray().add(5).add(6).add(7).add(null), "[5,6,7,null]")
+        assertParsed(JSONArray().add(null).add(null), "[null,null]")
     }
 
     @Test
