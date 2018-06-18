@@ -71,15 +71,11 @@ class JSONObjectTest {
         assertFalse(o.isNull("foo"))
         assertNull(o.opt("foo"))
         assertNull(o.optBoolean("foo"))
-        //todo: assertEquals(Double.NaN, o.optDouble("foo"), 0.0)
-        //todo: assertEquals(5.0, o.optDouble("foo", 5.0), 0.0)
-        //todo: assertEquals(0, o.optLong("foo").toLong())
-        //todo: assertEquals(5, o.optLong("foo", 5).toLong())
-        assertEquals(null, o.optArray("foo"))
-        assertEquals(null, o.optObject("foo"))
-        //todo: assertEquals(0, o.optLong("foo"))
-        //todo: assertEquals(Long.MAX_VALUE - 1, o.optLong("foo", Long.MAX_VALUE - 1))
-        assertEquals(null, o.optString("foo"))
+        assertNull(o.optDouble("foo"))
+        assertNull(o.optLong("foo"))
+        assertNull(o.optArray("foo"))
+        assertNull(o.optObject("foo"))
+        assertNull(o.optString("foo"))
         assertNull(o.remove("foo"))
     }
 
@@ -104,8 +100,8 @@ class JSONObjectTest {
         assertEquals(5.0, o["foo"])
         o["foo"] = 0
         assertEquals(0L, o["foo"])
-        o["bar"] = java.lang.Long.MAX_VALUE - 1
-        assertEquals(java.lang.Long.MAX_VALUE - 1, o["bar"])
+        o["bar"] = Long.MAX_VALUE - 1
+        assertEquals(Long.MAX_VALUE - 1, o["bar"])
         o["baz"] = "x"
         assertEquals("x", o["baz"])
         o["bar"] = null
@@ -155,13 +151,6 @@ class JSONObjectTest {
         assertEquals(true, o.optBoolean("baz"))
         assertEquals(false, o.optBoolean("quux"))
         assertEquals(null, o.optBoolean("missing"))
-
-        o["foo"] = "truE"
-        o["bar"] = "FALSE"
-        assertEquals(true, o.getBoolean("foo"))
-        assertEquals(false, o.getBoolean("bar"))
-        assertEquals(true, o.optBoolean("foo"))
-        assertEquals(false, o.optBoolean("bar"))
     }
 
     @Test
@@ -182,8 +171,6 @@ class JSONObjectTest {
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
-
-        //todo: assertEquals(0, o.optLong("key"))
     }
 
     // http://code.google.com/p/android/issues/detail?id=16411
@@ -197,7 +184,11 @@ class JSONObjectTest {
         } catch (ignored: IllegalArgumentException) {
         }
 
-        //todo: assertEquals(false, o.optBoolean("foo"))
+        o["foo"] = "true"
+        assertTrue(o.getBoolean("foo"))
+
+        o["foo"] = "false"
+        assertFalse(o.getBoolean("foo"))
     }
 
     @Test
@@ -214,46 +205,38 @@ class JSONObjectTest {
         assertTrue(toString, toString.contains("\"bar\":9223372036854775806"))
         assertTrue(toString, toString.contains("\"baz\":1.7976931348623157E308"))
 
-        // toString() and getString() return different values for -0d!
-        assertTrue(toString, toString.contains("\"quux\":-0}") // no trailing decimal point
-                || toString.contains("\"quux\":-0,"))
+        assertTrue(toString, toString.contains("\"quux\":-0.0}") // no trailing decimal point
+                || toString.contains("\"quux\":-0.0,"))
 
-        assertEquals(java.lang.Double.MIN_VALUE, o["foo"])
-        assertEquals(9223372036854775806L, o["bar"])
-        assertEquals(java.lang.Double.MAX_VALUE, o["baz"])
-        assertEquals(-0.0, o["quux"])
-        assertEquals(Double.MIN_VALUE, o.getDouble("foo"))
-        assertEquals(Double.MAX_VALUE, o.getDouble("baz"))
         assertEquals(-0.0, o.getDouble("quux"))
-        assertEquals(9223372036854775806L, o.getLong("bar"))
-        assertEquals(java.lang.Double.MIN_VALUE, o.opt("foo"))
+        assertEquals(-0.0, o["quux"])
         assertEquals(9223372036854775806L, o.optLong("bar"))
-        //todo: assertEquals(java.lang.Double.MAX_VALUE, o.optDouble("baz"), 0.0)
-        assertEquals(java.lang.Double.MIN_VALUE, o.opt("foo"))
-        assertEquals(9223372036854775806L, o.optLong("bar"))
-        //todo: assertEquals(java.lang.Double.MAX_VALUE, o.optDouble("baz"), 0.0)
-        //todo: assertEquals(java.lang.Double.MIN_VALUE, o.optDouble("foo", 5.0), 0.0)
-        //todo: assertEquals(9223372036854775806L, o.optLong("bar", 1L))
-        //todo: assertEquals(0, o.optLong("quux", -1).toLong())
+        assertEquals(9223372036854775806L, o["bar"])
+        assertEquals(Double.MAX_VALUE, o.getDouble("baz"))
+        assertEquals(Double.MAX_VALUE, o.optDouble("baz")!!, 0.0)
+        assertEquals(Double.MAX_VALUE, o["baz"])
+        assertEquals(Double.MIN_VALUE, o.getDouble("foo"))
+        assertEquals(Double.MIN_VALUE, o.opt("foo"))
+        assertEquals(Double.MIN_VALUE, o["foo"])
     }
 
     @Test
     fun testFloats() {
         val o = JSONObject()
         try {
-            o["foo"] = java.lang.Float.NaN.toDouble()
+            o["foo"] = Float.NaN.toDouble()
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            o["foo"] = java.lang.Float.NEGATIVE_INFINITY.toDouble()
+            o["foo"] = Float.NEGATIVE_INFINITY.toDouble()
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            o["foo"] = java.lang.Float.POSITIVE_INFINITY.toDouble()
+            o["foo"] = Float.POSITIVE_INFINITY.toDouble()
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
@@ -283,17 +266,12 @@ class JSONObjectTest {
         assertEquals("true", o.optString("foo"))
         assertFalse(o.isNull("foo"))
 
-        assertEquals(true, o.getBoolean("foo"))
-        assertEquals(true, o.optBoolean("foo"))
-        assertEquals(true, o.optBoolean("foo"))
-        //todo: assertEquals(0, o.optLong("foo"))
-        //todo: assertEquals(-2, o.optLong("foo", -2).toLong())
+        assertTrue(o.getBoolean("foo"))
+        assertTrue(o.optBoolean("foo")!!)
+        assertTrue(o.optBoolean("foo")!!)
 
         assertEquals(5.5, o.getDouble("bar"))
-        //todo: assertEquals(5, o.optLong("bar", 3).toLong())
 
-        // The last digit of the string is a 6 but getLong returns a 7. It's probably parsing as a
-        // double and then converting that to a long. This is consistent with JavaScript.
         assertEquals(9223372036854775806L, o.getLong("baz"))
         assertEquals(9.223372036854776E18, o.getDouble("baz"))
 
@@ -304,12 +282,6 @@ class JSONObjectTest {
         } catch (e: IllegalArgumentException) {
             // expected
         }
-
-        //todo: assertEquals(java.lang.Double.NaN, o.optDouble("quux"), 0.0)
-        //todo: assertEquals(-1.0, o.optDouble("quux", -1.0), 0.0)
-
-        o["foo"] = "TRUE"
-        assertEquals(true, o.getBoolean("foo"))
     }
 
     @Test
@@ -337,8 +309,6 @@ class JSONObjectTest {
 
         assertEquals(a, o.optArray("foo"))
         assertEquals(b, o.optObject("bar"))
-        //todo: assertEquals(null, `object`.optArray("bar"))
-        //todo: assertEquals(null, o.optObject("foo"))
     }
 
     @Test
@@ -376,19 +346,19 @@ class JSONObjectTest {
     fun testPutUnsupportedNumbers() {
         val o = JSONObject()
         try {
-            o["foo"] = java.lang.Double.NaN
+            o["foo"] = Double.NaN
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            o["foo"] = java.lang.Double.NEGATIVE_INFINITY
+            o["foo"] = Double.NEGATIVE_INFINITY
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            o["foo"] = java.lang.Double.POSITIVE_INFINITY
+            o["foo"] = Double.POSITIVE_INFINITY
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
@@ -399,19 +369,19 @@ class JSONObjectTest {
     fun testPutUnsupportedNumbersAsObjects() {
         val o = JSONObject()
         try {
-            o["foo"] = java.lang.Double.NaN
+            o["foo"] = Double.NaN
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            o["foo"] = java.lang.Double.NEGATIVE_INFINITY
+            o["foo"] = Double.NEGATIVE_INFINITY
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            o["foo"] = java.lang.Double.POSITIVE_INFINITY
+            o["foo"] = Double.POSITIVE_INFINITY
             fail()
         } catch (ignored: IllegalArgumentException) {
         }

@@ -11,9 +11,9 @@ internal object JSON {
 
     fun toBoolean(value: Any) = when (value) {
         is Boolean -> value
-        is String -> when {
-            "true".equals(value, ignoreCase = true) -> true
-            "false".equals(value, ignoreCase = true) -> false
+        is String -> when (value) {
+            "true" -> true
+            "false" -> false
             else -> throwTypeError(value, Boolean::class)
         }
         else -> throwTypeError(value, Boolean::class)

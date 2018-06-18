@@ -260,17 +260,11 @@ open class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
      * @param number a finite value. May not be [NaNs][Double.isNaN] or [infinities][Double.isInfinite].
      * @return The encoded number in string form.
      */
-    open fun numberToString(number: Number?): String {
-        if (number == null) {
-            throw IllegalArgumentException("Number must be non-null")
-        }
-
+    open fun numberToString(number: Number): String {
         val doubleValue = JSON.checkDouble(number.toDouble())
 
-        // the original returns "-0" instead of "-0.0" for negative zero
-        val negativeZero = -0.0
-        if (number == negativeZero) {
-            return "-0"
+        if (number == -0.0) {
+            return "-0.0"
         }
 
         val longValue = number.toLong()

@@ -50,7 +50,6 @@ open class JSONTokener(protected val inputJson: String) {
                             pos++
                             skipToEndOfLine()
                         }
-
                         else -> return c
                     }
                 }

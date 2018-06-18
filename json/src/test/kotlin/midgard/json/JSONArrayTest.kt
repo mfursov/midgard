@@ -4,6 +4,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class JSONArrayTest {
 
@@ -29,8 +30,7 @@ class JSONArrayTest {
         // out of bounds is co-opted with defaulting
         assertFalse(array.isNull(0))
         assertNull(array.opt(0))
-        //todo: assertFalse(array.optBoolean(0))
-        //todo: assertTrue(array.optBoolean(0, true))
+        assertNull(array.optBoolean(0))
     }
 
     @Test
@@ -73,13 +73,8 @@ class JSONArrayTest {
         assertFalse(array.isNull(1))
         assertFalse(array.isNull(2))
         assertFalse(array.isNull(3))
-        //todo: assertTrue(array.optBoolean(0))
-        //todo: assertFalse(array.optBoolean(1, true))
-        //todo: assertTrue(array.optBoolean(2, false))
-        //todo: assertFalse(array.optBoolean(3))
-        //todo: assertEquals("true", array.getString(0))
-        //todo: assertEquals("false", array.getString(1))
-        //todo: assertEquals("true", array.optString(2))
+        assertTrue(array.optBoolean(0)!!)
+        assertFalse(array.optBoolean(3)!!)
         assertEquals("[\n     true,\n     false,\n     true,\n     false\n]", array.toString(5))
 
         var other = JSONArray()
@@ -94,14 +89,9 @@ class JSONArrayTest {
         other = JSONArray()
         other.add("true")
         other.add("false")
-        other.add("truE")
-        other.add("FALSE")
         assertNotEquals(array, other)
         assertNotEquals(other, array)
         assertTrue(other.getBoolean(0))
-        //todo: assertFalse(other.optBoolean(1, true))
-        //todo: assertTrue(other.optBoolean(2))
-        assertFalse(other.getBoolean(3))
     }
 
 
@@ -123,24 +113,23 @@ class JSONArrayTest {
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
-
-        //todo: assertEquals(0, array.optLong(0))
     }
 
-
-    // http://code.google.com/p/android/issues/detail?id=16411
     @Test
     fun testCoerceStringToBoolean() {
-        val array = JSONArray()
-        array.add("maybe")
+        val array = JSONArray(1)
+        array[0] = "maybe"
         try {
             array.getBoolean(0)
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
-        //todo: assertFalse(array.optBoolean(0))
-        //todo: assertTrue(array.optBoolean(0, true))
+        array[0] = "true"
+        assertTrue(array.getBoolean(0))
+
+        array[0] = "false"
+        assertFalse(array.getBoolean(0))
     }
 
     @Test
@@ -166,10 +155,6 @@ class JSONArrayTest {
         assertEquals(null, array.optString(3))
     }
 
-    /**
-     * Our behaviour is questioned by this bug:
-     * http://code.google.com/p/android/issues/detail?id=7257
-     */
     @Test
     fun testParseNullYieldsJSONObjectNull() {
         val array = JSONArray("[\"null\",null]")
@@ -186,31 +171,32 @@ class JSONArrayTest {
     @Test
     fun testNumbers() {
         val array = JSONArray()
-        array.add(Double.MIN_VALUE)
-        array.add(9223372036854775806L)
-        array.add(Double.MAX_VALUE)
-        array.add(-0.0)
+        array.add(Double.MIN_VALUE) // 0
+        array.add(9223372036854775806L) // 1
+        array.add(Double.MAX_VALUE) // 2
+        array.add(-0.0) // 3
+
         val objElement = JSONObject()
         array.add(objElement)
+
         val arrElement = JSONArray()
         array.add(arrElement)
         array.add(Integer.MIN_VALUE)
         assertEquals(7, array.size())
 
         // toString() and getString(int) return different values for -0d
-        assertEquals("[4.9E-324,9223372036854775806,1.7976931348623157E308,-0,{},[],-2147483648]", array.toString())
+        assertEquals("[4.9E-324,9223372036854775806,1.7976931348623157E308,-0.0,{},[],-2147483648]", array.toString())
 
         assertEquals(Double.MIN_VALUE, array[0])
         assertEquals(9223372036854775806L, array[1])
         assertEquals(Double.MAX_VALUE, array[2])
         assertEquals(-0.0, array[3])
-        //todo: assertEquals(java.lang.Double.MIN_VALUE, array.getDouble(0), 0.0)
-        //todo: assertEquals(9.223372036854776E18, array.getDouble(1), 0.0)
-        //todo: assertEquals(java.lang.Double.MAX_VALUE, array.getDouble(2), 0.0)
-        //todo: assertEquals(-0.0, array.getDouble(3), 0.0)
+        assertEquals(Double.MIN_VALUE, array.getDouble(0), 0.0)
+        assertEquals(Double.MAX_VALUE, array.getDouble(2), 0.0)
+        assertEquals(-0.0, array.getDouble(3), 0.0)
         assertEquals(9223372036854775806L, array.getLong(1))
         assertEquals(Double.MIN_VALUE, array.opt(0))
-        //todo: assertEquals(java.lang.Double.MIN_VALUE, array.optDouble(0), 0.0)
+        assertEquals(java.lang.Double.MIN_VALUE, array.optDouble(0)!!, 0.0)
         assertEquals(objElement, array.getObject(4))
         assertEquals(arrElement, array.getArray(5))
         assertEquals(Integer.MIN_VALUE.toLong(), array.getLong(6))
@@ -233,10 +219,10 @@ class JSONArrayTest {
     fun testStrings() {
         val array = JSONArray(1)
         array[0] = "true"
-        array.add("5.5")
-        array.add("9223372036854775806")
-        array.add("null")
-        array.add("5\"8' tall")
+        array.add("5.5") // 1
+        array.add("9223372036854775806") // 2
+        array.add("null") // 3
+        array.add("5\"8' tall") // 4
         assertEquals(5, array.size())
         assertEquals("[\"true\",\"5.5\",\"9223372036854775806\",\"null\",\"5\\\"8' tall\"]", array.toString())
         assertEquals("true", array[0])
@@ -248,16 +234,9 @@ class JSONArrayTest {
         assertFalse(array.isNull(3))
 
         assertTrue(array.getBoolean(0))
-        //todo: assertTrue(array.optBoolean(0))
-        //todo: assertTrue(array.optBoolean(0, false))
-        //todo: assertEquals(0, array.optLong(0))
-        //todo: assertEquals(-2, array.optLong(0))
-
-        //todo: assertEquals(5.5, array.getDouble(1), 0.0)
-
+        assertTrue(array.optBoolean(0)!!)
+        assertEquals(5.5, array.getDouble(1), 0.0)
         assertEquals(9223372036854775806L, array.getLong(2))
-        //todo: assertEquals(9.223372036854776E18, array.getDouble(2), 0.0)
-        //todo: assertEquals(Integer.MAX_VALUE.toLong(), array.getLong(2))
 
         assertFalse(array.isNull(3))
         try {
@@ -266,9 +245,6 @@ class JSONArrayTest {
         } catch (e: IllegalArgumentException) {
             // expected
         }
-
-        //todo: assertEquals(java.lang.Double.NaN, array.optDouble(3), 0.0)
-        //todo: assertEquals(-1.0, array.optDouble(3, -1.0), 0.0)
     }
 
     @Test

@@ -12,9 +12,7 @@ object ToStringPT {
         val reader = ToStringPT::class.java.getResource("/sample-01.json").readText()
         val json = JSONTokener(reader).nextValue()
         val t0 = System.currentTimeMillis()
-        for (i in 0 until 300_000) {
-            json.toString()
-        }
+        for (i in 0 until 300_000) json.toString()
         println("Total time: " + (System.currentTimeMillis() - t0) / 1000L + " seconds")
     }
 }

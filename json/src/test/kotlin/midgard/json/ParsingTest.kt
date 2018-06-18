@@ -63,7 +63,6 @@ class ParsingTest {
     fun testParsingNumbersThatAreBestRepresentedAsLongs() {
         assertParsed(9223372036854775807L, "9223372036854775807")
         assertParsed(9223372036854775806L, "9223372036854775806")
-        //todo: assertParsed(-9223372036854775808L, "-9223372036854775808")
         assertParsed(-9223372036854775807L, "-9223372036854775807")
     }
 
@@ -71,7 +70,7 @@ class ParsingTest {
     fun testParsingNumbersThatAreBestRepresentedAsIntegers() {
         assertParsed(0L, "0")
         assertParsed(5L, "5")
-        //todo: assertParsed(--2147483648, "-2147483648")
+        assertParsed(-2147483648L, "-2147483648")
         assertParsed(2147483647L, "2147483647")
     }
 
@@ -162,8 +161,6 @@ class ParsingTest {
         assertParsed(JSONObject().set("foo", 5), "{foo: 5}")
         assertParsed(JSONObject().set("foo", 5).set("bar", "baz"), "{\"foo\": 5, \"bar\": \"baz\"}")
         assertParsed(JSONObject().set("foo", 5).set("bar", "baz"), "{\"foo\": 5; \"bar\": \"baz\"}")
-        //todo: assertParsed(JSONObject().set("foo", 5).set("bar", "baz"), "{\"foo\"= 5; \"bar\"= \"baz\"}")
-        //todo: assertParsed(JSONObject().set("foo", 5).set("bar", "baz"), "{\"foo\"=> 5; \"bar\"=> \"baz\"}")
         assertParsed(JSONObject().set("foo", JSONObject().set("foo", JSONArray().add(5).add(6))), "{\"foo\": {\"foo\": [5, 6]}}")
         assertParsed(JSONObject().set("foo", JSONObject().set("foo", JSONArray().add(5).add(6))), "{\"foo\":\n\t{\t \"foo\":[5,\r6]}}")
     }
@@ -232,8 +229,7 @@ class ParsingTest {
 
     /**
      * Since they don't implement equals or hashCode properly, this recursively
-     * replaces JSONObjects with an equivalent HashMap, and JSONArrays with the
-     * equivalent ArrayList.
+     * replaces JSONObjects with an equivalent HashMap, and JSONArrays with the equivalent ArrayList.
      */
     private fun canonical(input: Any?): Any? {
         return when (input) {

@@ -7,8 +7,7 @@ class JSONStringerTest {
 
     @Test
     fun testEmptyStringer() {
-        // why isn't this the empty string?
-        //todo: assertNull(JSONStringer().toString())
+        assertEquals("", JSONStringer().toString())
     }
 
     @Test
@@ -138,7 +137,7 @@ class JSONStringerTest {
         stringer.value(-0.0)
         stringer.value(0.0)
         stringer.endArray()
-        assertEquals("[-0,0]", stringer.toString())
+        assertEquals("[-0.0,0]", stringer.toString())
     }
 
     @Test

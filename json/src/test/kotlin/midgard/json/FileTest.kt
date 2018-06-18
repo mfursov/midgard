@@ -277,8 +277,9 @@ class FileTest {
         if (element1 is JSONObject) {
             return jsonEquals(element1, element2 as JSONObject)
         }
-        return if (element1 is JSONArray) {
+        return if (element1 is JSONArray)
             jsonEquals(element1, element2 as JSONArray)
-        } else element1 == element2
+        else
+            element1 == element2
     }
 }
