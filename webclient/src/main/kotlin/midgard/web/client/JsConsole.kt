@@ -1,3 +1,4 @@
+import midgard.RoomId
 import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.document
@@ -68,10 +69,7 @@ fun start() {
 
 @Suppress("unused")
 fun run() {
-    val sendButton = document.getElementById("sendButton")
-    if (sendButton != null) {
-        start()
-    } else {
-        window.setTimeout({ run() }, 300)
-    }
+    val r = RoomId("roomId")
+    console.log("Room: $r")
+    start()
 }

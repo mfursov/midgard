@@ -66,11 +66,11 @@
     </build>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>midgard</groupId>-->
-            <!--<artifactId>core</artifactId>-->
-            <!--<version>1.0.0</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>midgard</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
         <!-- Kotlin & Runtime -->
         <dependency>
