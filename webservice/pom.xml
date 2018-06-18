@@ -93,6 +93,16 @@
                             <targetPath>WEB-INF/classes/static/css</targetPath>
                         </webResource>
 
+                        <!-- webclient -->
+                        <webResource>
+                            <directory>${basedir}/../webclient/target/js</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <targetPath>WEB-INF/classes/static/js</targetPath>
+                        </webResource>
+
+
                     </webResources>
                 </configuration>
             </plugin>
@@ -104,13 +114,14 @@
 
         <dependency>
             <groupId>midgard</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>instance</artifactId>
             <version>1.0.0</version>
         </dependency>
 
+        <!--To include build artifacts-->
         <dependency>
             <groupId>midgard</groupId>
-            <artifactId>instance</artifactId>
+            <artifactId>webclient</artifactId>
             <version>1.0.0</version>
         </dependency>
 
