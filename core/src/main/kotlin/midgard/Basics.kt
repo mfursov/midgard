@@ -1,11 +1,8 @@
 package midgard
 
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 import kotlin.reflect.KClass
 
-interface Random {
-}
+interface Random
 
 interface IdGenerator<T> {
     fun nextId(): T
@@ -13,14 +10,14 @@ interface IdGenerator<T> {
 
 data class EventId(val id: String)
 
-open class Event : KoinComponent {
-    val id: EventId by inject()
+open class Event {
+    val id = EventId("")
 }
 
 data class ActionId(val id: String)
 
-open class Action : KoinComponent {
-    val id: ActionId by inject()
+open class Action {
+    val id = ActionId("")
 }
 
 interface ActionHandler<A : Action> {

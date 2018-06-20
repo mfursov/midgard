@@ -14,8 +14,6 @@
     <artifactId>webclient</artifactId>
 
     <build>
-        <sourceDirectory>src/main/kotlin</sourceDirectory>
-
         <plugins>
             <!-- Kotlin compiler -->
             <plugin>
@@ -29,10 +27,15 @@
                         <goals>
                             <goal>js</goal>
                         </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                                <sourceDir>../core/src/main/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
-                    <!--<moduleKind>amd</moduleKind>-->
                     <sourceMap>true</sourceMap>
                 </configuration>
             </plugin>
@@ -69,7 +72,7 @@
         <dependency>
             <groupId>midgard</groupId>
             <artifactId>core</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Kotlin & Runtime -->

@@ -4,7 +4,6 @@ open class JSONTokener(protected val inputJson: String) {
 
     protected val stopChar = Character.MAX_VALUE // TODO: check if it's safe.
 
-
     /**
      * The index of the next character to be read.
      * When the input is exhausted, this equals the input's size.
