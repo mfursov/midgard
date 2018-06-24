@@ -1,4 +1,5 @@
-import midgard.RoomId
+package midgard.web.client
+
 import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.document
@@ -67,9 +68,6 @@ fun start() {
     }
 }
 
-@Suppress("unused")
-fun run() {
-    val r = RoomId("roomId")
-    console.log("Room: $r")
+fun main(args: Array<String>) {
     start()
 }

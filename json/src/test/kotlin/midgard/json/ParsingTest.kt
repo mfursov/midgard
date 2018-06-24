@@ -1,9 +1,9 @@
 package midgard.json
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Test
-import java.util.*
+import kotlin.test.assertEquals
+import kotlin.test.fail
+
 
 class ParsingTest {
 
@@ -19,12 +19,12 @@ class ParsingTest {
 
     @Test
     fun testParsingLiterals() {
-        assertParsed(java.lang.Boolean.TRUE, "true")
-        assertParsed(java.lang.Boolean.FALSE, "false")
+        assertParsed(true, "true")
+        assertParsed(false, "false")
         assertParsed(null, "null")
         assertParsed(null, "NULL")
-        assertParsed(java.lang.Boolean.FALSE, "False")
-        assertParsed(java.lang.Boolean.TRUE, "truE")
+        assertParsed(false, "False")
+        assertParsed(true, "truE")
     }
 
     @Test
@@ -116,7 +116,7 @@ class ParsingTest {
 
     @Test
     fun testParsingLargeHexValues() {
-        assertParsed(Integer.MAX_VALUE.toLong(), "0x7FFFFFFF")
+        assertParsed(Int.MAX_VALUE.toLong(), "0x7FFFFFFF")
         val message = "Hex values are parsed as Strings if their signed " + "value is greater than Integer.MAX_VALUE."
         assertParsed(message, 0x80000000L, "0x80000000")
     }
@@ -209,8 +209,6 @@ class ParsingTest {
             JSONTokener(malformedJson).nextValue()
             fail("Successfully parsed: \"$malformedJson\"")
         } catch (ignored: IllegalArgumentException) {
-        } catch (e: StackOverflowError) {
-            fail("Stack overflowed on input: \"$malformedJson\"")
         }
 
     }
@@ -220,7 +218,7 @@ class ParsingTest {
         var actual = JSONTokener(json).nextValue()
         actual = canonical(actual)
         expected = canonical(expected)
-        assertEquals("For input \"$json\" $message", expected, actual)
+        assertEquals(expected, actual, "For input \"$json\" $message")
     }
 
     private fun assertParsed(expected: Any?, json: String) {

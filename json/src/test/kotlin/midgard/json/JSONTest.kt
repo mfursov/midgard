@@ -1,41 +1,57 @@
 package midgard.json
 
 import org.junit.Test
+import kotlin.test.assertFailsWith
+
 
 class JSONTest {
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun checkDoubleNan() {
-        JSON.checkDouble(Double.NaN)
+        assertFailsWith(IllegalArgumentException::class) {
+            JSON.checkDouble(Double.NaN)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun checkDoubleInfinity() {
-        JSON.checkDouble(Double.NEGATIVE_INFINITY)
+        assertFailsWith(IllegalArgumentException::class) {
+            JSON.checkDouble(Double.NEGATIVE_INFINITY)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun toBooleanNotBoolean() {
-        JSON.toBoolean(1)
+        assertFailsWith(IllegalArgumentException::class) {
+            JSON.toBoolean(1)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun toDoubleNotDouble() {
-        JSON.toDouble(true)
+        assertFailsWith(IllegalArgumentException::class) {
+            JSON.toDouble(true)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun toLongNotLong() {
-        JSON.toLong(2.2)
+        assertFailsWith(IllegalArgumentException::class) {
+            JSON.toLong(2.2)
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun toObjectNotObject() {
-        JSON.toObject(JSONArray(1))
+        assertFailsWith(IllegalArgumentException::class) {
+            JSON.toObject(JSONArray(1))
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun toArrayNotArray() {
-        JSON.toArray(arrayOf(1, 2, 3))
+        assertFailsWith(IllegalArgumentException::class) {
+            JSON.toArray(arrayOf(1, 2, 3))
+        }
     }
 }

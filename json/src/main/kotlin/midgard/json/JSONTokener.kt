@@ -2,7 +2,7 @@ package midgard.json
 
 open class JSONTokener(protected val inputJson: String) {
 
-    protected val stopChar = Character.MAX_VALUE // TODO: check if it's safe.
+    protected val stopChar = '\uFFFF'// TODO: check if it's safe.
 
     /**
      * The index of the next character to be read.
@@ -98,10 +98,10 @@ open class JSONTokener(protected val inputJson: String) {
         while (pos < inputJson.length) {
             val c = inputJson[pos++]
             if (c == quote) {
-                return if (builder == null) {
-                    String(inputJson.substring(start, pos - 1).toCharArray()) // a new string avoids memory leaks
-                } else {
-                    String(builder.append(inputJson, start, pos - 1))
+                //todo: JVM only string construction
+                return when (builder) {
+                    null -> String(inputJson.substring(start, pos - 1).toCharArray()) // a new string avoids memory leaks
+                    else -> String(builder.append(inputJson, start, pos - 1))
                 }
             }
 

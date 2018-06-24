@@ -1,10 +1,16 @@
 # Local data
 local
 
-# Maven Artifacts
-target
-
 # Intellij IDEA project files.
 .idea/
 *.iml
 
+.gradle
+build
+out
+target
+
+# Javascript
+yarn.lock
+package-lock.json
+node_modules

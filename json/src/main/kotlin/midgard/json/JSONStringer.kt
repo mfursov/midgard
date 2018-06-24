@@ -1,6 +1,6 @@
 package midgard.json
 
-open class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
+open class JSONStringer constructor(indentSpaces: Int = 0) {
 
     /* The output data, containing at most one top-level array or object. */
     protected val out = StringBuilder()
@@ -182,6 +182,7 @@ open class JSONStringer @JvmOverloads constructor(indentSpaces: Int = 0) {
                 '\r' -> out.append("\\r")
             //todo: '\f' -> out.append("\\f")
                 else -> when {
+                    //todo: JVM only
                     currentChar.toInt() <= 0x1F -> out.append(String.format("\\u%04x", currentChar.toInt()))
                     else -> out.append(currentChar)
                 }

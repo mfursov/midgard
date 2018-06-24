@@ -1,12 +1,10 @@
 package midgard.json
 
-import org.junit.Assert
 import org.junit.Test
-import java.io.IOException
+import kotlin.test.*
 
 class FileTest {
     @Test
-    @Throws(IOException::class)
     fun testFile() {
         val ref = "[\n" +
                 "  {\n" +
@@ -239,7 +237,7 @@ class FileTest {
         val x1 = JSONTokener(this.javaClass.getResource("/sample-01.json").readText()).nextValue()
         val x2 = JSONTokener(ref).nextValue()
 
-        Assert.assertTrue(jsonEquals(x1!!, x2!!))
+        assertTrue(jsonEquals(x1!!, x2!!))
     }
 
     private fun jsonEquals(x1: JSONArray, x2: JSONArray): Boolean {

@@ -2,6 +2,7 @@ package midgard.json
 
 class JSONArray {
 
+    //todo: JVM only
     private val values: ArrayList<Any?>
 
     constructor() {

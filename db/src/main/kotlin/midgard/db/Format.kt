@@ -1,6 +1,5 @@
 package midgard.db
 
-import midgard.ObjId
 import midgard.Room
 import java.io.Reader
 import java.io.Writer

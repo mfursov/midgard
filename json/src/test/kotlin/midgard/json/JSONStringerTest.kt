@@ -1,7 +1,9 @@
 package midgard.json
 
-import org.junit.Assert.*
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.fail
+
 
 class JSONStringerTest {
 
@@ -52,9 +54,9 @@ class JSONStringerTest {
     fun testValueObjectMethods() {
         val stringer = JSONStringer()
         stringer.array()
-        stringer.value(java.lang.Boolean.FALSE)
-        stringer.value(java.lang.Double.valueOf(5.0))
-        stringer.value(java.lang.Long.valueOf(5L))
+        stringer.value(false)
+        stringer.value(5.0)
+        stringer.value(5L)
         stringer.endArray()
         assertEquals("[false,5,5]", stringer.toString())
     }
@@ -106,8 +108,8 @@ class JSONStringerTest {
     fun testNumericRepresentations() {
         val stringer = JSONStringer()
         stringer.array()
-        stringer.value(java.lang.Long.MAX_VALUE)
-        stringer.value(java.lang.Double.MIN_VALUE)
+        stringer.value(Long.MAX_VALUE)
+        stringer.value(Double.MIN_VALUE)
         stringer.endArray()
         assertEquals("[9223372036854775807,4.9E-324]", stringer.toString())
     }
@@ -115,19 +117,19 @@ class JSONStringerTest {
     @Test
     fun testWeirdNumbers() {
         try {
-            JSONStringer().array().value(java.lang.Double.NaN)
+            JSONStringer().array().value(Double.NaN)
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            JSONStringer().array().value(java.lang.Double.NEGATIVE_INFINITY)
+            JSONStringer().array().value(Double.NEGATIVE_INFINITY)
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
 
         try {
-            JSONStringer().array().value(java.lang.Double.POSITIVE_INFINITY)
+            JSONStringer().array().value(Double.POSITIVE_INFINITY)
             fail()
         } catch (ignored: IllegalArgumentException) {
         }
@@ -237,12 +239,14 @@ class JSONStringerTest {
     }
 
     private fun assertEscapedAllWays(escaped: String, original: String) {
-        assertEquals("{\"$escaped\":false}",
-                JSONStringer().startObject().key(original).value(false).endObject().toString())
-        assertEquals("{\"a\":\"$escaped\"}",
-                JSONStringer().startObject().key("a").value(original).endObject().toString())
-        assertEquals("[\"$escaped\"]",
-                JSONStringer().array().value(original).endArray().toString())
+        val v1 = JSONStringer().startObject().key(original).value(false).endObject().toString()
+        assertEquals("{\"$escaped\":false}", v1)
+
+        val v2 = JSONStringer().startObject().key("a").value(original).endObject().toString()
+        assertEquals("{\"a\":\"$escaped\"}", v2)
+
+        val v3 = JSONStringer().array().value(original).endArray().toString()
+        assertEquals("[\"$escaped\"]", v3)
     }
 
     @Test

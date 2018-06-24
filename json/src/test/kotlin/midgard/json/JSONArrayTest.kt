@@ -1,10 +1,7 @@
 package midgard.json
 
-import org.junit.Assert.*
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class JSONArrayTest {
 
@@ -38,7 +35,7 @@ class JSONArrayTest {
         val a = JSONArray()
         val b = JSONArray()
         assertEquals(a, b)
-        assertEquals("equals() not consistent with hashCode()", a.hashCode(), b.hashCode())
+        assertSame(a.hashCode(), b.hashCode(), "equals() not consistent with hashCode()")
 
         a.add(true)
         a.add(false)
@@ -181,7 +178,7 @@ class JSONArrayTest {
 
         val arrElement = JSONArray()
         array.add(arrElement)
-        array.add(Integer.MIN_VALUE)
+        array.add(Int.MIN_VALUE)
         assertEquals(7, array.size())
 
         // toString() and getString(int) return different values for -0d
@@ -191,27 +188,27 @@ class JSONArrayTest {
         assertEquals(9223372036854775806L, array[1])
         assertEquals(Double.MAX_VALUE, array[2])
         assertEquals(-0.0, array[3])
-        assertEquals(Double.MIN_VALUE, array.getDouble(0), 0.0)
-        assertEquals(Double.MAX_VALUE, array.getDouble(2), 0.0)
-        assertEquals(-0.0, array.getDouble(3), 0.0)
+        assertEquals(Double.MIN_VALUE, array.getDouble(0))
+        assertEquals(Double.MAX_VALUE, array.getDouble(2))
+        assertEquals(-0.0, array.getDouble(3))
         assertEquals(9223372036854775806L, array.getLong(1))
         assertEquals(Double.MIN_VALUE, array.opt(0))
-        assertEquals(java.lang.Double.MIN_VALUE, array.optDouble(0)!!, 0.0)
+        assertEquals(Double.MIN_VALUE, array.optDouble(0)!!)
         assertEquals(objElement, array.getObject(4))
         assertEquals(arrElement, array.getArray(5))
-        assertEquals(Integer.MIN_VALUE.toLong(), array.getLong(6))
+        assertEquals(Int.MIN_VALUE.toLong(), array.getLong(6))
 
         val other = JSONArray()
-        other.add(java.lang.Double.MIN_VALUE)
+        other.add(Double.MIN_VALUE)
         other.add(9223372036854775806L)
-        other.add(java.lang.Double.MAX_VALUE)
+        other.add(Double.MAX_VALUE)
         other.add(-0.0)
         other.add(objElement)
         other.add(arrElement)
-        other.add(Integer.MIN_VALUE)
+        other.add(Int.MIN_VALUE)
         assertEquals(array, other)
         other[0] = 0L
-        other[6] = Integer.MIN_VALUE
+        other[6] = Int.MIN_VALUE
         assertNotEquals(array, other)
     }
 
@@ -235,7 +232,7 @@ class JSONArrayTest {
 
         assertTrue(array.getBoolean(0))
         assertTrue(array.optBoolean(0)!!)
-        assertEquals(5.5, array.getDouble(1), 0.0)
+        assertEquals(5.5, array.getDouble(1))
         assertEquals(9223372036854775806L, array.getLong(2))
 
         assertFalse(array.isNull(3))
@@ -302,14 +299,11 @@ class JSONArrayTest {
         assertEquals(false, o[0])
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testTokenerConstructorWrongType() {
-        JSONArray(JSONTokener("{\"foo\": false}"))
-    }
-
-    @Test(expected = NullPointerException::class)
-    fun testTokenerConstructorNull() {
-        JSONArray((null as JSONTokener?)!!)
+        assertFailsWith(IllegalArgumentException::class) {
+            JSONArray(JSONTokener("{\"foo\": false}"))
+        }
     }
 
     @Test
@@ -318,10 +312,7 @@ class JSONArrayTest {
             JSONArray(JSONTokener("["))
             fail()
         } catch (ignored: IllegalArgumentException) {
-        } catch (e: StackOverflowError) {
-            fail("Stack overflowed on input: \"[\"")
         }
-
     }
 
     @Test
@@ -341,19 +332,12 @@ class JSONArrayTest {
 
     }
 
-    @Test(expected = NullPointerException::class)
-    fun testStringConstructorNull() {
-        JSONArray((null as String?)!!)
-    }
-
     @Test
     fun testStringConstructorParseFail() {
         try {
             JSONArray("[")
             fail()
         } catch (ignored: IllegalArgumentException) {
-        } catch (e: StackOverflowError) {
-            fail("Stack overflowed on input: \"[\"")
         }
 
     }
@@ -424,9 +408,11 @@ class JSONArrayTest {
         assertTrue(a.isEmpty())
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testResizeBadRange() {
-        JSONArray().resize(-1)
+        assertFailsWith(IllegalArgumentException::class) {
+            JSONArray().resize(-1)
+        }
     }
 
     @Test
@@ -437,16 +423,19 @@ class JSONArrayTest {
         assertEquals(1L, a[0])
     }
 
-    @Test(expected = IndexOutOfBoundsException::class)
     fun testResizeNoAccess() {
-        val a = JSONArray()
-        a.resize(10)
-        a.resize(2)
-        a[3]
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            val a = JSONArray()
+            a.resize(10)
+            a.resize(2)
+            a[3]
+        }
     }
 
-    @Test(expected = NullPointerException::class)
+    @Test
     fun testGetNull() {
-        JSONArray(1).getLong(0)
+        assertFailsWith(NullPointerException::class) {
+            JSONArray(1).getLong(0)
+        }
     }
 }

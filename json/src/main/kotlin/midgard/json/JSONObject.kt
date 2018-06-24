@@ -117,4 +117,9 @@ class JSONObject {
     fun isNotEmpty() = size() > 0
 
     override fun toString() = toString(JSONStringer())
+
+    override fun equals(other: Any?) = other is JSONObject && nameValuePairs == other.nameValuePairs
+
+    override fun hashCode() = nameValuePairs.hashCode()
+
 }

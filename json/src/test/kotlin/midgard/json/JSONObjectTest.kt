@@ -1,21 +1,17 @@
 package midgard.json
 
-import org.junit.Assert
-import org.junit.Assert.*
 import org.junit.Test
-import java.util.*
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class JSONObjectTest {
 
     @Test
     fun testKeyset() {
         var x = JSONObject("{'a':1, 'b':2, 'c':3}")
-        val k = TreeSet<String>()
-        k.addAll(Arrays.asList("a", "b", "c"))
-        assertEquals(x.keySet(), k)
+        val k = listOf("a", "b", "c")
+        assertEquals(k, x.keySet().toList())
         x = JSONObject("{}")
-        assertEquals(x.keySet().size.toLong(), 0)
+        assertEquals(0, x.keySet().size.toLong())
     }
 
     @Test
@@ -81,12 +77,11 @@ class JSONObjectTest {
 
     @Test
     fun testEqualsAndHashCode() {
-        val a = JSONObject()
-        val b = JSONObject()
+        val a = JSONObject().set("x", "y")
+        val b = JSONObject().set("x", "y")
 
-        // JSON object doesn't override either equals or hashCode (!)
-        assertFalse(a == b)
-        assertEquals(a.hashCode().toLong(), System.identityHashCode(a).toLong())
+        assertTrue(a == b)
+        assertEquals(a.hashCode(), b.hashCode())
     }
 
     @Test
@@ -201,19 +196,19 @@ class JSONObjectTest {
         assertEquals(4, o.size().toLong())
 
         val toString = o.toString()
-        assertTrue(toString, toString.contains("\"foo\":4.9E-324"))
-        assertTrue(toString, toString.contains("\"bar\":9223372036854775806"))
-        assertTrue(toString, toString.contains("\"baz\":1.7976931348623157E308"))
+        assertTrue(toString.contains("\"foo\":4.9E-324"), toString)
+        assertTrue(toString.contains("\"bar\":9223372036854775806"), toString)
+        assertTrue(toString.contains("\"baz\":1.7976931348623157E308"), toString)
 
-        assertTrue(toString, toString.contains("\"quux\":-0.0}") // no trailing decimal point
-                || toString.contains("\"quux\":-0.0,"))
+        assertTrue(toString.contains("\"quux\":-0.0}") // no trailing decimal point
+                || toString.contains("\"quux\":-0.0,"), toString)
 
         assertEquals(-0.0, o.getDouble("quux"))
         assertEquals(-0.0, o["quux"])
         assertEquals(9223372036854775806L, o.optLong("bar"))
         assertEquals(9223372036854775806L, o["bar"])
         assertEquals(Double.MAX_VALUE, o.getDouble("baz"))
-        assertEquals(Double.MAX_VALUE, o.optDouble("baz")!!, 0.0)
+        assertEquals(Double.MAX_VALUE, o.optDouble("baz")!!)
         assertEquals(Double.MAX_VALUE, o["baz"])
         assertEquals(Double.MIN_VALUE, o.getDouble("foo"))
         assertEquals(Double.MIN_VALUE, o.opt("foo"))
@@ -522,7 +517,7 @@ class JSONObjectTest {
         o["bar"] = 6
         o["foo"] = 7
 
-        Assert.assertEquals(setOf("foo", "bar"), o.keySet())
+        assertEquals(setOf("foo", "bar"), o.keySet())
     }
 
     // https://code.google.com/p/android/issues/detail?id=103641
