@@ -3,18 +3,20 @@ import com.moowork.gradle.node.yarn.YarnTask
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 plugins {
-    id("kotlin2js")
+    kotlin("platform.js")
     id("com.moowork.node") version "1.2.0"
+    //id("com.liferay.node") version "4.3.3"
 }
 
 dependencies {
     compile(kotlin("stdlib-js"))
+    "expectedBy"(project(":webcommon"))
 }
 
 
 node {
-    //    download = true
-//    version = "10.5.0"
+    download = true
+    version = "10.5.0"
 }
 
 val mainSourceSet = the<JavaPluginConvention>().sourceSets["main"]!!

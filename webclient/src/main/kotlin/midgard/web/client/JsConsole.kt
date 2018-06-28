@@ -1,5 +1,6 @@
 package midgard.web.client
 
+import midgard.common.CommonData
 import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.document
@@ -69,5 +70,6 @@ fun start() {
 }
 
 fun main(args: Array<String>) {
+    val data = CommonData("hello_common_data");
     start()
 }

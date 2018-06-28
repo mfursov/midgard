@@ -22,6 +22,7 @@ dependencies {
     compile("org.koin:koin-ktor:0.9.3")
 
     compile(project(":instance"))
+    compile(project(":webcommon"))
 
     testCompile(kotlin("test"))
     testCompile("junit:junit:4.12")
