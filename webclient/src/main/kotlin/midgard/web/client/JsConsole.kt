@@ -1,10 +1,17 @@
 package midgard.web.client
 
+import kotlinx.html.a
+import kotlinx.html.div
+import kotlinx.html.dom.create
+import kotlinx.html.p
 import midgard.common.CommonData
 import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
+import react.dom.div
+import react.dom.render
 import kotlin.browser.document
 import kotlin.browser.window
+
 
 var socket: WebSocket? = null
 
@@ -55,7 +62,7 @@ fun onSend() {
 
 }
 
-fun start() {
+fun start2() {
     connect()
 
     val sendButton = document.getElementById("sendButton") as? HTMLElement ?: throw IllegalStateException("send button not found!")
@@ -71,5 +78,20 @@ fun start() {
 
 fun main(args: Array<String>) {
     val data = CommonData("hello_common_data");
-    start()
+    val myDiv = document.create.div("panel") {
+        p {
+            +"Here is "
+            a("http://kotlinlang.org") { +"official Kotlin site" }
+        }
+    }
+
+    render(document.body) {
+        div {
+            +"Hello React!"
+        }
+    }
+    document.body!!.append(myDiv)
+
+    //start()
 }
+

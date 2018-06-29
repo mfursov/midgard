@@ -12,6 +12,7 @@ allprojects {
     repositories {
         jcenter()
         maven(url = "https://dl.bintray.com/kotlin/ktor")
+        maven(url = "https://dl.bintray.com/kotlin/kotlin-js-wrappers")
     }
 }
 

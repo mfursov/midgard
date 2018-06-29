@@ -10,6 +10,10 @@ plugins {
 
 dependencies {
     compile(kotlin("stdlib-js"))
+    compile("org.jetbrains.kotlinx:kotlinx-html-js:0.6.11")
+    compile("org.jetbrains:kotlin-react:16.4.1-pre.33-kotlin-1.2.50")
+    compile("org.jetbrains:kotlin-react-dom:16.4.1-pre.33-kotlin-1.2.50")
+//    compile("org.jetbrains:kotlin-react-router-dom:16.4.1-pre.33-kotlin-1.2.50")
     "expectedBy"(project(":webcommon"))
 }
 

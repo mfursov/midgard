@@ -1,4 +1,4 @@
-const webpack = require("webpack");
+require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require("path");
 
@@ -24,6 +24,10 @@ module.exports = {
     },
     resolve: {
         modules: [
+            path.resolve(__dirname, "node_modules"),
+            path.resolve(__dirname, "node_modules/@jetbrains/kotlin-react/build/classes/main"),
+            path.resolve(__dirname, "node_modules/@jetbrains/kotlin-react-dom/build/classes/main"),
+            path.resolve(__dirname, "node_modules/@jetbrains/kotlin-extensions/build/classes/main"),
             path.resolve(__dirname, "build/resources/main/"),
             path.resolve(__dirname, "build/unpackKotlinJsStdlib/"),
             path.resolve(__dirname, "src/main/web/")

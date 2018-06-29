@@ -1,6 +1,13 @@
 {
   "name": "client",
-  "dependencies": {},
+  "dependencies": {
+    "kotlinx-html-js": "0.6.4",
+    "react": "16.4.1",
+    "react-dom": "16.4.1",
+    "@jetbrains/kotlin-extensions": "1.0.1-pre.31",
+    "@jetbrains/kotlin-react": "16.4.0-pre.31",
+    "@jetbrains/kotlin-react-dom": "16.4.0-pre.31"
+  },
   "devDependencies": {
     "browser-sync": "2.24.4",
     "browser-sync-webpack-plugin": "2.2.2",
