@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { render } from 'react-dom'
-import { WebsocketStatusView } from './page/WebsocketStatusView'
+import {render} from 'react-dom'
+import {WebsocketStatusView} from './page/WebsocketStatusView'
 
 class App extends React.Component<{}, {}> {
 
