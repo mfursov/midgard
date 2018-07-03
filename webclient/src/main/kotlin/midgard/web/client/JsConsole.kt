@@ -1,13 +1,11 @@
 package midgard.web.client
 
-import kotlinx.html.a
 import kotlinx.html.div
 import kotlinx.html.dom.create
 import kotlinx.html.p
 import midgard.common.CommonData
 import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
-import react.dom.div
 import react.dom.render
 import kotlin.browser.document
 import kotlin.browser.window
@@ -59,7 +57,6 @@ fun onSend() {
         s.send(text)
         input.value = ""
     }
-
 }
 
 fun start2() {
@@ -80,15 +77,12 @@ fun main(args: Array<String>) {
     val data = CommonData("hello_common_data");
     val myDiv = document.create.div("panel") {
         p {
-            +"Here is "
-            a("http://kotlinlang.org") { +"official Kotlin site" }
+            +"HTML Builder2"
         }
     }
 
     render(document.body) {
-        div {
-            +"Hello React!"
-        }
+        testView("Midgard")
     }
     document.body!!.append(myDiv)
 
