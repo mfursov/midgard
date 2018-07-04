@@ -1,64 +1,30 @@
-const webpack = require("webpack");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
-const path = require("path");
-
-const dist = path.resolve(__dirname, "build/dist");
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-    entry: {
-        main: "main"
-    },
+    entry: './src/site.ts',
     output: {
-        pathinfo: true,
-        filename: "[name].bundle.js",
-        path: dist,
-        publicPath: ""
-    },
-    watch: true,
-    module: {
-        rules: [{
-            test: /\.css$/,
-            use: [
-                'style-loader',
-                'css-loader'
-            ]
-        }]
+        path: __dirname + '/build/dist',
+        filename: 'js/webclient.js'
     },
     resolve: {
-        modules: [
-            path.resolve(__dirname, "build/resources/main/"),
-            path.resolve(__dirname, "build/unpackKotlinJsStdlib/"),
-            path.resolve(__dirname, "src/main/web/")
+        extensions: ['.js', '.ts', '.tsx']
+    },
+    module: {
+        rules: [
+            {test: /\.ts(x)?$/, loaders: ['babel-loader', 'ts-loader?silent=true'], exclude: /node_modules/},
+            {test: /\.css$/, loader: ExtractTextPlugin.extract('css-loader')}
         ]
     },
-    devtool: 'cheap-source-map',
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-            filename: 'vendor.bundle.js'
+        new ExtractTextPlugin({
+            filename: 'css/webclient.css',
+            allChunks: true
         }),
-        new HtmlWebpackPlugin({
-            chunks: ['vendor', 'main'],
-            chunksSortMode: 'manual',
-            minify: {
-                removeAttributeQuotes: false,
-                collapseWhitespace: false,
-                html5: false,
-                minifyCSS: false,
-                minifyJS: false,
-                minifyURLs: false,
-                removeComments: false,
-                removeEmptyAttributes: false
-            },
-            hash: false
-        }),
-        new BrowserSyncPlugin({
-            host: 'localhost',
-            port: 8080,
-            server: {
-                baseDir: ['./build/dist']
-            }
-        })
-    ]
+        new CopyWebpackPlugin([
+            // {from: 'resources'}
+        ])
+    ],
+    externals: {},
+    stats: {children: false}
 };

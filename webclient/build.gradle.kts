@@ -1,82 +1,40 @@
-import com.moowork.gradle.node.npm.NpmTask
 import com.moowork.gradle.node.yarn.YarnTask
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 plugins {
-    kotlin("platform.js")
     id("com.moowork.node") version "1.2.0"
-    //id("com.liferay.node") version "4.3.3"
+    java // to specify source/resources dirs for Intellij IDEA
 }
-
-dependencies {
-    compile(kotlin("stdlib-js"))
-    compile("org.jetbrains.kotlinx:kotlinx-html-js:0.6.11")
-    compile("org.jetbrains:kotlin-react:16.4.1-pre.33-kotlin-1.2.50")
-    compile("org.jetbrains:kotlin-react-dom:16.4.1-pre.33-kotlin-1.2.50")
-//    compile("org.jetbrains:kotlin-react-router-dom:16.4.1-pre.33-kotlin-1.2.50")
-    "expectedBy"(project(":webcommon"))
-}
-
 
 node {
     download = true
     version = "10.5.0"
 }
 
-val mainSourceSet = the<JavaPluginConvention>().sourceSets["main"]!!
+java.sourceSets {
+    getByName("main").resources.srcDirs("resources")
+    getByName("main").java.srcDirs("src")
+}
+
 tasks {
-    "compileKotlin2Js"(Kotlin2JsCompile::class) {
-        kotlinOptions {
-            outputFile = "${mainSourceSet.output.resourcesDir}/webclient.js"
-            sourceMap = true
-            moduleKind = "umd"
-        }
-    }
-
-    val unpackKotlinJsStdlib by creating {
-        group = "build"
-        description = "Unpack the Kotlin JavaScript standard library"
-        val outputDir = file("$buildDir/$name")
-        val compileClasspath = configurations["compileClasspath"]
-        inputs.property("compileClasspath", compileClasspath)
-        outputs.dir(outputDir)
-        doLast {
-            val kotlinStdLibJar = compileClasspath.single {
-                it.name.matches(Regex("kotlin-stdlib-js-.+\\.jar"))
-            }
-            copy {
-                includeEmptyDirs = false
-                from(zipTree(kotlinStdLibJar))
-                into(outputDir)
-                include("**/*.js")
-                exclude("META-INF/**")
-            }
-        }
-    }
-
-    // Copies files from src/main/resources to build/dist. These resources will be served by dev server:
-    val copyStaticResources by creating(Copy::class) {
-        from(mainSourceSet.resources)
-        into("$buildDir/dist")
-    }
-
-    val yarnInstall by creating(YarnTask::class) {
+    val nodeInstall by creating(YarnTask::class) {
         args = listOf("install")
     }
 
-    @Suppress("UNUSED_VARIABLE")
-    val run by creating(YarnTask::class) {
-        dependsOn(yarnInstall, copyStaticResources, unpackKotlinJsStdlib)
-        args = listOf("run", "start")
+    val nodeBuild by creating(YarnTask::class) {
+        dependsOn(nodeInstall)
+        args = listOf("run", "build")
     }
 
-    val jsBundle by creating(NpmTask::class) {
-        dependsOn(yarnInstall, copyStaticResources, unpackKotlinJsStdlib)
-        setArgs(listOf("run", "bundle"))
+    val nodeClean by creating(YarnTask::class) {
+        args = listOf("run", "clean")
     }
 
     "assemble" {
-        dependsOn(jsBundle)
+        dependsOn(nodeBuild)
+    }
+
+    "clean" {
+        dependsOn(nodeClean)
     }
 }
 

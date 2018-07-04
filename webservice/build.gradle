@@ -1,0 +1,43 @@
+apply plugin: "kotlin"
+apply plugin: "war"
+
+dependencies {
+    compileOnly("org.projectlombok:lombok:1.18.0")
+
+    compile("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    compile("org.apache.wicket:wicket-extensions:$wicketVersion")
+    compile("ch.qos.logback:logback-classic:1.2.3")
+
+    compile(project(":instance"))
+
+    testCompile("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testCompile("junit:junit:4.12")
+
+    runtime(project(':webclient'))
+}
+
+task assembleClientResources << {
+    project(':webclient').tasks.nodeBuild.execute()
+}
+
+assemble.dependsOn assembleClientResources
+
+war {
+    from(project(':webclient').fileTree("build/dist")) { into('/') }
+
+    // remove webclient-jar from libs dir
+    // rootSpec.exclude("**/webclient*.jar")
+    classpath = classpath.filter { file -> !file.name.startsWith('webclient-') }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+            srcDir 'src/main/java'
+        }
+    }
+}
