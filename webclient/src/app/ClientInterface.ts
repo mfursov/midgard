@@ -1,20 +1,21 @@
 /**
  * Interface used by server code to trigger client actions.
  */
-import { renderApp } from './App'
+import {renderApp} from './App'
 
 export interface InitContext {
-  appElementId: string
+    appElementId: string
 }
 
 export interface ClientInterface {
-  init(ctx: InitContext);
+    init(ctx: InitContext);
 }
 
 function init(ctx: InitContext) {
-  renderApp(ctx.appElementId)
+    console.log('init!');
+    renderApp(ctx.appElementId)
 }
 
 export default {
-  init
+    init
 } as ClientInterface

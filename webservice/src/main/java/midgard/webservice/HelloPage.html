@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--suppress HtmlUnknownTarget -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <!--suppress HtmlUnknownTarget -->
     <link rel="stylesheet" href="/css/webclient.css"/>
+    <script src="/js/react.js"></script>
+    <script src="/js/react-dom.js"></script>
+    <script src="/js/webclient.js"></script>
 </head>
 <body class="red">
-Hello Wicket3
+
+<div id="app0"></div>
+<script>
+    var e = React.createElement('div', null, 'Hello World app 0');
+    ReactDOM.render(e, document.getElementById('app0'));
+</script>
+
+
+<div id="app"></div>
+
+<script>
+    $app.init({appElementId: 'app'});
+</script>
+
 </body>
 </html>

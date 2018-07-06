@@ -10,6 +10,8 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.ts', '.tsx']
     },
+    devtool: "cheap-source-map",
+    // devtool: "nosources-source-map",
     module: {
         rules: [
             {test: /\.ts(x)?$/, loaders: ['babel-loader', 'ts-loader?silent=true'], exclude: /node_modules/},
@@ -22,9 +24,13 @@ module.exports = {
             allChunks: true
         }),
         new CopyWebpackPlugin([
-            // {from: 'resources'}
+            {from: 'node_modules/react/umd/react.development.js', to: "js/react.js"},
+            {from: 'node_modules/react-dom/umd/react-dom.development.js', to: "js/react-dom.js"}
         ])
     ],
-    externals: {},
+    externals: {
+        "react": "React",
+        "react-dom": "ReactDOM"
+    },
     stats: {children: false}
 };
