@@ -25,12 +25,16 @@ module.exports = {
         }),
         new CopyWebpackPlugin([
             {from: 'node_modules/react/umd/react.development.js', to: "js/react.js"},
-            {from: 'node_modules/react-dom/umd/react-dom.development.js', to: "js/react-dom.js"}
+            {from: 'node_modules/react-dom/umd/react-dom.development.js', to: "js/react-dom.js"},
+            {from: 'node_modules/react-redux/dist/react-redux.js', to: "js/react-redux.js"},
+            {from: 'node_modules/redux/dist/redux.js', to: "js/redux.js"}
         ])
     ],
     externals: {
         "react": "React",
-        "react-dom": "ReactDOM"
+        "react-dom": "ReactDOM",
+        "react-redux": "ReactRedux",
+        "redux": "Redux",
     },
     stats: {children: false}
 };
