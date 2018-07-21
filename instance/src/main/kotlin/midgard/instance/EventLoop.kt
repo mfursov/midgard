@@ -22,12 +22,12 @@ class EventLoop : KoinComponent {
             if (mainThread != null) {
                 throw IllegalStateException("Already started")
             }
-            val thread = Thread({
+            val thread = Thread {
                 while (mainThread != null) {
                     tick(world)
-                    Thread.sleep(100)
+                    Thread.sleep(1000)
                 }
-            })
+            }
             mainThread = thread
             thread.start()
         }

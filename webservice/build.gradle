@@ -8,6 +8,9 @@ dependencies {
     compile("org.apache.wicket:wicket-extensions:$wicketVersion")
     compile("ch.qos.logback:logback-classic:1.2.3")
 
+    providedRuntime("javax.websocket:javax.websocket-api:1.1")
+    providedRuntime("javax.servlet:javax.servlet-api:3.1.0")
+
     compile(project(":instance"))
 
     testCompile("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
