@@ -1,5 +1,6 @@
 package midgard.webservice
 
+import midgard.json.JSONObject
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import javax.websocket.CloseReason
@@ -11,16 +12,16 @@ class MidgardWsEndpoint : Endpoint(), KoinComponent {
 
     private val wsInterface by inject<WsInterface>()
 
+
     override fun onOpen(session: Session, config: EndpointConfig) {
         println("Open Connection: $session")
         wsInterface.onOpen(session)
-        //session.addMessageHandler(String::class.java) { message -> this@MidgardWsEndpoint.onMessage(message, session) }
-    }
 
-//    private fun onMessage(message: String, session: Session) {
-//        println("Message from the client: $message, session: $session")
-//        session.basicRemote.sendText("Echo from the server : $message")
-//    }
+        session.addMessageHandler(String::class.java) { message ->
+            println("Message from the client: $message, session: $session")
+            this@MidgardWsEndpoint.wsInterface.addIncomingMessage(session, JSONObject(message))
+        }
+    }
 
     override fun onClose(session: Session, closeReason: CloseReason) {
         println("Close Connection: $session")
@@ -29,7 +30,6 @@ class MidgardWsEndpoint : Endpoint(), KoinComponent {
 
 
     override fun onError(session: Session, e: Throwable) {
-        //todo:
         e.printStackTrace()
     }
 }

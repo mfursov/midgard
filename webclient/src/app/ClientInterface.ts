@@ -1,7 +1,7 @@
 /**
  * Interface used by server code to trigger client actions.
  */
-import {renderApp} from "./App"
+import {startApp} from "./App"
 
 export interface InitContext {
     appElementId: string
@@ -12,7 +12,7 @@ export interface ClientInterface {
 }
 
 function init(ctx: InitContext) {
-    renderApp(ctx.appElementId)
+    startApp(ctx.appElementId)
 }
 
 export default {

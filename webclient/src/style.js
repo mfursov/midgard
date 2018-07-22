@@ -1,1 +1,1 @@
-require('./../resources/css/test.css');
+require('../resources/css/midgard.css');

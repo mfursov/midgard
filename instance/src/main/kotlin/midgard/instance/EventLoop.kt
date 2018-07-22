@@ -66,7 +66,13 @@ class EventLoop : KoinComponent {
     private fun processPendingEvents() {
         while (!world.events.isEmpty()) {
             val event = world.events.removeAt(0)
-            programs.forEach { it.onEvent(event, world) }
+            programs.forEach {
+                try {
+                    it.onEvent(event, world)
+                } catch (e: Exception) {
+                    e.printStackTrace()//todo:
+                }
+            }
         }
     }
 }
