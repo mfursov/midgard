@@ -17,7 +17,7 @@ class WalkActionHandler : ActionHandler<WalkAction> {
 
     override fun handleAction(action: WalkAction, world: World) {
         val char = world.characters[action.charId] ?: throw IllegalStateException("Character not found: ${action.charId}")
-        val place = world.rooms[char.roomId] ?: throw IllegalStateException("Character place is not found: ${action.charId}, place: ${char.roomId}")
+        val place = world.rooms[char.roomId] ?: throw IllegalStateException("Room not found: ${action.charId}, place: ${char.roomId}")
         val exit = place.exits[action.direction] ?: return
         char.roomId = exit.to
         world.events.add(CharacterLeavesEvent(action.charId, place.id, action.direction))

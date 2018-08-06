@@ -1,9 +1,0 @@
-{
-  "id": "room-1",
-  "name": "room-1-name",
-  "exits": {
-    "n": {
-      "to": "room-2"
-    }
-  }
-}

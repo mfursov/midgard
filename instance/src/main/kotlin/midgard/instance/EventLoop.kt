@@ -59,7 +59,11 @@ class EventLoop : KoinComponent {
         actions.forEach {
             val actionType = it::class
             val actionHandler = actionHandlers[actionType] ?: throw RuntimeException("Action has no handler: $actionType")
-            actionHandler.handleAction(it, world)
+            try {
+                actionHandler.handleAction(it, world)
+            } catch (e: Exception) {
+                println(e)
+            }
         }
     }
 

@@ -5,10 +5,14 @@ import * as ReactRedux from "react-redux"
 import {RoomInfo} from "../reducer/ServerStateReducer"
 import {Dispatch} from "redux"
 import {ServerInterface} from "../ServerInterface"
-import * as Hammer from "hammerjs"
+import {GestureRecognizerBinder} from "../util/GestureRecognizerBinder"
+import {SimpleSwipeRecognizer} from "../util/SimpleSwipeRecognizer"
+import {DollarRecognizer} from "../util/DollarRecognizer"
+import {Rect} from "../reducer/UiStateReducer"
 
 type StateProps = {
-    room: RoomInfo
+    room: RoomInfo,
+    rect: Rect
 }
 
 type DispatchProps = {
@@ -18,14 +22,27 @@ type DispatchProps = {
 type OwnProps = {
     server: ServerInterface
 }
+type AllProps = StateProps & OwnProps & DispatchProps
 
-class RoomView extends React.Component<StateProps & OwnProps & DispatchProps, {}> {
-    hammer: any
+class RoomView extends React.Component<AllProps, {}> {
     domElement: HTMLElement
+    gesturesBinder: GestureRecognizerBinder
+
+    constructor(props: AllProps, state: any) {
+        super(props, state)
+        this.gesturesBinder = new GestureRecognizerBinder([new SimpleSwipeRecognizer(), new DollarRecognizer()])
+    }
 
     render(): React.ReactNode {
         return (
-            <div ref={ref => this.domElement = ref} className="room-view">
+            <div ref={ref => this.domElement = ref} className="room-view" style={
+                {
+                    left: this.props.rect.x,
+                    top: this.props.rect.y,
+                    width: this.props.rect.width,
+                    height: this.props.rect.height
+                }
+            }>
                 <div>Room: {this.props.room.name}</div>
                 <div>Exits:</div>
                 {
@@ -46,20 +63,11 @@ class RoomView extends React.Component<StateProps & OwnProps & DispatchProps, {}
     }
 
     componentDidMount() {
-        const options = {}
-        const hammer = new Hammer(this.domElement, options)
-        hammer.get("swipe").set({direction: Hammer.DIRECTION_ALL})
-        hammer.on("swipe", () => console.log("swipe!"))
-
-        this.hammer = hammer
+        this.gesturesBinder.attach(this.domElement, eventName => console.log("gesture: " + eventName))
     }
 
     componentWillUnmount() {
-        if (this.hammer) {
-            this.hammer.stop()
-            this.hammer.destroy()
-        }
-        this.hammer = null
+        this.gesturesBinder.detach(this.domElement)
     }
 }
 
@@ -70,7 +78,10 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
 }
 
 function mapStateToProps(state: AppStore): StateProps {
-    return {room: state.serverState.room}
+    return {
+        room: state.serverState.room,
+        rect: state.uiState.roomView.rect
+    }
 }
 
 export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(RoomView) as React.ComponentClass<OwnProps>

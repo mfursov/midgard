@@ -1,22 +1,14 @@
 import {AnyAction, combineReducers, Store} from "redux"
 import {ServerState, serverStateReducer} from "./reducer/ServerStateReducer"
+import {UiState, uiStateReducer} from "./reducer/UiStateReducer"
 
-interface State2 {
-    s: string
-}
 
 export interface AppStore extends Store<any, AnyAction> {
     serverState: ServerState;
-    state2: State2;
-}
-
-const initialState2: State2 = {s: "2"}
-
-function reducer2(state: State2 = initialState2, action: any): State2 {
-    return state
+    uiState: UiState;
 }
 
 export default combineReducers({
     serverState: serverStateReducer,
-    state2: reducer2
+    uiState: uiStateReducer
 })

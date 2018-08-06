@@ -1,5 +1,11 @@
 .room-view {
-    width: 400px;
-    height: 400px;
-    background-color: #ddd;
+    position: fixed;
+    background-color: #333;
+    color: white;
+}
+
+.status-view {
+    position: fixed;
+    background-color: black;
+    color: #ccc;
 }

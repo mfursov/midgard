@@ -7,6 +7,7 @@ import {createStore} from "redux"
 import {newServerStateUpdateAction, ServerState} from "./reducer/ServerStateReducer"
 import RoomView from "./view/RoomView"
 import server from "./ServerInterface"
+import {newUiStateUpdateAction} from "./reducer/UiStateReducer"
 
 class App extends React.Component<{}, {}> {
 
@@ -34,7 +35,14 @@ export function startApp(elementId: string) {
         document.getElementById(elementId)
     )
 
+    initUiState()
     startWebSocketInterface()
+}
+
+function initUiState() {
+    window.addEventListener("resize", function () {
+        store.dispatch(newUiStateUpdateAction())
+    })
 }
 
 function startWebSocketInterface() {

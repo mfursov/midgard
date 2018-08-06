@@ -15,7 +15,7 @@ public class MidgardWebApplication extends WebApplication {
 
     @Override
     public Class<? extends Page> getHomePage() {
-        return HelloPage.class;
+        return AppPage.class;
     }
 
     protected void onDestroy() {
