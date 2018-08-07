@@ -9,3 +9,16 @@
     background-color: black;
     color: #ccc;
 }
+
+.room-exits-block {
+    bottom: 5px;
+    position: absolute;
+    white-space: nowrap;
+    margin: 0 auto;
+    transform: translate(-50%, -50%);
+    left: 50%;
+}
+
+.room-exit {
+    color: #c3a41b;
+}

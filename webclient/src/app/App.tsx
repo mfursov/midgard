@@ -62,7 +62,7 @@ function startWebSocketInterface() {
     }
 
     socket.onmessage = function (event: MessageEvent) {
-        console.log("onmessage: " + event.data)
+        // console.log("onmessage: " + event.data)
         const state: ServerState = JSON.parse(event.data) as ServerState
         const action = newServerStateUpdateAction(state)
         store.dispatch(action)

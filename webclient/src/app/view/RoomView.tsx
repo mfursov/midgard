@@ -43,21 +43,24 @@ class RoomView extends React.Component<AllProps, {}> {
                     height: this.props.rect.height
                 }
             }>
-                <div>Room: {this.props.room.name}</div>
-                <div>Exits:</div>
-                {
-                    this.props.room.exits.map(exitInfo => {
-                        return (
-                            <div key={`exit-${exitInfo.direction}`}>
-                                <a href="#" onClick={(e: MouseEvent) => {
-                                    e.preventDefault()
-                                    this.props.server.move(exitInfo.direction)
-                                }}>
-                                    {`${exitInfo.direction} to ${exitInfo.name}`}
-                                </a>
-                            </div>)
-                    })
-                }
+                <div style={{textAlign: "center"}}>{this.props.room.name}</div>
+                <div className="room-exits-block">
+                    {
+                        this.props.room.exits.map(exitInfo => {
+                            return (
+                                <span key={`exit-${exitInfo.direction}`} style={{marginLeft: 5}}>
+                                    <a href="#"
+                                       className="room-exit"
+                                       onClick={(e: MouseEvent) => {
+                                           e.preventDefault()
+                                           this.props.server.move(exitInfo.direction)
+                                       }}>
+                                        {exitInfo.name}
+                                    </a>
+                                </span>)
+                        })
+                    }
+                </div>
             </div>
         )
     }

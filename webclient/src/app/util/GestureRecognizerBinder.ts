@@ -9,10 +9,10 @@ export class GestureRecognizerBinder {
     constructor(recognizers: GestureRecognizer[], key: string = "gr-" + (++keyGen)) {
         this.key = key
         this.recognizers = recognizers
-        this.pointerDownEvent.bind(this)
-        this.pointerMoveEvent.bind(this)
-        this.pointerUpEvent.bind(this)
-        this.resizeEvent.bind(this)
+        this.pointerDownEvent = this.pointerDownEvent.bind(this)
+        this.pointerMoveEvent = this.pointerMoveEvent.bind(this)
+        this.pointerUpEvent = this.pointerUpEvent.bind(this)
+        this.resizeEvent = this.resizeEvent.bind(this)
     }
 
     attach(e: HTMLElement, callback: (eventName: string) => void) {
@@ -67,7 +67,7 @@ export class GestureRecognizerBinder {
         })
     }
 
-    private pointerUpEvent(e: MouseEvent | TouchEvent) {
+    private pointerUpEvent(e: Event) {
         const d = this.getGrData(e.target as HTMLElement)
         if (!d || d.points.length == 0) {
             return
@@ -76,8 +76,11 @@ export class GestureRecognizerBinder {
         const trace: GrTrace = {rect, points: d.points, millis: 0} //todo:
         let result = null
         for (let i = 0; i < this.recognizers.length; i++) {
+            console.log("recognize: " + i)
+
             result = this.recognizers[i].recognize(trace)
             if (result != null) {
+                console.log("result: " + result.name)
                 d.callback(result.name)
                 break
             }
@@ -85,7 +88,7 @@ export class GestureRecognizerBinder {
         d.points = []
     }
 
-    private resizeEvent(e: UIEvent) {
+    private resizeEvent(e: Event) {
         const element = e.target as HTMLElement
         const callback = this.getGrData(element).callback
         this.detach(element)
