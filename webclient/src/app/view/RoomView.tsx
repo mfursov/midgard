@@ -7,7 +7,7 @@ import {Dispatch} from "redux"
 import {ServerInterface} from "../ServerInterface"
 import {GestureRecognizerBinder} from "../util/GestureRecognizerBinder"
 import {SimpleSwipeRecognizer} from "../util/SimpleSwipeRecognizer"
-import {DollarRecognizer} from "../util/DollarRecognizer"
+import {DollarRecognizer, Stroke} from "../util/DollarRecognizer"
 import {Rect} from "../reducer/UiStateReducer"
 
 type StateProps = {
@@ -30,7 +30,10 @@ class RoomView extends React.Component<AllProps, {}> {
 
     constructor(props: AllProps, state: any) {
         super(props, state)
-        this.gesturesBinder = new GestureRecognizerBinder([new SimpleSwipeRecognizer(), new DollarRecognizer()])
+        this.gesturesBinder = new GestureRecognizerBinder([
+            new SimpleSwipeRecognizer(),
+            new DollarRecognizer([Stroke.V, Stroke.Circle])
+        ])
     }
 
     render(): React.ReactNode {

@@ -231,7 +231,7 @@ export class DollarRecognizer implements GestureRecognizer {
         if (trace.points.length < 10) {
             return null
         }
-        const strokes = ALL_STROKES.filter(s => this.strokes.indexOf(s.name) > 0)
+        const strokes = ALL_STROKES.filter(s => this.strokes.indexOf(s.name) >= 0)
         if (strokes.length == 0) {
             return null
         }
@@ -242,7 +242,7 @@ export class DollarRecognizer implements GestureRecognizer {
             const stroke = strokes[i]
             const distance = distanceAtBestAngle(points, stroke, -ANGLE_RANGE, +ANGLE_RANGE, ANGLE_PRECISION)
             const score = 1.0 - distance / HALF_DIAGONAL // best (least) distance
-            if (score < bestScore) {
+            if (score > bestScore) {
                 bestScore = score
                 bestStroke = stroke
             }

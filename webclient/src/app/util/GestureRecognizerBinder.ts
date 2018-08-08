@@ -22,7 +22,7 @@ export class GestureRecognizerBinder {
         e.addEventListener("mouseup", this.pointerUpEvent)
         e.addEventListener("touchstart", this.pointerDownEvent)
         e.addEventListener("touchmove", this.pointerMoveEvent)
-        e.addEventListener("touchup", this.pointerUpEvent)
+        e.addEventListener("touchend", this.pointerUpEvent)
         e.addEventListener("resizeEvent", this.resizeEvent)
     }
 
@@ -32,7 +32,7 @@ export class GestureRecognizerBinder {
         e.removeEventListener("mouseup", this.pointerUpEvent)
         e.removeEventListener("touchstart", this.pointerDownEvent)
         e.removeEventListener("touchmove", this.pointerMoveEvent)
-        e.removeEventListener("touchup", this.pointerUpEvent)
+        e.removeEventListener("touchend", this.pointerUpEvent)
         e.removeEventListener("resizeEvent", this.resizeEvent)
         e[this.key] = {points: [], callback: null} as GrData
     }
@@ -76,11 +76,8 @@ export class GestureRecognizerBinder {
         const trace: GrTrace = {rect, points: d.points, millis: 0} //todo:
         let result = null
         for (let i = 0; i < this.recognizers.length; i++) {
-            console.log("recognize: " + i)
-
             result = this.recognizers[i].recognize(trace)
             if (result != null) {
-                console.log("result: " + result.name)
                 d.callback(result.name)
                 break
             }
