@@ -2,11 +2,11 @@ import * as React from "react"
 import {MouseEvent} from "react"
 import {AppStore} from "../Reducer"
 import * as ReactRedux from "react-redux"
-import {RoomInfo} from "../reducer/ServerStateReducer"
+import {ExitDirection, RoomInfo} from "../reducer/ServerStateReducer"
 import {Dispatch} from "redux"
 import {ServerInterface} from "../ServerInterface"
 import {GestureRecognizerBinder} from "../util/GestureRecognizerBinder"
-import {SimpleSwipeRecognizer} from "../util/SimpleSwipeRecognizer"
+import {SimpleSwipeRecognizer, Swipe} from "../util/SimpleSwipeRecognizer"
 import {DollarRecognizer, Stroke} from "../util/DollarRecognizer"
 import {Rect} from "../reducer/UiStateReducer"
 
@@ -69,7 +69,23 @@ class RoomView extends React.Component<AllProps, {}> {
     }
 
     componentDidMount() {
-        this.gesturesBinder.attach(this.domElement, eventName => console.log("gesture: " + eventName))
+        this.gesturesBinder.attach(this.domElement, eventName => {
+            console.log("gesture: " + eventName)
+            alert("Gesture: " + eventName)
+            let direction = null
+            if (eventName === Swipe.Up) {
+                direction = ExitDirection.North
+            } else if (eventName == Swipe.Down) {
+                direction = ExitDirection.South
+            } else if (eventName == Swipe.Left) {
+                direction = ExitDirection.West
+            } else if (eventName == Swipe.Right) {
+                direction = ExitDirection.East
+            }
+            if (direction != null) {
+                this.props.server.move(direction)
+            }
+        })
     }
 
     componentWillUnmount() {
