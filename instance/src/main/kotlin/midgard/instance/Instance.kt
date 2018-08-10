@@ -48,7 +48,7 @@ val instanceModule = applicationContext {
                 tick = 0L)
         )
     }
-    bean { EventLoop() }
+    bean { EventLoop(millisPerTick = 750) }
     bean { buildActionHandlers() }
     bean { instancePrograms() }
     bean { EventIdGenerator() }

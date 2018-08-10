@@ -8,6 +8,7 @@ import {newServerStateUpdateAction, ServerState} from "./reducer/ServerStateRedu
 import RoomView from "./view/RoomView"
 import server from "./ServerInterface"
 import {newUiStateUpdateAction} from "./reducer/UiStateReducer"
+import DebugView from "./view/DebugView"
 
 class App extends React.Component<{}, {}> {
 
@@ -16,6 +17,7 @@ class App extends React.Component<{}, {}> {
             <div>
                 <RoomView server={server}/>
                 <StatusView/>
+                <DebugView/>
             </div>
         )
     }

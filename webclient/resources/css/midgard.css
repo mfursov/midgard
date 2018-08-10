@@ -2,6 +2,7 @@
     position: fixed;
     background-color: #333;
     color: white;
+    overscroll-behavior: none;
 }
 
 .status-view {
@@ -21,4 +22,10 @@
 
 .room-exit {
     color: #c3a41b;
+}
+
+.debug-view {
+    position: fixed;
+    background-color: #333333;
+    color: white;
 }

@@ -9,6 +9,7 @@ import {GestureRecognizerBinder} from "../util/GestureRecognizerBinder"
 import {SimpleSwipeRecognizer, Swipe} from "../util/SimpleSwipeRecognizer"
 import {DollarRecognizer, Stroke} from "../util/DollarRecognizer"
 import {Rect} from "../reducer/UiStateReducer"
+import {newDebugMessage} from "../reducer/DebugStateReducer"
 
 type StateProps = {
     room: RoomInfo,
@@ -16,7 +17,7 @@ type StateProps = {
 }
 
 type DispatchProps = {
-    // move: (direction: ExitDirection) => void
+    debug: (message: string) => void
 }
 
 type OwnProps = {
@@ -71,7 +72,7 @@ class RoomView extends React.Component<AllProps, {}> {
     componentDidMount() {
         this.gesturesBinder.attach(this.domElement, eventName => {
             console.log("gesture: " + eventName)
-            alert("Gesture: " + eventName)
+            this.props.debug("Gesture: " + eventName)
             let direction = null
             if (eventName === Swipe.Up) {
                 direction = ExitDirection.North
@@ -93,10 +94,10 @@ class RoomView extends React.Component<AllProps, {}> {
     }
 }
 
-// noinspection JSUnusedLocalSymbols
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
-    return {}
-    // return {move: (direction => dispatch({type: "x:" + direction}))}//todo:
+    return {
+        debug: message => dispatch(newDebugMessage(message))
+    }
 }
 
 function mapStateToProps(state: AppStore): StateProps {

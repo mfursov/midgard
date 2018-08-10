@@ -9,7 +9,7 @@ import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import kotlin.reflect.KClass
 
-class EventLoop : KoinComponent {
+class EventLoop(val millisPerTick: Long) : KoinComponent {
 
     private var mainThread: Thread? = null
     private val world by inject<World>()
@@ -25,7 +25,7 @@ class EventLoop : KoinComponent {
             val thread = Thread {
                 while (mainThread != null) {
                     tick(world)
-                    Thread.sleep(1000)
+                    Thread.sleep(millisPerTick)
                 }
             }
             mainThread = thread

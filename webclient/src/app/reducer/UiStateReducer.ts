@@ -15,11 +15,15 @@ export interface UiState {
     statusView: {
         rect: Rect
     }
+    debugView: {
+        rect: Rect
+    }
 }
 
 function buildCurrentUiState(): UiState {
     const statusViewHeight = 50
-    const roomViewHeight = window.innerHeight - statusViewHeight
+    const debugViewHeight = 50
+    const roomViewHeight = window.innerHeight - statusViewHeight - debugViewHeight
     return {
         roomView: {
             rect: {
@@ -34,6 +38,14 @@ function buildCurrentUiState(): UiState {
                 x: 0,
                 y: roomViewHeight,
                 height: statusViewHeight,
+                width: window.innerWidth
+            }
+        },
+        debugView: {
+            rect: {
+                x: 0,
+                y: roomViewHeight + statusViewHeight,
+                height: debugViewHeight,
                 width: window.innerWidth
             }
         }
