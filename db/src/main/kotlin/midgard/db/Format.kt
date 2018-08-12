@@ -5,6 +5,6 @@ import java.io.Reader
 import java.io.Writer
 
 interface Format {
-    fun readRoom(reader: Reader): Room
-    fun writeRoom(room: Room, w: Writer)
+    fun readRooms(reader: Reader): List<Room>
+//    fun writeRoom(room: Room, w: Writer)
 }

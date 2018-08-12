@@ -5,20 +5,25 @@ import midgard.Id
 import midgard.Obj
 import midgard.Room
 import java.io.File
+import java.io.FileFilter
 import java.io.FileReader
-import java.io.FileWriter
 
 class LocalStore(val dataDir: String, val format: Format) : Store {
 
-    override fun loadRooms() = File("$dataDir/rooms").listFiles().map {
-        FileReader(it).use { format.readRoom(it) }
-    }
+    override fun loadRooms() = File("$dataDir/area")
+            .listFiles(FileFilter { it.name.endsWith(".json") })
+            .map { areaFile ->
+                FileReader(areaFile).use { reader ->
+                    format.readRooms(reader)
+                }
+            }
+            .flatMap { it }
 
     override fun saveRooms(rooms: Collection<Room>) {
-        rooms.forEach { room ->
-            FileWriter(File("$dataDir/rooms/${room.id.id}.json"))
-                    .use { format.writeRoom(room, it) }
-        }
+//        rooms.forEach { room ->
+//            FileWriter(File("$dataDir/rooms/${room.id.id}.json"))
+//                    .use { format.writeRoom(room, it) }
+//        }
     }
 
     override fun loadCharacters(): List<Character> {

@@ -2,7 +2,6 @@
     position: fixed;
     background-color: #333;
     color: white;
-    overscroll-behavior: none;
 }
 
 .status-view {
