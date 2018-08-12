@@ -28,3 +28,7 @@
     background-color: #333333;
     color: white;
 }
+
+.debug-view pre {
+    margin: 0;
+}
