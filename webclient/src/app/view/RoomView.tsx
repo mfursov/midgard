@@ -10,6 +10,7 @@ import {SimpleSwipeRecognizer, Swipe} from "../util/SimpleSwipeRecognizer"
 import {DollarRecognizer, Stroke} from "../util/DollarRecognizer"
 import {Rect} from "../reducer/UiStateReducer"
 import {newDebugMessage} from "../reducer/DebugStateReducer"
+import {animateTrail} from "../effect/Trail"
 
 type StateProps = {
     room: RoomInfo,
@@ -86,6 +87,10 @@ class RoomView extends React.Component<AllProps, {}> {
             if (direction != null) {
                 this.props.server.move(direction)
             }
+        }, {
+            onStart: (x, y) => animateTrail(x, y),
+            onMove: (x, y) => animateTrail(x, y),
+            onEnd: (x, y) => animateTrail(x, y)
         })
     }
 
